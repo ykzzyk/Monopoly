@@ -8,8 +8,8 @@ from kivy.core.window import Window
 class MonopolyApp(App):
 
     def build(self):
-        self.title = 'Monopoly - The Computer Science Edition'
         Window.fullscreen = 'auto'
+        self.title = 'Monopoly - The Computer Science Edition'
         return GUI.HomeScreen.HomeScreen()
 
 
