@@ -47,4 +47,4 @@ class Feedback(GridLayout, Screen):
         self.app.screen_manager.switch_to(GUI.HomeScreen.HomeScreen(name='home_screen'))
 
     def open_browser(self, event):
-        webbrowser.open("mailto:yzhang5@mail.stmarytx.edu")
+        webbrowser.open("mailto:yzhang5@mail.stmarytx.edu", new=1)

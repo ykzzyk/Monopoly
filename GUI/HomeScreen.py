@@ -18,27 +18,27 @@ class HomeScreen(GridLayout, Screen):
         self.app = App.get_running_app()
 
         self.rows = 8
-        self.spacing = [0, 120]
-        self.padding = [1000, 100, 1000, 50]
+        self.spacing = [0, self.app.width/24]
+        self.padding = [self.app.width/2.88, self.app.width/28.8, self.app.width/2.88, self.app.width/57.6]
 
         self.add_widget(
-            Label(text='[b][color=#FF7F00]Monopoly[/color][/b]', font_size=300, color=[1, 1, 1, 1], markup=True))
+            Label(text='[b][color=#FF7F00]Monopoly[/color][/b]', font_size=self.app.width/9.6, color=[1, 1, 1, 1], markup=True))
         self.add_widget(
-            Label(text='[b][color=#FFB533]The Computer Science Edition[/color][/b]', font_size=50, color=[1, 1, 1, 1],
+            Label(text='[b][color=#FFB533]The Computer Science Edition[/color][/b]', font_size=self.app.width/57.6, color=[1, 1, 1, 1],
                   markup=True))
 
         self.button_play_locally = Button(text='[b]Play Locally[/b]',
-                                          font_size=50,
+                                          font_size=self.app.width/57.6,
                                           markup=True,
                                           on_press=self.game_lobby_page)
         self.add_widget(self.button_play_locally)
-        self.button_play_lan = Button(text='[b]Play LAN[/b]', font_size=50, markup=True, on_press=self.game_lobby_page)
+        self.button_play_lan = Button(text='[b]Play LAN[/b]', font_size=self.app.width/57.6, markup=True, on_press=self.game_lobby_page)
         self.add_widget(self.button_play_lan)
-        self.button_play_online = Button(text='[b]Play Online[/b]', font_size=50, markup=True, on_press=self.game_lobby_page)
+        self.button_play_online = Button(text='[b]Play Online[/b]', font_size=self.app.width/57.6, markup=True, on_press=self.game_lobby_page)
         self.add_widget(self.button_play_online)
-        self.button_options = Button(text='[b]Options[/b]', font_size=50, markup=True, on_press=self.game_lobby_page)
+        self.button_options = Button(text='[b]Options[/b]', font_size=self.app.width/57.6, markup=True, on_press=self.game_lobby_page)
         self.add_widget(self.button_options)
-        self.button_help = Button(text='[b]Help & Feedback[/b]', font_size=50, markup=True, on_press=self.feedback_page)
+        self.button_help = Button(text='[b]Help & Feedback[/b]', font_size=self.app.width/57.6, markup=True, on_press=self.feedback_page)
         self.add_widget(self.button_help)
 
     def game_lobby_page(self, event):
