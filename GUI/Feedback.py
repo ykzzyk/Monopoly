@@ -17,28 +17,28 @@ class Feedback(GridLayout, Screen):
         self.app = App.get_running_app()
 
         self.rows = 3
-        self.padding = [400, 0, 400, 0]
+        self.padding = [self.app.width/7.2, 0, self.app.width/7.2, 0]
 
-        self.add_widget(Label(text='[b][color=#FF7F00]Help & Feedback[/color][/b]', font_size=100, color=[1, 1, 1, 1],
+        self.add_widget(Label(text='[b][color=#FF7F00]Help & Feedback[/color][/b]', font_size=self.app.width/28.8, color=[1, 1, 1, 1],
                               markup=True, size_hint_y=0.5))
 
         # Middle Design
 
         self.add_widget(
-            Button(text='[b][color=#FFB533]TEXT[/color][/b]', font_size=50, color=[1, 1, 1, 1],
+            Button(text='[b][color=#FFB533]TEXT[/color][/b]', font_size=self.app.width/57.6, color=[1, 1, 1, 1],
                   markup=True, size_hint_y=3.5))
 
 
         # Buttom Design
         self.buttom = GridLayout(cols=2)
 
-        self.buttom.padding = [400, 100, 400, 150]
-        self.buttom.spacing = [350, 0]
+        self.buttom.padding = [self.app.width/7.2, 100, self.app.width/7.2, 150]
+        self.buttom.spacing = [self.app.width/8.5, 0]
 
-        self.button_back = Button(text='[b]Back[/b]', font_size=50, markup=True, on_press=self.home_screen_page)
+        self.button_back = Button(text='[b]Back[/b]', font_size=self.app.width/57.6, markup=True, on_press=self.home_screen_page)
         self.buttom.add_widget(self.button_back)
 
-        self.button_contact = Button(text='[b]Contact Us[/b]', font_size=50, markup=True, on_press=self.open_browser)
+        self.button_contact = Button(text='[b]Contact Us[/b]', font_size=self.app.width/57.6, markup=True, on_press=self.open_browser)
         self.buttom.add_widget(self.button_contact)
 
         self.add_widget(self.buttom)
