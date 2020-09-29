@@ -32,7 +32,7 @@ class Feedback(GridLayout, Screen):
         # Buttom Design
         self.buttom = GridLayout(cols=2)
 
-        self.buttom.padding = [self.app.width/7.2, 100, self.app.width/7.2, 150]
+        self.buttom.padding = [self.app.width/7.2, 100, self.app.width/28.8.app.width/7.2, self.app.width/19.2]
         self.buttom.spacing = [self.app.width/8.5, 0]
 
         self.button_back = Button(text='[b]Back[/b]', font_size=self.app.width/57.6, markup=True, on_press=self.home_screen_page)
