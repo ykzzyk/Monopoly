@@ -28,5 +28,4 @@ class MonopolyApp(App):
 
 
 if __name__ == '__main__':
-
     MonopolyApp().run()
