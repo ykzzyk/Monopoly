@@ -1,11 +1,12 @@
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.core.window import Window
-from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 
 import GUI.HomeScreen
 import GUI.GameLobby
 import GUI.GameBoard
+import GUI.Feedback
 
 import Util.util
 
@@ -18,15 +19,10 @@ class MonopolyApp(App):
         self.width = Window.width
         self.height = Window.height
 
-        self.screen_manager = ScreenManager()
+        self.screen_manager = ScreenManager(transition=NoTransition())
         self.screen_manager.add_widget(GUI.HomeScreen.HomeScreen(name='home_screen'))
         self.screen_manager.add_widget(GUI.GameLobby.GameLobby(name='game_lobby'))
-        self.screen_manager.add_widget(GUI.GameBoard.GameBoard(name='game_board'))
-
-        # screens = [Screen(name='home_screen'), Screen(name='game_lobby'), Screen(name='game_board')]
-        #
-        # screen_manager.switch_to(screens[0])
-        # screen_manager.switch_to(screens[1], direction='right')
+        self.screen_manager.add_widget(GUI.Feedback.Feedback(name='feedback'))
 
         return self.screen_manager
 
