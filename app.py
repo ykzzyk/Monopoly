@@ -2,7 +2,6 @@ from kivy.app import App
 from kivy.uix.label import Label
 from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
-from kivy.config import Config
 
 import GUI.HomeScreen
 import GUI.GameLobby
@@ -15,7 +14,7 @@ import Util.util
 class MonopolyApp(App):
 
     def build(self):
-        # Window.fullscreen = 'auto'
+        Window.fullscreen = 'auto'
         self.title = 'Monopoly - The Computer Science Edition'
         self.width = Window.width
         self.height = Window.height
