@@ -24,11 +24,11 @@ class GameBoard(GridLayout, Screen):
         self.info = GridLayout(rows=2)
 
         self.info.add_widget(
-            Button(text='[b][color=#FFB533]Players Information[/color][/b]', font_size=50, color=[1, 1, 1, 1],
+            Button(text='[b][color=#FFB533]Players Information[/color][/b]', font_size=self.app.width/57.6, color=[1, 1, 1, 1],
                    markup=True))
 
         self.info.add_widget(
-            Button(text='[b][color=#FFB533]History[/color][/b]', font_size=50, color=[1, 1, 1, 1],
+            Button(text='[b][color=#FFB533]History[/color][/b]', font_size=self.app.width/57.6, color=[1, 1, 1, 1],
                    markup=True))
 
         self.add_widget(self.info)
