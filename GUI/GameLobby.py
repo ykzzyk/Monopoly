@@ -21,39 +21,42 @@ class GameLobby(GridLayout, Screen):
 
         self.add_widget(
             Label(text='[b][color=#FF7F00]Game Lobby[/color][/b]', font_size=self.app.width / 16, color=[1, 1, 1, 1],
-                  markup=True))
+                  markup=True, size_hint_y=0.5))
 
         # Middle Design
         self.middle = GridLayout(cols=2)
 
+        self.middle.padding = [self.app.width / 14.4, 0, self.app.width / 14.4, -(self.app.width / 8.4)]
+
+        self.middle.spacing = [self.app.width / 18, 0]
         self.middle.add_widget(
-            Label(text='[b][color=#FFB533]Players[/color][/b]', font_size=self.app.width / 57.6, color=[1, 1, 1, 1],
-                  markup=True))
+            Button(text='[b][color=#FFB533]Players[/color][/b]', font_size=self.app.width / 57.6, color=[1, 1, 1, 1],
+                   markup=True, size_hint_y=1))
 
         self.middle.add_widget(
-            Label(text='[b][color=#FFB533]Game Information[/color][/b]', font_size=self.app.width / 57.6,
-                  color=[1, 1, 1, 1],
-                  markup=True))
+            Button(text='[b][color=#FFB533]Game Information[/color][/b]', font_size=self.app.width / 57.6,
+                   color=[1, 1, 1, 1],
+                   markup=True, size_hint_y=1))
 
         self.add_widget(self.middle)
 
         # Buttom Design
         self.buttom = GridLayout(cols=3)
 
-        self.buttom.padding = [self.app.width / 14.4, self.app.width / 8.5, self.app.width / 14.4,
-                               self.app.width / 19.2]
+        self.buttom.padding = [self.app.width / 22, self.app.width / 6, self.app.width / 22,
+                               self.app.width / 28.8]
         self.buttom.spacing = [self.app.width / 28.8, 0]
 
         self.button_quit = Button(text='[b]Quit[/b]', font_size=self.app.width / 57.6, markup=True,
-                                  on_press=self.home_screen_page)
+                                  on_release=self.home_screen_page)
         self.buttom.add_widget(self.button_quit)
 
         self.button_join_game = Button(text='[b]Join Game[/b]', font_size=self.app.width / 57.6, markup=True,
-                                       on_press=self.game_board_page)
+                                       on_release=self.game_board_page)
         self.buttom.add_widget(self.button_join_game)
 
         self.button_create_game = Button(text='[b]Create Game[/b]', font_size=self.app.width / 57.6, markup=True,
-                                         on_press=self.game_board_page)
+                                         on_release=self.game_board_page)
         self.buttom.add_widget(self.button_create_game)
 
         self.add_widget(self.buttom)

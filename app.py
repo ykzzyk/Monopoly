@@ -15,6 +15,7 @@ class MonopolyApp(App):
 
     def build(self):
         Window.fullscreen = 'auto'
+        Window.clearcolor = (1, 1, 1, 1)
         self.title = 'Monopoly - The Computer Science Edition'
         self.width = Window.width
         self.height = Window.height

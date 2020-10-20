@@ -32,20 +32,22 @@ class HomeScreen(GridLayout, Screen):
         self.button_play_locally = Button(text='[b]Play Locally[/b]',
                                           font_size=self.app.width / 57.6,
                                           markup=True,
-                                          on_press=self.game_lobby_page)
+                                          on_release=self.game_lobby_page)
         self.add_widget(self.button_play_locally)
         self.button_play_lan = Button(text='[b]Play LAN[/b]', font_size=self.app.width / 57.6, markup=True,
-                                      on_press=self.game_lobby_page)
+                                      on_release=self.game_lobby_page)
         self.add_widget(self.button_play_lan)
         self.button_play_online = Button(text='[b]Play Online[/b]', font_size=self.app.width / 57.6, markup=True,
-                                         on_press=self.game_lobby_page)
+                                         on_release=self.game_lobby_page)
         self.add_widget(self.button_play_online)
-        self.button_options = Button(text='[b]Options[/b]', font_size=self.app.width / 57.6, markup=True,
-                                     on_press=self.game_lobby_page)
-        self.add_widget(self.button_options)
+
         self.button_help = Button(text='[b]Help & Feedback[/b]', font_size=self.app.width / 57.6, markup=True,
-                                  on_press=self.feedback_page)
+                                  on_release=self.feedback_page)
         self.add_widget(self.button_help)
+
+        self.button_exit = Button(text='[b]Exit[/b]', font_size=self.app.width / 57.6, markup=True,
+                                  on_release=App.get_running_app().stop)
+        self.add_widget(self.button_exit)
 
     def game_lobby_page(self, event):
         self.app.screen_manager.switch_to(GUI.GameLobby.GameLobby(name='game_lobby'))

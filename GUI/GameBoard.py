@@ -19,8 +19,9 @@ class GameBoard(GridLayout, Screen):
 
         self.cols = 2
 
-        self.add_widget(Button(text='[b][color=#FF7F00]Map[/color][/b]', markup=True, size_hint_x=2,
-                               on_press=self.home_screen_page))
+        self.add_widget(
+            Button(text='[b][color=#FF7F00]Map[/color][/b]', markup=True, width=self.app.height, size_hint_x=None,
+                   on_release=self.home_screen_page))
 
         self.info = GridLayout(rows=2)
 
