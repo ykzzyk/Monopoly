@@ -1,11 +1,11 @@
 #: import NoTransition kivy.uix.screenmanager.NoTransition
 
 WindowManager:
+    Game:
     Logo:
     Home:
     Feedback:
     Lobby:
-    Game:
 
 
 <Logo>:
@@ -172,10 +172,53 @@ WindowManager:
     GridLayout:
         cols: 2
         Widget:
-            canvas:
+            canvas.before:
                 Rectangle:
                     source: 'assets/monopoly_classic_board.jpg'
                     size: self.height, self.height
+            #canvas:
+                Rectangle:
+                    source: 'assets/cat.png'
+                    size: (self.height//15, self.height//15)
+                    pos: (100, 100)
+
+                Rectangle:
+                    source: 'assets/dog.png'
+                    size: (self.height//15, self.height//15)
+                    pos: (200, 200)
+
+                Rectangle:
+                    source: 'assets/flight.png'
+                    size: (self.height//15, self.height//15)
+                    pos: (300, 300)
+
+                Rectangle:
+                    source: 'assets/ship.png'
+                    size: (self.height//15, self.height//15)
+                    pos: (400, 400)
+
+                Rectangle:
+                    source: 'assets/hat.png'
+                    size: (self.height//15, self.height//15)
+                    pos: (500, 500)
+
+                Rectangle:
+                    source: 'assets/duck.png'
+                    size: (self.height//15, self.height//15)
+                    pos: (600, 600)
+
+                Rectangle:
+                    id: 'boot'
+                    source: 'assets/boot.png'
+                    size: (self.height//15, self.height//15)
+                    pos: (700, 700)
+
+                Rectangle:
+                    source: 'assets/squirrel.png'
+                    size: (self.height//15, self.height//15)
+                    pos: (800, 800)
+
+
 
         GridLayout:
             rows: 2

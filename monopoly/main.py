@@ -4,6 +4,7 @@ from kivy.core.window import Window
 from kivy.uix.image import Image
 from kivy.graphics import Rectangle, Color
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
+from kivy.graphics import *
 import webbrowser
 
 
