@@ -1,4 +1,5 @@
 #: import NoTransition kivy.uix.screenmanager.NoTransition
+#: import Window kivy.core.window.Window
 
 WindowManager:
     Game:
@@ -173,6 +174,7 @@ WindowManager:
 
     GridLayout:
         cols: 2
+
         Widget:
             canvas.before:
                 Rectangle:
@@ -220,11 +222,9 @@ WindowManager:
                     size: (self.height//15, self.height//15)
                     pos: (800, 800)
 
-
-
         GridLayout:
             rows: 2
-            size_hint_x: self.width/self.height
+            size_hint_x: (Window.width - Window.height)/Window.height
             padding: [self.width // 20, self.width // 50, self.width // 20, self.width // 50]
             spacing: [0, self.width // 50]
             
