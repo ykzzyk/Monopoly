@@ -1,0 +1,3 @@
+Popup Window in .kv files
+# https://www.techwithtim.net/tutorials/kivy-tutorial/popup-windows/
+
