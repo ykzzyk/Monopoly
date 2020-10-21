@@ -1,4 +1,6 @@
 import os
+import sys
+import pathlib
 
 from kivy.app import App
 from kivy.lang import Builder
@@ -50,8 +52,11 @@ class MonopolyApp(App):
 
 if __name__ == "__main__":
 
-    # Loading custom widgets
-    Builder.load_file(os.path.join('custom_widgets', 'PlayerBox.kv'))
+    cwd = pathlib.Path(os.path.abspath(__file__)).parent
+    custom_widgets = cwd / 'custom_widgets'
+
+    for widget in custom_widgets.iterdir():
+        Builder.load_file(str(widget))
 
     # Loading the primary application .kv file
     kv = Builder.load_file("kivy.kv")

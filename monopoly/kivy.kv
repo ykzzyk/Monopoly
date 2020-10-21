@@ -142,12 +142,14 @@ WindowManager:
             size_hint_y: 0.5
 
 
-        Button:
-            text: "[b]Players[/b]"
-            markup: True
-            size_hint_y: 2
+        GridLayout:
+            cols: 2
+            spacing: [self.width//20, 0]
+            padding: [self.width//25, 0, self.width//25, self.width//50]
 
+            PlayerBox:
 
+            GameInfoBox:
 
         GridLayout:
             cols: 2
@@ -182,6 +184,7 @@ WindowManager:
             size_hint_x: self.width/self.height
             padding: [self.width // 20, self.width // 50, self.width // 20, self.width // 50]
             spacing: [0, self.width // 50]
+            
             GridLayout:
                 cols: 2
                 spacing: [self.width // 50, 0]

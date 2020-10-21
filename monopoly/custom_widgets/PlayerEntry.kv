@@ -1,0 +1,22 @@
+#:import Window kivy.core.window.Window
+
+<PlayerEntry@GridLayout>:
+    cols: 2
+    canvas.before:
+        Color:
+            rgb: [0,0,0]
+        Line:
+            width: 1.1
+            rectangle: self.x, self.y, self.width, self.height
+
+    PlayerInfo:
+
+    Button:
+        canvas:
+            Color:
+                rgb: [0,0,1]
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        

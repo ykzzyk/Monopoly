@@ -1,3 +1,9 @@
 Popup Window in .kv files
 # https://www.techwithtim.net/tutorials/kivy-tutorial/popup-windows/
 
+How to use multiple .kv files
+# https://www.geeksforgeeks.org/python-how-to-use-multiple-kv-files-in-kivy/
+
+How to modify the value of a label's text via python
+# https://stackoverflow.com/questions/26656164/how-to-change-text-of-a-label-in-the-kivy-language-with-python
+
