@@ -2,11 +2,11 @@
 #: import Window kivy.core.window.Window
 
 WindowManager:
-    Game:
-    Logo:
     Home:
     Feedback:
     Lobby:
+    Game:
+    Logo:
 
 
 <Logo>:
@@ -24,11 +24,12 @@ WindowManager:
             text: "[b]Start Game[/b]"
             background_color: (1.0, 0.0, 0.0, 1.0)
             markup: True
-            font_size: self.width // 20
+            font_size: (Window.width**2 + Window.height**2) // 15**4
             on_press:
                 app.root.transition = NoTransition()
             on_release:
                 app.root.current = "home"
+
 
 <Feedback>:
     name: "feedback"
@@ -39,7 +40,7 @@ WindowManager:
 
         Label:
             text: '[b][color=#FF7F00]Help & Feedback[/color][/b]'
-            font_size: self.width // 15
+            font_size: (Window.width**2 + Window.height**2) / 22**4
             color: [1, 1, 1, 1]
             markup: True
             size_hint_y: 1
@@ -57,7 +58,7 @@ WindowManager:
                 text: "[b]Back[/b]"
                 background_color: (1.0, 0.0, 0.0, 1.0)
                 markup: True
-                font_size: self.width // 15
+                font_size: (Window.width**2 + Window.height**2) / 22**4
                 on_release:
                     app.root.current = "home"
 
@@ -66,7 +67,7 @@ WindowManager:
                 text: "[b]Contact us[/b]"
                 background_color: (1.0, 0.0, 0.0, 1.0)
                 markup: True
-                font_size: self.width // 15
+                font_size: (Window.width**2 + Window.height**2) / 22**4
                 on_release:
                     root.send_email(None)
 
@@ -83,7 +84,7 @@ WindowManager:
         Label:
             markup: True
             text: '[b][color=#FF7F00]Monopoly[/color][/b]'
-            font_size: self.width // 4
+            font_size: (Window.width**2 + Window.height**2) // 11.5**4
             size_hint_y: 0.3
 
         GridLayout:
@@ -94,7 +95,7 @@ WindowManager:
                 text: "[b]Play Local[/b]"
                 background_color: (1.0, 0.0, 0.0, 1.0)
                 markup: True
-                font_size: self.width // 20
+                font_size: (Window.width**2 + Window.height**2) // 17**4
                 on_release:
                     app.root.current = "lobby"
 
@@ -102,28 +103,28 @@ WindowManager:
                 text: "[b]Play LAN[/b]"
                 background_color: (1.0, 0.0, 0.0, 1.0)
                 markup: True
-                font_size: self.width // 20
+                font_size: (Window.width**2 + Window.height**2) // 17**4
                 on_release:
                     app.root.current = "lobby"
             Button:
                 text: "[b]Play Online[/b]"
                 background_color: (1.0, 0.0, 0.0, 1.0)
                 markup: True
-                font_size: self.width // 20
+                font_size: (Window.width**2 + Window.height**2) // 17**4
                 on_release:
                     app.root.current = "lobby"
             Button:
                 text: "[b]Help & Feedback[/b]"
                 background_color: (1.0, 0.0, 0.0, 1.0)
                 markup: True
-                font_size: self.width // 20
+                font_size: (Window.width**2 + Window.height**2) // 17**4
                 on_release:
                     app.root.current = "feedback"
             Button:
                 text: "[b]Exit[/b]"
                 background_color: (1.0, 0.0, 0.0, 1.0)
                 markup: True
-                font_size: self.width // 20
+                font_size: (Window.width**2 + Window.height**2) // 17**4
                 on_release:
                     app.get_running_app().stop()
 
@@ -138,7 +139,7 @@ WindowManager:
         Label:
             markup: True
             text: '[b][color=#FF7F00]Game Lobby[/color][/b]'
-            font_size: self.width // 16
+            font_size: (Window.width**2 + Window.height**2) // 11.5**4
             color: [1, 1, 1, 1]
             size_hint_y: 0.5
 
@@ -168,6 +169,7 @@ WindowManager:
                 markup: True
                 on_release:
                     app.root.current = "game"
+
 
 <Game>:
     name: "game"
@@ -233,18 +235,18 @@ WindowManager:
                 spacing: [self.width // 50, 0]
                 Button:
                     text: '[b][color=#FFB533]Players Information[/color][/b]'
-                    font_size: self.width // 55
+                    font_size: (Window.width**2 + Window.height**2) // 22**4
                     color: [1, 1, 1, 1]
                     markup: True
                 Button:
                     text: '[b][color=#FFB533]Instruction[/color][/b]'
-                    font_size: self.width // 55
+                    font_size: (Window.width**2 + Window.height**2) // 22**4
                     color: [1, 1, 1, 1]
                     markup: True
 
             Button:
                 text: '[b][color=#FFB533]History[/color][/b]'
-                font_size: self.width // 55
+                font_size: (Window.width**2 + Window.height**2) // 22**4
                 color: [1, 1, 1, 1]
                 markup: True
 
