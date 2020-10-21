@@ -26,7 +26,7 @@ class Lobby(Screen):
 
 
 class Game(Screen):
-    pass
+    hint_x = Window.height/Window.width - 0.025
 
 
 class WindowManager(ScreenManager):
