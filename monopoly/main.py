@@ -1,3 +1,5 @@
+import os
+
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.core.window import Window
@@ -7,6 +9,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.graphics import *
 import webbrowser
 
+#-------------------------------------------------------------------------------
 
 class Logo(Screen):
     pass
@@ -34,9 +37,6 @@ class WindowManager(ScreenManager):
     pass
 
 
-kv = Builder.load_file("kivy.kv")
-
-
 class MonopolyApp(App):
 
     def build(self):
@@ -46,6 +46,14 @@ class MonopolyApp(App):
 
         return kv
 
+#-------------------------------------------------------------------------------
+# File's Main 
 
 if __name__ == "__main__":
+
+    # Loading custom widgets
+    Builder.load_file(os.path.join('custom_widgets', 'PlayerBox.kv'))
+
+    # Loading the primary application .kv file
+    kv = Builder.load_file("kivy.kv")
     MonopolyApp().run()
