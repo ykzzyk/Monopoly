@@ -26,9 +26,6 @@ class Lobby(Screen):
 
 
 class Game(Screen):
-    # print(Window.height/Window.width)
-    # print(Window.width/Window.height)
-    # hint_x = Window.height/Window.width - 0.025
     pass
 
 
@@ -45,7 +42,6 @@ class MonopolyApp(App):
         Window.fullscreen = 'auto'
         Window.clearcolor = (1, 1, 1, 1)
         self.title = 'Monopoly - The Computer Science Edition'
-        self.app = App.get_running_app()
 
         return kv
 
