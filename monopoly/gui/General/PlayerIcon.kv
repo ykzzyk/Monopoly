@@ -1,0 +1,23 @@
+#:import Window kivy.core.window.Window
+
+<PlayerIcon@Label>
+    size_hint_x: 0.1
+    halign: 'right'
+    valign: 'middle'
+    text_size: self.size
+    
+    canvas.before:
+        Color:
+            rgb: [0,0,0]
+        Line:
+            width: 1.1
+            circle: 
+                (self.pos[0]+self.width/2, self.pos[1]+self.height/2, min(self.width, self.height)
+                / 2, 0, 360)
+    canvas:
+        Ellipse:
+            pos: self.pos
+            size: [min(self.width, self.height),min(self.width, self.height)]
+            source: 'assets/duck.png'
+            angle_start: 0
+            angle_end: 360

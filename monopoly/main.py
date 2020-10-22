@@ -36,7 +36,13 @@ class Home(Screen):
 
 
 class Lobby(Screen):
-    pass
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.random_text = "1111"
+
+    def change_text(self):
+        self.random_text = "asdf"
 
 
 class Game(Screen):
