@@ -1,12 +1,11 @@
 <LobbyGrid@GridLayout>
-    id: lobby_grid
-    name: 'lobby_grid'
     rows: 3
     spacing: [0, self.width // 20]
 
     Label:
         id: lobby_title
         name: 'lobby_title'
+        
         markup: True
         text: '[b][color=#FF7F00]Game Lobby[/color][/b]'
         font_size: self.width // 16
@@ -17,6 +16,7 @@
     GridLayout:
         id: boxes_grid
         name: 'boxes_grid'
+
         cols: 2
         spacing: [self.width//20, 0]
         padding: [self.width//25, 0, self.width//25, self.width//50]
