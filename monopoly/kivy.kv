@@ -3,11 +3,11 @@
 
 WindowManager:
 
+    Game:
     Lobby:
     Logo:
     Home:
     Feedback:
-    Game:
 
 
 <Logo>:
@@ -179,17 +179,9 @@ WindowManager:
                     font_size: self.width // 55
                     color: [1, 1, 1, 1]
                     markup: True
-                Button:
-                    text: '[b][color=#FFB533]Instruction[/color][/b]'
-                    font_size: self.width // 55
-                    color: [1, 1, 1, 1]
-                    markup: True
+                GameInstruction:
 
-            Button:
-                text: '[b][color=#FFB533]History[/color][/b]'
-                font_size: self.width // 55
-                color: [1, 1, 1, 1]
-                markup: True
+            HistoryLog:
 
 
 

@@ -7,3 +7,5 @@ How to use multiple .kv files
 How to modify the value of a label's text via python
 # https://stackoverflow.com/questions/26656164/how-to-change-text-of-a-label-in-the-kivy-language-with-python
 
+Python Tinker im plementation of Monopoly
+# https://www.youtube.com/watch?v=C5dvvo6fgcc&t=19s
