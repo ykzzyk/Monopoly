@@ -5,6 +5,12 @@
 
     BoxLayout:
         orientation: 'vertical'
+        canvas.before:
+            Color:
+                rgb: [0.3, 0.3, 0.3]
+            Rectangle:
+                pos: self.pos
+                size: self.size
 
         Label:
             text: '[b][color=#FF7F00]<Player Name>[/color][/b]'
