@@ -15,6 +15,8 @@ import webbrowser
 import tools
 
 # Importing all GUI
+import gui
+
 cwd = pathlib.Path(os.path.abspath(__file__)).parent
 gui_widgets = cwd / 'gui'
 
@@ -34,11 +36,6 @@ class Feedback(Screen):
 class Home(Screen):
     pass
 
-
-class Lobby(Screen):
-    
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
 class Game(Screen):
     pass

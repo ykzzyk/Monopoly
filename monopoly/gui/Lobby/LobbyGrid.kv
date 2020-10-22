@@ -1,0 +1,26 @@
+<LobbyGrid@GridLayout>
+    id: lobby_grid
+    name: 'lobby_grid'
+    rows: 3
+    spacing: [0, self.width // 20]
+
+    Label:
+        id: lobby_title
+        name: 'lobby_title'
+        markup: True
+        text: root.title_text
+        font_size: self.width // 16
+        color: [1, 1, 1, 1]
+        size_hint_y: 0.2
+
+
+    GridLayout:
+        cols: 2
+        spacing: [self.width//20, 0]
+        padding: [self.width//25, 0, self.width//25, self.width//50]
+
+        PlayerBox:
+
+        GameInfoBox:
+
+    LobbyOptions:
