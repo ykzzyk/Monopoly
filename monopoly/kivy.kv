@@ -3,10 +3,10 @@
 
 WindowManager:
 
+    Lobby:
     Logo:
     Home:
     Feedback:
-    Lobby:
     Game:
 
 
@@ -30,6 +30,7 @@ WindowManager:
                 app.root.transition = NoTransition()
             on_release:
                 app.root.current = "home"
+
 
 <Feedback>:
     name: "feedback"
@@ -141,7 +142,7 @@ WindowManager:
             text: '[b][color=#FF7F00]Game Lobby[/color][/b]'
             font_size: self.width // 16
             color: [1, 1, 1, 1]
-            size_hint_y: 0.5
+            size_hint_y: 0.2
 
 
         GridLayout:
@@ -153,22 +154,8 @@ WindowManager:
 
             GameInfoBox:
 
-        GridLayout:
-            cols: 2
-            size_hint_y: 0.5
-            spacing: [self.width // 20, 0]
-            #padding: [self.width // 25, 0, self.width // 25, self.width // 50]
+        GameLobbyOptions:
 
-            Button:
-                text: "[b]Quit[/b]"
-                markup: True
-                on_release:
-                    app.root.current = "home"
-            Button:
-                text: "[b]Join Game[/b]"
-                markup: True
-                on_release:
-                    app.root.current = "game"
 
 <Game>:
     name: "game"

@@ -10,13 +10,15 @@
             text: '[b][color=#FF7F00]Players[/color][/b]'
             font_size: (Window.width**2 + Window.height**2) / 18**4
             markup: True
-            size_hint_y: 4
+            text_size: self.size
+            halign: 'left'
+            valign: 'middle'
 
         Label:
             text: '[b][color=#FF7F00]Ready[/color][/b]'
             font_size: (Window.width**2 + Window.height**2) / 18**4
             markup: True
-            size_hint_y: 4
+            size_hint_x: 0.2
 
     PlayerEntry:
 

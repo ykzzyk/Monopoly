@@ -11,7 +11,14 @@ from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.graphics import *
 import webbrowser
 
-#-------------------------------------------------------------------------------
+# Imports tools
+import tools
+
+# Importing all GUI
+cwd = pathlib.Path(os.path.abspath(__file__)).parent
+gui_widgets = cwd / 'gui'
+
+tools.fh.import_dir(gui_widgets)
 
 class Logo(Screen):
     pass
@@ -48,16 +55,8 @@ class MonopolyApp(App):
 
         return kv
 
-#-------------------------------------------------------------------------------
-# File's Main 
 
 if __name__ == "__main__":
-
-    cwd = pathlib.Path(os.path.abspath(__file__)).parent
-    custom_widgets = cwd / 'custom_widgets'
-
-    for widget in custom_widgets.iterdir():
-        Builder.load_file(str(widget))
 
     # Loading the primary application .kv file
     kv = Builder.load_file("kivy.kv")
