@@ -20,6 +20,7 @@ gui_widgets = cwd / 'gui'
 
 tools.fh.import_dir(gui_widgets)
 
+
 class Logo(Screen):
     pass
 
@@ -57,7 +58,6 @@ class MonopolyApp(App):
 
 
 if __name__ == "__main__":
-
     # Loading the primary application .kv file
     kv = Builder.load_file("kivy.kv")
     MonopolyApp().run()
