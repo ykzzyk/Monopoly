@@ -3,5 +3,5 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-import lobby_classes as lb
+import lobby_classes as lc
 

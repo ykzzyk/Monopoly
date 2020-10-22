@@ -37,10 +37,6 @@ class Home(Screen):
     pass
 
 
-class Game(Screen):
-    pass
-
-
 class WindowManager(ScreenManager):
     pass
 
