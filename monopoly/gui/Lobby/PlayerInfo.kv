@@ -3,30 +3,19 @@
 <PlayerInfo@GridLayout>:
     cols: 2
 
-    BoxLayout:
-        orientation: 'vertical'
-        canvas.before:
-            Color:
-                rgb: [0.3, 0.3, 0.3]
-            Rectangle:
-                pos: self.pos
-                size: self.size
+    Label:
+        id: player_text
+        name: 'player_text'
 
-        Label:
-            text: "root.text_value"
-            font_size: (Window.width**2 + Window.height**2) / 22**4
-            halign: 'left'
-            valign: 'middle'
-            text_size: self.size
-
-        Label:
-            text: '[b][color=#FF7F00]<IP Address>[/color][/b]'
-            font_size: (Window.width**2 + Window.height**2) / 22**4
-            markup: True
-            halign: 'left'
-            valign: 'middle'
-            text_size: self.size
+        text: '[b][color=#FF7F00]<Player Name>\n<IP Address>[/color][/b]'
+        font_size: (Window.width**2 + Window.height**2) / 22**4
+        markup: True
+        halign: 'left'
+        valign: 'middle'
+        text_size: self.size
 
     PlayerIcon
+        id: player_icon
+        name: 'player_icon'
 
         

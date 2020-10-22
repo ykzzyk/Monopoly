@@ -12,3 +12,6 @@ Python Tinker implementation of Monopoly
 
 Accessing ids within Python and kivy (can only do after __init__ is done)
 # https://github.com/kivy/kivy/issues/2479#issuecomment-57068675
+
+To find available widgets on Kivy, use this link:
+# https://kivy.org/doc/stable/api-kivy.uix.html

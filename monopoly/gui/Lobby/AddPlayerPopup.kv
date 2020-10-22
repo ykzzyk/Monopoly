@@ -1,0 +1,48 @@
+<AddPlayerPopup@Popup>:
+
+    BoxLayout:
+        id: base_layout
+        name: 'base_layout'
+
+        orientation: 'vertical'
+        
+        Label:
+            id: enter_player_name
+            name: 'enter_player_name'
+
+            text: "Enter Player Name"
+
+        TextInput:
+            id: player_id
+            name: 'player_id'
+
+            text: "player id"
+
+        Label:
+            id: select_player_icon
+            name: 'select_player_icon'
+
+            text: "Select Player Icon:"
+
+        Spinner:
+            text: 'Home'
+            values: 'Home', 'Work', 'Other', 'Custom'
+
+        BoxLayout:
+            id: button_layout
+            name: 'button_layout'
+
+            orientation: 'horizontal'
+
+            Button:
+                id: cancel_button
+                name: 'cancel_button'
+                
+                text: 'Cancel'
+                on_release: root.dismiss()
+
+            Button:
+                id: accept_button
+                name: 'accept_button'
+
+                text: 'Accept'

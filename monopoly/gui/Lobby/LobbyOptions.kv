@@ -1,8 +1,6 @@
 #: import Window kivy.core.window.Window
 
 <LobbyOptions@GridLayout>
-    id: lobby_options
-    name: 'lobby_options'
     
     cols: 3
     size_hint_y: 0.2
@@ -10,19 +8,28 @@
     #padding: [self.width // 25, 0, self.width // 25, self.width // 50]
 
     Button:
+        id: quit_button
+        name: 'quit_button'
+
         text: "[b]Quit[/b]"
         markup: True
         on_release:
             app.root.current = "home"
 
     Button:
+        id: add_player_button
+        name: 'add_player_button'
+
         text: "[b]Add Player[/b]"
         markup: True
-        #on_release:
-            #function here
+        on_release:
+            root.add_player()
 
     Button:
-        text: "[b]Join Game[/b]"
+        id: start_game_button
+        name: 'start_game_button'
+
+        text: "[b]Start Game[/b]"
         markup: True
         on_release:
             app.root.current = "game"

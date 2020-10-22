@@ -1,12 +1,12 @@
 #:import Window kivy.core.window.Window
 
-<GameInfoBox@BoxLayout>:
-    id: game_info_box
-    name: 'game_info_box'
-    
+<GameInfoBox@BoxLayout>:    
     orientation: 'vertical'
     
     Label:
+        id: game_info_title
+        name: 'game_info_title'
+
         markup: True
         text: '[b][color=#FF7F00]Game Information[/color][/b]'
         font_size: (Window.width**2 + Window.height**2) / 18**4
@@ -14,6 +14,9 @@
         size_hint_y: 0.25
 
     Label:
+        id: game_info
+        name: 'game_info'
+
         markup: True
         text: '[b][color=#FF7F00]Host:[/color][/b]'
         font_size: (Window.width**2 + Window.height**2) / 22**4
@@ -29,6 +32,9 @@
                 rectangle: self.x, self.y, self.width, self.height
 
     Label:
+        id: log_info
+        name: 'log_info'
+        
         markup: True
         text: '[b][color=#FF7F00]LOG: [/color][/b]'
         font_size: (Window.width**2 + Window.height**2) / 22**4
