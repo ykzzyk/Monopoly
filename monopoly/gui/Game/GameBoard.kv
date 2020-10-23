@@ -6,45 +6,10 @@
             source: 'assets/clean_monopoly_classic_board.jpg'
             size: Window.height, Window.height
         Rectangle:
-            source: 'assets/cat.png'
-            size: (Window.height//15, Window.height//15)
-            pos: (100, 100)
-
-        Rectangle:
-            source: 'assets/dog.png'
-            size: (Window.height//15, Window.height//15)
-            pos: (200, 200)
-
-        Rectangle:
-            source: 'assets/flight.png'
-            size: (Window.height//15, Window.height//15)
-            pos: (300, 300)
-
-        Rectangle:
-            source: 'assets/ship.png'
-            size: (Window.height//15, Window.height//15)
-            pos: (400, 400)
-
-        Rectangle:
-            source: 'assets/hat.png'
-            size: (Window.height//15, Window.height//15)
-            pos: (500, 500)
-
-        Rectangle:
+            id: duck
             source: 'assets/duck.png'
             size: (Window.height//15, Window.height//15)
-            pos: (600, 600)
-
-        Rectangle:
-            id: 'boot'
-            source: 'assets/boot.png'
-            size: (Window.height//15, Window.height//15)
-            pos: (700, 700)
-
-        Rectangle:
-            source: 'assets/squirrel.png'
-            size: (Window.height//15, Window.height//15)
-            pos: (800, 800)
+            pos: (root.height//2, root.height//2)
 
     Button:
         text: '[b][color=#808080]Build/Sell[/color][/b]'
@@ -110,15 +75,22 @@
             root.roll_dice(None)
 
     Label:
-        text: '[b][color=#000000]\u2684[/color][/b]'
+        id: dice_1
+        text: '[b][color=#000000]\u2680[/color][/b]'
         markup: True
-        font_size: Window.width//13
+        font_size: root.width//13
         font_name: "assets/DejaVuSans.ttf"
         pos: (root.width//2.9, root.height//1.4)
 
     Label:
-        text: '[b][color=#000000]\u2683[/color][/b]'
+        id: dice_2
+        text: '[b][color=#000000]\u2681[/color][/b]'
         markup: True
-        font_size: Window.width//13
+        font_size: root.width//13
         font_name: "assets/DejaVuSans.ttf"
         pos: (root.width//2.35, root.height//1.4)
+
+    Label:
+        source: 'assets/cat.png'
+        size: (Window.height//15, Window.height//15)
+        pos: (100, 500)
