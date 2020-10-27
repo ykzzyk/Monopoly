@@ -42,7 +42,7 @@
         markup: True
         pos: (root.width//2.4, root.height//1.7)
     Button:
-        text: '[b][color=#808080]Mortgage/\nUnmortgage[/color][/b]'
+        text: '[b][color=#808080]Mortgage/\nRegain[/color][/b]'
         background_normal: 'assets/pale_goldenrod.png'
         canvas.before:
             Color:
@@ -56,6 +56,10 @@
         color: [1, 1, 1, 1]
         markup: True
         pos: (root.width//1.5, root.height//1.7)
+        on_release:
+            root.cardInfoPopup()
+
+
     Button:
         text: '[b][color=#808080]Roll Dice[/color][/b]'
         background_normal: 'assets/light_red.png'
@@ -94,3 +98,33 @@
         source: 'assets/cat.png'
         size: (Window.height//15, Window.height//15)
         pos: (100, 500)
+
+<CardInfoPop@Popup>:
+    size_hint: (None, None)
+    size: (Window.height//1.5, Window.height//2)
+    title: ""
+    separator_height: 0
+    background: "assets/card.jpg"
+    auto_dismiss: False
+
+    GridLayout:
+
+        cols: 2
+
+        GridLayout:
+
+            rows: 2
+
+            size_hint_x: 1.5
+
+            Image:
+                id: card_image
+
+            Label:
+                id: card_info
+                markup: True
+                font_size: root.height//23
+
+        Image:
+            source: "assets/master.png"
+
