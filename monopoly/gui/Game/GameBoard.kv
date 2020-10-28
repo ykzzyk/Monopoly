@@ -60,8 +60,8 @@
     Button:
         background_normal: 'assets/dice.png'
         background_down: 'assets/dice2.png'
-        size: (Window.width//20, Window.width//20)
-        pos: (root.width//1.85, root.height//1.42)
+        size: (root.width//10, root.width//10)
+        pos: (root.width//1.85, root.height//1.4)
         on_release:
             root.roll_dice(None)
 
@@ -69,16 +69,18 @@
         id: dice_1
         text: '[b][color=#000000]\u2680[/color][/b]'
         markup: True
-        font_size: root.width//13
+        font_size: root.width // 10
         font_name: "assets/DejaVuSans.ttf"
+        size: (root.width//10, root.width//10)
         pos: (root.width//2.9, root.height//1.4)
 
     Label:
         id: dice_2
         text: '[b][color=#000000]\u2681[/color][/b]'
         markup: True
-        font_size: root.width//13
+        font_size: root.width // 10
         font_name: "assets/DejaVuSans.ttf"
+        size: (root.width//10, root.width//10)
         pos: (root.width//2.35, root.height//1.4)
 
 <CardInfoPop@Popup>:
