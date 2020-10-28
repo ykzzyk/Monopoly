@@ -9,59 +9,59 @@
 
 <GameBoard@Widget>:
     Button:
-        text: '[b][color=#808080]Build/Sell[/color][/b]'
-        background_normal: 'assets/light_yellow.png'
-        canvas.before:
-            Color:
-                rgba: .5, .5, .5, 1
-            Line:
-                width: Window.width//500
-                rectangle: self.x, self.y, self.width, self.height
-        size: (Window.width//10, Window.width//25)
-        font_size: Window.width // 60
-        color: [1, 1, 1, 1]
+        text: '[b][color=#ffffff]Build/\nSell[/color][/b]'
+        background_normal: 'assets/home.png'
+        size: (Window.width//12, Window.width//12)
+        background_down: 'assets/home_2.png'
+        font_size: Window.width // 90
         markup: True
-        pos: (root.width//6, root.height//1.7)
-    Button:
-        text: '[b][color=#808080]Trade[/color][/b]'
-        background_normal: 'assets/tea_green.png'
-        canvas.before:
-            Color:
-                rgba: .5, .5, .5, 1
-            Line:
-                width: Window.width//500
-                rectangle: self.x, self.y, self.width, self.height
+        outline_color: 0,0,0,1
+        outline_width: 3
+        pos: (root.width//5, root.height//1.8)
 
-        #background_down: 'assets/duck.png'
-        size: (Window.width//10, Window.width//25)
-        font_size: Window.width // 60
-        color: [1, 1, 1, 1]
-        markup: True
-        pos: (root.width//2.4, root.height//1.7)
+
     Button:
-        text: '[b][color=#808080]Mortgage/\nRegain[/color][/b]'
-        background_normal: 'assets/pale_goldenrod.png'
-        canvas.before:
-            Color:
-                rgba: .5, .5, .5, 1
-            Line:
-                width: Window.width//500
-                rectangle: self.x, self.y, self.width, self.height
-        #background_down: 'assets/duck.png'
-        size: (Window.width//10, Window.width//25)
+        text: '[b][color=#ffffff]Trade[/color][/b]'
+        background_normal: 'assets/product.png'
+
+        background_down: 'assets/product_2.png'
+        size: (Window.width//10, Window.width//10)
         font_size: Window.width // 60
-        color: [1, 1, 1, 1]
         markup: True
-        pos: (root.width//1.5, root.height//1.7)
+        outline_color: 0,0,0,1
+        outline_width: 3
+        pos: (root.width//2.4, root.height//1.8)
+
+    Button:
+        text: '[b][color=#ffffff]Mortgage/\nRegain[/color][/b]'
+        background_normal: 'assets/real.png'
+#        canvas.before:
+#            Color:
+#                rgba: .5, .5, .5, 1
+#            Line:
+#                width: Window.width//500
+#                rectangle: self.x, self.y, self.width, self.height
+        background_down: 'assets/real-2.png'
+        size: (Window.width//12, Window.width//12)
+        font_size: Window.width // 100
+        markup: True
+        outline_color: 0,0,0,1
+        outline_width: 3
+        pos: (root.width//1.5, root.height//1.8)
         on_release:
             root.cardInfoPopup()
 
 
     Button:
+        text: '[b][color=#ffffff]Roll![/color][/b]'
         background_normal: 'assets/dice.png'
         background_down: 'assets/dice2.png'
         size: (root.width//10, root.width//10)
         pos: (root.width//1.85, root.height//1.4)
+        font_size: Window.width // 60
+        markup: True
+        outline_color: 0,0,0,1
+        outline_width: 3
         on_release:
             root.roll_dice(None)
 
