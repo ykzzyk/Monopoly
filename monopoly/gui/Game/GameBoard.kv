@@ -1,16 +1,13 @@
 #:import Window kivy.core.window.Window
 
-<GameBoard@Widget>:
+<GameMap@Label>:
     canvas:
         Rectangle:
             source: 'assets/clean_monopoly_classic_board.jpg'
             size: Window.height, Window.height
-        Rectangle:
-            id: duck
-            source: 'assets/duck.png'
-            size: (Window.height//15, Window.height//15)
-            pos: (root.height//2, root.height//2)
 
+
+<GameBoard@Widget>:
     Button:
         text: '[b][color=#808080]Build/Sell[/color][/b]'
         background_normal: 'assets/light_yellow.png'

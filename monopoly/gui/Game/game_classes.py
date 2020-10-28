@@ -6,6 +6,8 @@ from kivy.uix.popup import Popup
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.uix.label import Label
+from kivy.properties import ObjectProperty
+from kivy.graphics import Rectangle
 import queue
 import random
 
@@ -14,10 +16,35 @@ class Game(Screen):
     pass
 
 
-class GameBoard(GridLayout):
+class GameMap(Label):
+    pass
+
+
+class Player(Label):
+    rectangle = ObjectProperty(None)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.rectangle = Rectangle(pos=self.pos, size=(self.width, self.width), source='assets/duck.png')
+        self.canvas.add(self.rectangle)
+
+    def move(self, pos):
+        self.pos = pos
+        self.rectangle.pos = self.pos
+
+
+class GameBoard(Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.cardInfo = CardInfoPop()
+        game_map = GameMap()
+        self.add_widget(game_map)
+
+        self.player1 = Player()
+        self.add_widget(self.player1)
+
+        # self.player1.move([100, 200])
 
     def roll_dice(self, event):
         dice_dict = {1: '\u2680', 2: '\u2681', 3: '\u2682', 4: '\u2683', 5: '\u2684', 6: '\u2685'}
@@ -33,6 +60,8 @@ class GameBoard(GridLayout):
         steps = step_1 + step_2
         print(steps)
 
+        self.player1.move([self.player1.pos[0] + 50, 0])
+
         """
         if step_1 == step_2:
             print('Please roll again!')
@@ -42,7 +71,7 @@ class GameBoard(GridLayout):
     def cardInfoPopup(self):
         self.cardInfo.get_card(self.cardInfo.chance, 'chance')
         self.cardInfo.open()
-        Clock.schedule_once(lambda dt: self.cardInfo.dismiss(), 4)
+        Clock.schedule_once(lambda dt: self.cardInfo.dismiss(), 3)
 
 
 class CardInfoPop(Popup):
