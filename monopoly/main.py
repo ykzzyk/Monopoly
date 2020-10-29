@@ -44,7 +44,7 @@ class WindowManager(ScreenManager):
 class MonopolyApp(App):
 
     def build(self):
-        #Window.fullscreen = 'auto'
+        Window.fullscreen = 0
         Window.clearcolor = (1, 1, 1, 1)
         self.title = 'Monopoly - The Computer Science Edition'
 
