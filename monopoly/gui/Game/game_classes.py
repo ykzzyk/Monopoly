@@ -20,38 +20,6 @@ class GameMap(Label):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.circle1 = Line(circle=(self.width * 1.2, self.width * 1.2, self.width // 4), close=True, width=2)
-        self.canvas.add(self.circle1)
-
-        self.circle2 = Line(circle=(self.width * 3.1, self.width * 1.2, self.width // 4), close=True, width=2)
-        self.canvas.add(self.circle2)
-
-        self.circle3 = Line(circle=(self.width * 4.6, self.width * 1.2, self.width // 4), close=True, width=2)
-        self.canvas.add(self.circle3)
-
-        self.circle4 = Line(circle=(self.width * 6.05, self.width * 1.2, self.width // 4), close=True, width=2)
-        self.canvas.add(self.circle4)
-
-        self.circle5 = Line(circle=(self.width * 7.5, self.width * 1.2, self.width // 4), close=True, width=2)
-        self.canvas.add(self.circle5)
-
-        self.circle6 = Line(circle=(self.width * 9, self.width * 1.2, self.width // 4), close=True, width=2)
-        self.canvas.add(self.circle6)
-
-        self.circle7 = Line(circle=(self.width * 10.5, self.width * 1.2, self.width // 4), close=True, width=2)
-        self.canvas.add(self.circle7)
-
-        self.circle8 = Line(circle=(self.width * 11.95, self.width * 1.2, self.width // 4), close=True, width=2)
-        self.canvas.add(self.circle8)
-
-        self.circle9 = Line(circle=(self.width * 13.45, self.width * 1.2, self.width // 4), close=True, width=2)
-        self.canvas.add(self.circle9)
-
-        self.circle10 = Line(circle=(self.width * 14.95, self.width * 1.2, self.width // 4), close=True, width=2)
-        self.canvas.add(self.circle10)
-
-        self.circle11 = Line(circle=(self.width * 16.85, self.width * 1.2, self.width // 4), close=True, width=2)
-        self.canvas.add(self.circle11)
 
         # self.rectangle = Rectangle(pos=(500, 500), size=(self.width, self.width), source='assets/duck.png')
         # self.canvas.add(self.rectangle)
@@ -80,6 +48,41 @@ class GameBoard(Widget):
 
         self.player1 = Player()
         self.add_widget(self.player1)
+
+        print(self.width)
+
+        # self.circle1 = Line(circle=(self.width * 1.2, self.width * 1.2, self.width // 4), close=True, width=2)
+        # self.canvas.add(self.circle1)
+        #
+        # self.circle2 = Line(circle=(self.width * 3.1, self.width * 1.2, self.width // 4), close=True, width=2)
+        # self.canvas.add(self.circle2)
+        #
+        # self.circle3 = Line(circle=(self.width * 4.6, self.width * 1.2, self.width // 4), close=True, width=2)
+        # self.canvas.add(self.circle3)
+        #
+        # self.circle4 = Line(circle=(self.width * 6.05, self.width * 1.2, self.width // 4), close=True, width=2)
+        # self.canvas.add(self.circle4)
+        #
+        # self.circle5 = Line(circle=(self.width * 7.5, self.width * 1.2, self.width // 4), close=True, width=2)
+        # self.canvas.add(self.circle5)
+        #
+        # self.circle6 = Line(circle=(self.width * 9, self.width * 1.2, self.width // 4), close=True, width=2)
+        # self.canvas.add(self.circle6)
+        #
+        # self.circle7 = Line(circle=(self.width * 10.5, self.width * 1.2, self.width // 4), close=True, width=2)
+        # self.canvas.add(self.circle7)
+        #
+        # self.circle8 = Line(circle=(self.width * 11.95, self.width * 1.2, self.width // 4), close=True, width=2)
+        # self.canvas.add(self.circle8)
+        #
+        # self.circle9 = Line(circle=(self.width * 13.45, self.width * 1.2, self.width // 4), close=True, width=2)
+        # self.canvas.add(self.circle9)
+        #
+        # self.circle10 = Line(circle=(self.width * 14.95, self.width * 1.2, self.width // 4), close=True, width=2)
+        # self.canvas.add(self.circle10)
+        #
+        # self.circle11 = Line(circle=(self.width * 16.85, self.width * 1.2, self.width // 4), close=True, width=2)
+        # self.canvas.add(self.circle11)
 
         # self.player1.move([100, 200])
 
