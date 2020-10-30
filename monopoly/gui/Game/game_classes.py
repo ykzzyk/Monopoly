@@ -52,7 +52,7 @@ class GameBoard(Widget):
 
         # print(Window.width)
 
-        self.circle1 = Line(circle=(kivy.metrics.dp(15), kivy.metrics.dp(15), self.height//4), close=True, width=2)
+        self.circle1 = Line(circle=(kivy.metrics.dp(15), kivy.metrics.dp(15), kivy.metrics.dp(15)//2), close=True, width=2)
         self.canvas.add(self.circle1)
         #
         # self.circle2 = Line(circle=(self.width * 3.1, self.width * 1.2, self.width // 4), close=True, width=2)
