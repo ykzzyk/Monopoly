@@ -8,6 +8,7 @@ from kivy.core.window import Window
 from kivy.uix.label import Label
 from kivy.properties import ObjectProperty
 from kivy.graphics import Rectangle, Line
+import kivy.metrics
 import queue
 import random
 
@@ -51,7 +52,7 @@ class GameBoard(Widget):
 
         # print(Window.width)
 
-        self.circle1 = Line(circle=(self.width, self.height, self.width//4), close=True, width=2)
+        self.circle1 = Line(circle=(kivy.metrics.pt(15), kivy.metrics.pt(40), kivy.metrics.pt(15)), close=True, width=2)
         self.canvas.add(self.circle1)
         #
         # self.circle2 = Line(circle=(self.width * 3.1, self.width * 1.2, self.width // 4), close=True, width=2)
