@@ -9,6 +9,7 @@ from kivy.uix.image import Image
 from kivy.graphics import Rectangle, Color
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.graphics import *
+from kivy.properties import NumericProperty
 import webbrowser
 
 # Imports tools
@@ -21,11 +22,6 @@ cwd = pathlib.Path(os.path.abspath(__file__)).parent
 gui_widgets = cwd / 'gui'
 
 tools.fh.import_dir(gui_widgets)
-
-KIVY_DPI = 320
-KIVY_METRICS_DENSITY = 2
-KIVY_METRICS_FONTSCALE = 1.2
-
 
 class Logo(Screen):
     pass
@@ -46,12 +42,17 @@ class WindowManager(ScreenManager):
 
 
 class MonopolyApp(App):
+    # size_width = NumericProperty(0)
+    # size_height = NumericProperty(0)
 
     def build(self):
         Window.fullscreen = 0
         Window.clearcolor = (1, 1, 1, 1)
-        Window.size = (1980, 1080)
-        self.title = 'Monopoly - The Computer Science Edition'
+
+        # window_sizes = Window.size
+        # self.size_width, self.size_height = window_sizes
+        # print(self.size_width, self.size_height)
+        self.title = 'Monopoly'
 
         return kv
 

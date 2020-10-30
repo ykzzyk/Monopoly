@@ -21,6 +21,10 @@ class GameMap(Label):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+        print(self.width, self.width)
+
+        self.circle1 = Line(circle=(Window.height//20, Window.height//20, Window.height//50), close=True, width=2, size_hint=None)
+        self.canvas.add(self.circle1)
 
         # self.rectangle = Rectangle(pos=(500, 500), size=(self.width, self.width), source='assets/duck.png')
         # self.canvas.add(self.rectangle)
@@ -52,8 +56,7 @@ class GameBoard(Widget):
 
         # print(Window.width)
 
-        self.circle1 = Line(circle=(kivy.metrics.pt(50), kivy.metrics.pt(50), kivy.metrics.pt(15)), close=True, width=2)
-        self.canvas.add(self.circle1)
+
         #
         # self.circle2 = Line(circle=(self.width * 3.1, self.width * 1.2, self.width // 4), close=True, width=2)
         # self.canvas.add(self.circle2)
