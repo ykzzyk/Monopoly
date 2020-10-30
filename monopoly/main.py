@@ -22,6 +22,9 @@ gui_widgets = cwd / 'gui'
 
 tools.fh.import_dir(gui_widgets)
 
+KIVY_DPI = 320
+KIVY_METRICS_DENSITY = 2
+
 
 class Logo(Screen):
     pass
