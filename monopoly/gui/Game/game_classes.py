@@ -51,7 +51,7 @@ class GameBoard(Widget):
 
         # print(Window.width)
 
-        self.circle1 = Line(circle=(Window.width//2, Window.width//2, self.width//4), close=True, width=2)
+        self.circle1 = Line(circle=(self.width, self.height, self.width//4), close=True, width=2)
         self.canvas.add(self.circle1)
         #
         # self.circle2 = Line(circle=(self.width * 3.1, self.width * 1.2, self.width // 4), close=True, width=2)
@@ -100,7 +100,7 @@ class GameBoard(Widget):
         steps = step_1 + step_2
         print(steps)
 
-        self.player1.move([self.player1.pos[0] + 50, 0])
+        # self.player1.move([self.player1.pos[0] + 50, 0])
 
         """
         if step_1 == step_2:
