@@ -80,7 +80,7 @@ class GameBoard(Widget):
 
         #self.game_map.print_info()
         self.squirrel = Image(
-            source=r'C:\Users\daval\Documents\GitHub\Monopoly\monopoly\assets\squirrel.png', 
+            source='assets/squirrel.png', 
             size=(self.width//10, self.height//10),
             pos=(self.width//2, self.height//2)
         )
