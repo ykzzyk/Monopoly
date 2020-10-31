@@ -15,6 +15,7 @@ import random
 from pprint import pprint
 
 from General.general_classes import DynamicImage
+from General import constants as C
 
 
 class Game(Screen):
@@ -67,14 +68,25 @@ class GameBoard(Widget):
         """
 
         # self.game_map.print_info()
-        self.squirrel = DynamicImage(
-            source='assets/squirrel.png',
-            ratio_size=(0.1, 0.1),
-            ratio_pos=(0.5, 0.5),
-            root=self
-        )
 
-        self.add_widget(self.squirrel)
+        self.test_images = []
+        i = 0
+
+        for line_name in C.BOARD_LOCATIONS.keys():
+
+            for square_name, square_ratio_pos in C.BOARD_LOCATIONS[line_name].items():
+
+                print(f'{square_name}: {square_ratio_pos}')
+
+                self.test_images.append(DynamicImage(
+                    source='assets/debugging_arrow.png',
+                    ratio_size=(0.05, 0.05),
+                    ratio_pos=square_ratio_pos,
+                    root=self
+                ))
+
+                self.add_widget(self.test_images[i])
+                i += 1
 
     def cardInfoPopup(self):
         self.cardInfo.get_card(self.cardInfo.chance, 'chance')

@@ -1,8 +1,10 @@
 from kivy.uix.image import Image
+from kivy.uix.label import Label
+from kivy.graphics import Rectangle, Line
 
-def DynamicImage(Image):
+class DynamicWidget():
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
 
         # Extracting the unique keywords
         self.ratio_size = kwargs.pop('ratio_size')
@@ -17,12 +19,25 @@ def DynamicImage(Image):
         kwargs['size'] = size
         kwargs['pos'] = pos
 
-        # Inhereting the parent class's attributes
-        super(self).__init__(*args, **kwargs)
+        # Saving modified kwargs to account for the next inheritance
+        self.new_kwargs = kwargs
 
+    def create_binding(self):
         # Creating the binding function
         self.root.bind(size=self.update_size_pos, pos=self.update_size_pos)
 
     def update_size_pos(self, instance, _):
         self.size = (self.ratio_size[0]*instance.width, self.ratio_size[1]*instance.height)
         self.pos = (self.ratio_pos[0]*instance.width, self.ratio_pos[1]*instance.height)
+        
+class DynamicImage(DynamicWidget, Image):
+
+    def __init__(self, **kwargs):
+
+        DynamicWidget.__init__(self, **kwargs)
+        Image.__init__(self, **self.new_kwargs)
+        self.create_binding()
+
+        
+
+
