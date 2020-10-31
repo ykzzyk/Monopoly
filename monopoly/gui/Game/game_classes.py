@@ -1,4 +1,3 @@
-from os import SEEK_CUR
 from kivy.uix.screenmanager import Screen
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
@@ -15,7 +14,7 @@ import queue
 import random
 from pprint import pprint
 
-from monopoly.gui.General.general_classes import DynamicImage
+from General.general_classes import DynamicImage
 
 
 class Game(Screen):
