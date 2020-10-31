@@ -15,6 +15,10 @@ import queue
 import random
 from pprint import pprint
 
+# from ..General import general_classes as gcl
+
+from ...gui.General.general_classes import DynamicImage
+
 class Game(Screen):
     pass
 
@@ -64,24 +68,19 @@ class GameBoard(Widget):
         """
 
         #self.game_map.print_info()
-        self.squirrel = Image(
+        self.squirrel = DynamicImage(
             source='assets/squirrel.png', 
-            size=(self.width//10, self.height//10),
-            pos=(self.width//2, self.height//2)
+            ratio_size=(0.1,0.1),
+            ratio_pos=(0.5,0.5),
+            root=self
         )
         
         self.add_widget(self.squirrel)
-        self.bind(size=self._update_size_pos, pos=self._update_size_pos)
-
 
     def cardInfoPopup(self):
         self.cardInfo.get_card(self.cardInfo.chance, 'chance')
         self.cardInfo.open()
         Clock.schedule_once(lambda dt: self.cardInfo.dismiss(), 3)
-
-    def _update_size_pos(self, instance, value):
-        self.squirrel.size = (instance.width//10, self.height//10)
-        self.squirrel.pos = (instance.width//2, instance.height//2)
 
 class CardInfoPop(Popup):
     def __init__(self, **kwargs):
