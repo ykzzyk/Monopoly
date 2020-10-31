@@ -18,21 +18,6 @@ from pprint import pprint
 class Game(Screen):
     pass
 
-"""
-class GameMap(Label):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-        self.circle1 = Line(circle=(self.width, self.height//2, self.height//10), close=True, width=2, size_hint=None, color=(1,0,0,1))
-        self.canvas.add(self.circle1)
-
-    def print_info(self):
-
-        pprint(dir(self))
-        print(self.size)
-"""
-
-
 class Player(Label):
     rectangle = ObjectProperty(None)
 

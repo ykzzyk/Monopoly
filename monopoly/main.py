@@ -23,6 +23,7 @@ gui_widgets = cwd / 'gui'
 
 tools.fh.import_dir(gui_widgets)
 
+
 class Logo(Screen):
     pass
 
@@ -42,16 +43,10 @@ class WindowManager(ScreenManager):
 
 
 class MonopolyApp(App):
-    # size_width = NumericProperty(0)
-    # size_height = NumericProperty(0)
 
     def build(self):
         Window.fullscreen = 0
         Window.clearcolor = (1, 1, 1, 1)
-
-        # window_sizes = Window.size
-        # self.size_width, self.size_height = window_sizes
-        # print(self.size_width, self.size_height)
         self.title = 'Monopoly'
 
         return kv
