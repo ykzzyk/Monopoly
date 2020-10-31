@@ -15,12 +15,12 @@ import queue
 import random
 from pprint import pprint
 
-# from ..General import general_classes as gcl
+from monopoly.gui.General.general_classes import DynamicImage
 
-from ...gui.General.general_classes import DynamicImage
 
 class Game(Screen):
     pass
+
 
 class Player(Label):
     rectangle = ObjectProperty(None)
@@ -39,7 +39,7 @@ class Player(Label):
 class GameBoard(Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        
+
         self.cardInfo = CardInfoPop()
 
         self.player1 = Player()
@@ -67,20 +67,21 @@ class GameBoard(Widget):
             self.roll_dice(event)
         """
 
-        #self.game_map.print_info()
+        # self.game_map.print_info()
         self.squirrel = DynamicImage(
-            source='assets/squirrel.png', 
-            ratio_size=(0.1,0.1),
-            ratio_pos=(0.5,0.5),
+            source='assets/squirrel.png',
+            ratio_size=(0.1, 0.1),
+            ratio_pos=(0.5, 0.5),
             root=self
         )
-        
+
         self.add_widget(self.squirrel)
 
     def cardInfoPopup(self):
         self.cardInfo.get_card(self.cardInfo.chance, 'chance')
         self.cardInfo.open()
         Clock.schedule_once(lambda dt: self.cardInfo.dismiss(), 3)
+
 
 class CardInfoPop(Popup):
     def __init__(self, **kwargs):
