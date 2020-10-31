@@ -11,7 +11,7 @@
     Button:
         text: '[b][color=#ffffff]Build/\nSell[/color][/b]'
         background_normal: 'assets/house.png'
-        size: (Window.width//12, Window.width//12)
+        size: (root.width//6, root.width//6)
         background_down: 'assets/house-2.png'
         font_size: root.width // 80
         markup: True
@@ -25,7 +25,7 @@
         background_normal: 'assets/product.png'
 
         background_down: 'assets/product_2.png'
-        size: (Window.width//10, Window.width//10)
+        size: (root.width//6, root.width//6)
         font_size: root.width // 60
         markup: True
         outline_color: 0,0,0,1
@@ -35,14 +35,8 @@
     Button:
         text: '[b][color=#ffffff]Mortgage/\nRegain[/color][/b]'
         background_normal: 'assets/real.png'
-#        canvas.before:
-#            Color:
-#                rgba: .5, .5, .5, 1
-#            Line:
-#                width: Window.width//500
-#                rectangle: self.x, self.y, self.width, self.height
         background_down: 'assets/real-2.png'
-        size: (Window.width//12, Window.width//12)
+        size: (root.width//6, root.width//6)
         font_size: root.width // 80
         markup: True
         outline_color: 0,0,0,1

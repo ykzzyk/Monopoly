@@ -23,7 +23,7 @@ class GameMap(Label):
 
         print(self.width, self.width)
 
-        self.circle1 = Line(circle=(Window.height//20, Window.height//20, Window.height//50), close=True, width=2, size_hint=None)
+        self.circle1 = Line(circle=(Window.height//2, Window.height//2, Window.height//10), close=True, width=2, size_hint=None)
         self.canvas.add(self.circle1)
 
         # self.rectangle = Rectangle(pos=(500, 500), size=(self.width, self.width), source='assets/duck.png')
