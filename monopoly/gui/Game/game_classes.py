@@ -1,3 +1,4 @@
+from os import SEEK_CUR
 from kivy.uix.screenmanager import Screen
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
@@ -6,28 +7,30 @@ from kivy.uix.popup import Popup
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.uix.label import Label
+from kivy.uix.image import Image
 from kivy.properties import ObjectProperty
 from kivy.graphics import Rectangle, Line
 import kivy.metrics
 import queue
 import random
-
+from pprint import pprint
 
 class Game(Screen):
     pass
 
-
+"""
 class GameMap(Label):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        print(self.width, self.width)
-
-        self.circle1 = Line(circle=(Window.height//2, Window.height//2, Window.height//10), close=True, width=2, size_hint=None)
+        self.circle1 = Line(circle=(self.width, self.height//2, self.height//10), close=True, width=2, size_hint=None, color=(1,0,0,1))
         self.canvas.add(self.circle1)
 
-        # self.rectangle = Rectangle(pos=(500, 500), size=(self.width, self.width), source='assets/duck.png')
-        # self.canvas.add(self.rectangle)
+    def print_info(self):
+
+        pprint(dir(self))
+        print(self.size)
+"""
 
 
 class Player(Label):
@@ -47,48 +50,11 @@ class Player(Label):
 class GameBoard(Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        
         self.cardInfo = CardInfoPop()
-        game_map = GameMap()
-        self.add_widget(game_map)
 
         self.player1 = Player()
         self.add_widget(self.player1)
-
-        # print(Window.width)
-
-
-        #
-        # self.circle2 = Line(circle=(self.width * 3.1, self.width * 1.2, self.width // 4), close=True, width=2)
-        # self.canvas.add(self.circle2)
-        #
-        # self.circle3 = Line(circle=(self.width * 4.6, self.width * 1.2, self.width // 4), close=True, width=2)
-        # self.canvas.add(self.circle3)
-        #
-        # self.circle4 = Line(circle=(self.width * 6.05, self.width * 1.2, self.width // 4), close=True, width=2)
-        # self.canvas.add(self.circle4)
-        #
-        # self.circle5 = Line(circle=(self.width * 7.5, self.width * 1.2, self.width // 4), close=True, width=2)
-        # self.canvas.add(self.circle5)
-        #
-        # self.circle6 = Line(circle=(self.width * 9, self.width * 1.2, self.width // 4), close=True, width=2)
-        # self.canvas.add(self.circle6)
-        #
-        # self.circle7 = Line(circle=(self.width * 10.5, self.width * 1.2, self.width // 4), close=True, width=2)
-        # self.canvas.add(self.circle7)
-        #
-        # self.circle8 = Line(circle=(self.width * 11.95, self.width * 1.2, self.width // 4), close=True, width=2)
-        # self.canvas.add(self.circle8)
-        #
-        # self.circle9 = Line(circle=(self.width * 13.45, self.width * 1.2, self.width // 4), close=True, width=2)
-        # self.canvas.add(self.circle9)
-        #
-        # self.circle10 = Line(circle=(self.width * 14.95, self.width * 1.2, self.width // 4), close=True, width=2)
-        # self.canvas.add(self.circle10)
-        #
-        # self.circle11 = Line(circle=(self.width * 16.85, self.width * 1.2, self.width // 4), close=True, width=2)
-        # self.canvas.add(self.circle11)
-
-        # self.player1.move([100, 200])
 
     def roll_dice(self, event):
         dice_dict = {1: '\u2680', 2: '\u2681', 3: '\u2682', 4: '\u2683', 5: '\u2684', 6: '\u2685'}
@@ -112,11 +78,25 @@ class GameBoard(Widget):
             self.roll_dice(event)
         """
 
+        #self.game_map.print_info()
+        self.squirrel = Image(
+            source=r'C:\Users\daval\Documents\GitHub\Monopoly\monopoly\assets\squirrel.png', 
+            size=(self.width//10, self.height//10),
+            pos=(self.width//2, self.height//2)
+        )
+        
+        self.add_widget(self.squirrel)
+        self.bind(size=self._update_size_pos, pos=self._update_size_pos)
+
+
     def cardInfoPopup(self):
         self.cardInfo.get_card(self.cardInfo.chance, 'chance')
         self.cardInfo.open()
         Clock.schedule_once(lambda dt: self.cardInfo.dismiss(), 3)
 
+    def _update_size_pos(self, instance, value):
+        self.squirrel.size = (instance.width//10, self.height//10)
+        self.squirrel.pos = (instance.width//2, instance.height//2)
 
 class CardInfoPop(Popup):
     def __init__(self, **kwargs):
