@@ -13,7 +13,7 @@ class DynamicWidget():
 
         # Calculate the pixel size and pos
         size = (self.ratio_size[0]*self.root.width, self.ratio_size[1]*self.root.height)
-        pos = (self.ratio_pos[0]*self.root.width, self.ratio_pos[1]*self.root.height)
+        pos = (self.ratio_pos[0]*self.root.width-size[0]/4, self.ratio_pos[1]*self.root.height-size[1]/4)
 
         # Addint the new size and pos to kwargs
         kwargs['size'] = size
@@ -28,7 +28,7 @@ class DynamicWidget():
 
     def update_size_pos(self, instance, _):
         self.size = (self.ratio_size[0]*instance.width, self.ratio_size[1]*instance.height)
-        self.pos = (self.ratio_pos[0]*instance.width, self.ratio_pos[1]*instance.height)
+        self.pos = (self.ratio_pos[0]*instance.width-self.size[0]/4, self.ratio_pos[1]*instance.height-self.size[1]/4)
         
 class DynamicImage(DynamicWidget, Image):
 

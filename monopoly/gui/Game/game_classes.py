@@ -1,3 +1,4 @@
+
 from kivy.uix.screenmanager import Screen
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
@@ -9,10 +10,15 @@ from kivy.uix.label import Label
 from kivy.uix.image import Image
 from kivy.properties import ObjectProperty
 from kivy.graphics import Rectangle, Line
-import kivy.metrics
+from kivy.animation import Animation
+
 import queue
 import random
+import time
+
 from pprint import pprint
+
+# Local Imports
 
 from General.general_classes import DynamicImage
 from General import constants as C
@@ -22,28 +28,74 @@ class Game(Screen):
     pass
 
 
-class Player(Label):
+class Player(DynamicImage):
     rectangle = ObjectProperty(None)
 
-    def __init__(self, **kwargs):
+    def __init__(self,**kwargs):
+
+        # Save the board location
+        self.board_location = kwargs.pop('board_location')
+        self.root = kwargs['root']
+
+        # Obtain the pixel value of the board location
+        kwargs['ratio_pos'] = C.BOARD_LOCATIONS[self.board_location]
+        kwargs['ratio_size'] = (0.05, 0.05)
+        
+        # Run parent inheritance
         super().__init__(**kwargs)
 
-        # self.rectangle = Rectangle(pos=self.pos, size=(self.width, self.width), source='assets/duck.png')
-        # self.canvas.add(self.rectangle)
+    def move(self, new_board_location):
 
-    def move(self, pos):
-        self.pos = pos
-        self.rectangle.pos = self.pos
+        # Obtain the list of the board locations
+        list_board_locations = list(C.BOARD_LOCATIONS.keys())
 
+        # Obtain the numeric location of the old board location
+        start = list_board_locations.index(self.board_location)
+
+        # Obtain the numeric location of the new board location
+        end = list_board_locations.index(new_board_location)
+
+        # Update the board location
+        self.board_location = new_board_location
+
+        # Create animation for the whole movement
+        total_animations = Animation()
+
+        if start > end:
+            end = end + len(list_board_locations)
+
+        for i in range(start+1, end+1):
+
+            # Applying modulus on i
+            i = i % len(list_board_locations)
+
+            # Obtain the intermediate board location keys
+            board_location_key = list_board_locations[i]
+        
+            # Obtain the pixel location
+            new_pos = C.BOARD_LOCATIONS[board_location_key]
+
+            # Update the pos
+            new_centered_pos = (new_pos[0]*self.root.width-self.size[0]/4, new_pos[1]*self.root.height-self.size[1]/4)
+
+            # Create animation object
+            move_animation = Animation(pos=new_centered_pos, duration=0.3)
+
+            # Append animation to list
+            total_animations += move_animation
+
+        # Start the sequential animations
+        total_animations.start(self)
+
+        # Update the ratio_pos of the object
+        self.ratio_pos = new_pos
 
 class GameBoard(Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
+        
+        self.created_player = False
         self.cardInfo = CardInfoPop()
-
-        self.player1 = Player()
-        self.add_widget(self.player1)
 
     def roll_dice(self, event):
         dice_dict = {1: '\u2680', 2: '\u2681', 3: '\u2682', 4: '\u2683', 5: '\u2684', 6: '\u2685'}
@@ -55,20 +107,29 @@ class GameBoard(Widget):
 
         step_1 = list(dice_dict.keys())[list(dice_dict.values()).index(dice_1)]
         step_2 = list(dice_dict.keys())[list(dice_dict.values()).index(dice_2)]
-
         steps = step_1 + step_2
-        print(steps)
 
-        # self.player1.move([self.player1.pos[0] + 50, 0])
+        # Create player
+        if self.created_player is False:
+            self.player1 = Player(root = self, source='assets/duck.png', board_location='GO')
+            self.add_widget(self.player1)
+            self.created_player = True
+            return 0
+
+        # Obtain the players location and index along all the possible locations
+        original_place = self.player1.board_location
+        original_id = list(C.BOARD_LOCATIONS.keys()).index(original_place)
+        
+        # Calculate the final step location
+        final_id = (steps + original_id) % len(list(C.BOARD_LOCATIONS.keys()))
+        
+        # Retrive the key for the location
+        final_place = list(C.BOARD_LOCATIONS.keys())[final_id]
+        
+        # Move the player
+        self.player1.move(final_place)
 
         """
-        if step_1 == step_2:
-            print('Please roll again!')
-            self.roll_dice(event)
-        """
-
-        # self.game_map.print_info()
-
         self.test_images = []
         i = 0
 
@@ -79,7 +140,7 @@ class GameBoard(Widget):
                 print(f'{square_name}: {square_ratio_pos}')
 
                 self.test_images.append(DynamicImage(
-                    source='assets/debugging_arrow.png',
+                    source='assets/squirrel.png',
                     ratio_size=(0.05, 0.05),
                     ratio_pos=square_ratio_pos,
                     root=self
@@ -87,6 +148,8 @@ class GameBoard(Widget):
 
                 self.add_widget(self.test_images[i])
                 i += 1
+
+        """
 
     def cardInfoPopup(self):
         self.cardInfo.get_card(self.cardInfo.chance, 'chance')
