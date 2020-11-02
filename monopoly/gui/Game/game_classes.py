@@ -14,6 +14,7 @@ from kivy.animation import Animation
 import queue
 import random
 import time
+import functools
 
 from pprint import pprint
 
@@ -46,6 +47,8 @@ class Player(DynamicImage):
         self.doubles_counter = 0
         self.in_jail = False
         self.money = 1500
+
+        self.root_size_before = self.root.size
 
     def move(self, new_board_location):
 
@@ -90,6 +93,13 @@ class Player(DynamicImage):
         # Start the sequential animations
         total_animations.start(self)
 
+        # Bind the animation to the size of the window
+        self.stop_animation_flag = False
+        self.binding_function = lambda x, y: self.stop_animation(new_pos, x, y)
+
+        #total_animations.bind(on_complete=unbinding_function)
+        self.root.bind(size=self.binding_function)
+
         # Update the ratio_pos of the object
         self.ratio_pos = new_pos
 
@@ -115,6 +125,21 @@ class Player(DynamicImage):
         # Update the ratio_pos of the object
         self.ratio_pos = new_pos
 
+    def stop_animation(self, final_pos, instance, value):
+
+        if self.stop_animation_flag is False:
+
+            # Stop all animations occuring on the self player widget
+            Animation.stop_all(self)
+
+            # Set the final pos to the widget
+            self.ratio_pos = final_pos
+
+        # Make sure this function only passes once
+        self.stop_animation_flag = True
+
+        # Unbind this function
+        self.root.unbind(size=self.binding_function)
 
 class GameBoard(Widget):
     def __init__(self, **kwargs):
