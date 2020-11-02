@@ -1,4 +1,3 @@
-
 from kivy.uix.screenmanager import Screen
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
@@ -31,18 +30,22 @@ class Game(Screen):
 class Player(DynamicImage):
     rectangle = ObjectProperty(None)
 
-    def __init__(self,**kwargs):
+    def __init__(self, **kwargs):
 
         # Save the board location
         self.board_location = kwargs.pop('board_location')
         self.root = kwargs['root']
+        self.name = kwargs.pop('player_name')
 
         # Obtain the pixel value of the board location
         kwargs['ratio_pos'] = C.BOARD_LOCATIONS[self.board_location]
         kwargs['ratio_size'] = (0.05, 0.05)
-        
+
         # Run parent inheritance
         super().__init__(**kwargs)
+        self.doubles_counter = 0
+        self.in_jail = False
+        self.money = 1500
 
     def move(self, new_board_location):
 
@@ -61,22 +64,22 @@ class Player(DynamicImage):
         # Create animation for the whole movement
         total_animations = Animation()
 
-        if start > end:
+        if start >= end:
             end = end + len(list_board_locations)
 
-        for i in range(start+1, end+1):
-
+        for i in range(start + 1, end + 1):
             # Applying modulus on i
             i = i % len(list_board_locations)
 
             # Obtain the intermediate board location keys
             board_location_key = list_board_locations[i]
-        
+
             # Obtain the pixel location
             new_pos = C.BOARD_LOCATIONS[board_location_key]
 
             # Update the pos
-            new_centered_pos = (new_pos[0]*self.root.width-self.size[0]/4, new_pos[1]*self.root.height-self.size[1]/4)
+            new_centered_pos = (
+                new_pos[0] * self.root.width - self.size[0] / 4, new_pos[1] * self.root.height - self.size[1] / 4)
 
             # Create animation object
             move_animation = Animation(pos=new_centered_pos, duration=0.3)
@@ -90,11 +93,44 @@ class Player(DynamicImage):
         # Update the ratio_pos of the object
         self.ratio_pos = new_pos
 
+    def move_direct(self, destination):
+
+        # Update the board location
+        self.board_location = destination
+
+        # Obtain the pixel location
+        new_pos = C.BOARD_LOCATIONS[destination]
+
+        # Update the pos
+        new_centered_pos = (
+            new_pos[0] * self.root.width - self.size[0] / 4, new_pos[1] * self.root.height - self.size[1] / 4
+        )
+
+        # Create animation object
+        move_animation = Animation(pos=new_centered_pos, duration=0.3)
+
+        # Start the sequential animations
+        move_animation.start(self)
+
+        # Update the ratio_pos of the object
+        self.ratio_pos = new_pos
+
+
 class GameBoard(Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        
-        self.created_player = False
+
+        player1 = Player(root=self, source='assets/duck.png', board_location='GO', player_name='Duck')
+        player2 = Player(root=self, source='assets/squirrel.png', board_location='GO', player_name='Squirrel')
+
+        self.players = [player1, player2]
+
+        for player in self.players:
+            self.add_widget(player)
+
+        self.current_player_turn = 0
+
+        # self.created_player = False
         self.cardInfo = CardInfoPop()
 
     def roll_dice(self, event):
@@ -109,47 +145,49 @@ class GameBoard(Widget):
         step_2 = list(dice_dict.keys())[list(dice_dict.values()).index(dice_2)]
         steps = step_1 + step_2
 
-        # Create player
-        if self.created_player is False:
-            self.player1 = Player(root = self, source='assets/duck.png', board_location='GO')
-            self.add_widget(self.player1)
-            self.created_player = True
-            return 0
+        # Set an flag for next player turn
+        next_player_turn = True
+
+        self.ids.message_current_player_turn.text = f"[b][color=#800000]{self.players[self.current_player_turn].name}'s TURN![/color][/b]"
+
+        # Add to the doubles counter
+        if step_1 == step_2:
+            next_player_turn = False
+            self.players[self.current_player_turn].doubles_counter += 1
 
         # Obtain the players location and index along all the possible locations
-        original_place = self.player1.board_location
+        original_place = self.players[self.current_player_turn].board_location
         original_id = list(C.BOARD_LOCATIONS.keys()).index(original_place)
-        
-        # Calculate the final step location
-        final_id = (steps + original_id) % len(list(C.BOARD_LOCATIONS.keys()))
-        
-        # Retrive the key for the location
-        final_place = list(C.BOARD_LOCATIONS.keys())[final_id]
-        
-        # Move the player
-        self.player1.move(final_place)
 
-        """
-        self.test_images = []
-        i = 0
+        # If player should go to jail for rolling doubles three times
+        if self.players[self.current_player_turn].doubles_counter == 3:
 
-        for line_name in C.BOARD_LOCATIONS.keys():
+            # Reset counter
+            self.players[self.current_player_turn].doubles_counter = 0
 
-            for square_name, square_ratio_pos in C.BOARD_LOCATIONS[line_name].items():
+            # Move the player to Jail
+            self.players[self.current_player_turn].move_direct('Jail')
 
-                print(f'{square_name}: {square_ratio_pos}')
+            self.players[self.current_player_turn].in_jail = True
 
-                self.test_images.append(DynamicImage(
-                    source='assets/squirrel.png',
-                    ratio_size=(0.05, 0.05),
-                    ratio_pos=square_ratio_pos,
-                    root=self
-                ))
+            # If going to jail, the next player plays instead
+            next_player_turn = True
+        else:
+            # Calculate the final step location
+            final_id = (steps + original_id) % len(list(C.BOARD_LOCATIONS.keys()))
 
-                self.add_widget(self.test_images[i])
-                i += 1
+            # Retrive the key for the location
+            final_place = list(C.BOARD_LOCATIONS.keys())[final_id]
 
-        """
+            # Move player
+            self.players[self.current_player_turn].move(final_place)
+
+        # Update to next player if doubles is not true
+        if next_player_turn:
+            self.players[self.current_player_turn].doubles_counter = 0
+            self.current_player_turn = (self.current_player_turn + 1) % len(self.players)
+
+        self.ids.message_next_player_turn.text = f"[b][color=#800000]\n\nNext is {self.players[self.current_player_turn].name}![/color][/b]"
 
     def cardInfoPopup(self):
         self.cardInfo.get_card(self.cardInfo.chance, 'chance')

@@ -2,7 +2,7 @@
 
 <GameBoard@Widget>:
 
-    canvas:
+    canvas.before:
         Rectangle:
             source: 'assets/clean_monopoly_classic_board.jpg'
             size: root.height, root.height
@@ -75,6 +75,22 @@
         font_name: "assets/DejaVuSans.ttf"
         size: (root.width//10, root.width//10)
         pos: (root.width//2.35, root.height//1.4)
+
+    Label:
+        id: message_current_player_turn
+        text: '[b][color=#800000]Welcome to Monopoly[/b][/color]'
+        markup: True
+        font_size: root.width // 30
+        size: (root.width//20, root.width//20)
+        pos: (root.width//2, root.height//2)
+
+    Label:
+        id: message_next_player_turn
+        markup: True
+        font_size: root.width // 30
+        size: (root.width//20, root.width//20)
+        pos: (root.width//2, root.height//2)
+
 
 <CardInfoPop@Popup>:
     size_hint: (None, None)
