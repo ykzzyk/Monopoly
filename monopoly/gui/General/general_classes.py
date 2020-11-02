@@ -38,6 +38,12 @@ class DynamicImage(DynamicWidget, Image):
         Image.__init__(self, **self.new_kwargs)
         self.create_binding()
 
+"""
+class PlayerIcon(Label):
+
+    rectangle = ObjectProperty()
+"""
+
         
 
 

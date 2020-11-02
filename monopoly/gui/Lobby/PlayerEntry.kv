@@ -10,9 +10,23 @@
             width: 1.1
             rectangle: self.x, self.y, self.width, self.height
 
-    PlayerInfo:
-        id: player_info
-        name: 'player_info'
+    GridLayout:
+        cols: 2
+
+        Label:
+            id: player_text
+            name: 'player_text'
+
+            text: '[b][color=#FF7F00]<Player Name>\n<IP Address>[/color][/b]'
+            font_size: root.height//3
+            markup: True
+            halign: 'left'
+            valign: 'middle'
+            text_size: self.size
+
+        PlayerIcon
+            id: player_icon
+            name: 'player_icon'
 
     Button:
         id: ready_button

@@ -120,8 +120,8 @@ class GameBoard(Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        player1 = Player(root=self, source='assets/duck.png', board_location='GO', player_name='Duck')
-        player2 = Player(root=self, source='assets/squirrel.png', board_location='GO', player_name='Squirrel')
+        player1 = Player(root=self, source='assets/player_icons/duck.png', board_location='GO', player_name='Duck')
+        player2 = Player(root=self, source='assets/player_icons/squirrel.png', board_location='GO', player_name='Squirrel')
 
         self.players = [player1, player2]
 
@@ -238,6 +238,6 @@ class CardInfoPop(Popup):
         # Change the card texts
         self.ids.card_info.text = f'[b][color=#000000]{card}[/color][/b]'
         # Change the display image
-        self.ids.card_image.source = f"assets/{name}.png"
+        self.ids.card_image.source = f"assets/background/{name}.png"
 
         return card

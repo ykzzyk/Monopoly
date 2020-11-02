@@ -3,7 +3,7 @@
     BoxLayout:
         id: base_layout
         name: 'base_layout'
-        padding: [self.width // 25, self.height//25, self.width // 25, self.height//25]
+        padding: [self.width // 20, self.height//20, self.width // 20, self.height//20]
 
         orientation: 'vertical'
         
@@ -12,27 +12,45 @@
             name: 'enter_player_name'
 
             text: "Enter Player Name"
+            size_hint_y: 0.1
 
         TextInput:
             id: player_id
             name: 'player_id'
 
-            text: "player id"
+            text: "player1"
+            size_hint_y: 0.1
 
         Label:
             id: select_player_icon
             name: 'select_player_icon'
 
             text: "Select Player Icon:"
+            size_hint_y: 0.1
 
         Spinner:
-            text: 'Home'
-            values: 'Home', 'Work', 'Other', 'Custom'
+            id: selected_player_icon
+            name: 'selected_player_icon'
+
+            text: 'boot'
+            values: root.options.keys()
+            size_hint_y: 0.1
+
+        Image:
+            # https://stackoverflow.com/questions/59725636/how-can-i-make-in-kivy-spinner-change-source-of-the-image-by-clicking-on-value
+            id: spinner_image
+            
+            source: root.options.get(selected_player_icon.text)#, 'mylogo.png')
+            size_hint_y: 0.5
+            pos_hint: {'center_x': 0.5, 'center_y': 0.75}
 
         BoxLayout:
             id: button_layout
             name: 'button_layout'
-
+            
+            size_hint_y: 0.2
+            #padding: [self.width // 20, self.height//20, self.width // 20, self.height//20]
+            spacing: [self.width//20, self.width // 20]
             orientation: 'horizontal'
 
             Button:
@@ -47,3 +65,4 @@
                 name: 'accept_button'
 
                 text: 'Accept'
+                on_release: root.accept_player_info()

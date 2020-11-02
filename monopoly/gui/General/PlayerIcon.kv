@@ -5,19 +5,22 @@
     halign: 'right'
     valign: 'middle'
     text_size: self.size
-    
-    canvas.before:
+
+    canvas:
+        
+        Color:
+            rgb: [1,1,1]
+
+        Ellipse:
+            size: (min(root.size), min(root.size))
+            pos: (root.pos[0] - min(root.size)//2 + self.width/2, root.pos[1] - min(root.size)//2 + self.height/2)
+            # source: 'assets/duck.png'
+
         Color:
             rgb: [0,0,0]
         Line:
             width: 1.1
             circle: 
-                (self.pos[0]+self.width/2, self.pos[1]+self.height/2, min(self.width, self.height)
+                (self.pos[0] + self.width/2, self.pos[1] + self.height/2, min(self.width, self.height)
                 / 2, 0, 360)
-    canvas:
-        Ellipse:
-            pos: self.pos
-            size: [min(self.width, self.height),min(self.width, self.height)]
-            source: 'assets/duck.png'
-            angle_start: 0
-            angle_end: 360
+        

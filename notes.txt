@@ -15,3 +15,6 @@ Accessing ids within Python and kivy (can only do after __init__ is done)
 
 To find available widgets on Kivy, use this link:
 # https://kivy.org/doc/stable/api-kivy.uix.html
+
+How to find the reference between all the widgets in Kivy
+# https://stackoverflow.com/questions/35792621/kivy-get-widgets-ids-and-accessing-widgets-by-unique-property
