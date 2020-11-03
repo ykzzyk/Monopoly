@@ -56,7 +56,7 @@
         outline_color: 0,0,0,1
         outline_width: 3
         on_release:
-            root.roll_dice(None)
+            root.player_turn()
 
     Label:
         id: dice_1
@@ -121,3 +121,55 @@
         Image:
             source: "assets/background/master.png"
 
+
+<JailSelectPop@Popup>:
+    size_hint: (None, None)
+    size: (Window.width//2, Window.height//2)
+    title: ""
+    separator_height: 0
+    background: "assets/background/card.jpg"
+    auto_dismiss: False
+
+    GridLayout:
+        rows: 3
+
+        Image:
+            source: 'assets/background/monopoly_logo.png'
+
+        Label:
+            id: current_player_name
+            text: ''
+            font_size: root.width // 40
+            markup: True
+
+        GridLayout:
+            cols: 2
+            size_hint_y: 0.5
+            spacing: [root.width//15, root.width//15]
+            padding: [root.width//15, 0, root.width//15, root.width//30]
+            Button:
+                text: '[b][color=#ffffff]Pay $50[/b][/color]'
+                font_size: root.width // 42
+                background_normal: 'assets/buttons/red.png'
+                markup: True
+                canvas.before:
+                    Color:
+                        rgba: .1, .1, .1, 1
+                    Line:
+                        width: 5
+                        rectangle: self.x, self.y, self.width, self.height
+                on_release: root.player_decision('pay')
+
+            Button:
+                text: '[b][color=#ffffff]Roll Again[/b][/color]'
+                font_size: root.width // 42
+                background_normal: 'assets/buttons/red.png'
+                markup: True
+                canvas.before:
+                    Color:
+                        rgba: .1, .1, .1, 1
+                    Line:
+                        width: 5
+                        rectangle: self.x, self.y, self.width, self.height
+                on_release:
+                    root.player_decision('roll')
