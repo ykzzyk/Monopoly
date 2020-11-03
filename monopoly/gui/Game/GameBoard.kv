@@ -46,6 +46,7 @@
 
 
     Button:
+        id: player_turn_button
         text: '[b][color=#ffffff]Roll![/color][/b]'
         background_normal: 'assets/buttons/dice.png'
         background_down: 'assets/buttons/dice2.png'
@@ -55,8 +56,6 @@
         markup: True
         outline_color: 0,0,0,1
         outline_width: 3
-        on_release:
-            root.player_turn()
 
     Label:
         id: dice_1

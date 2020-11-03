@@ -45,7 +45,6 @@ class Player(DynamicImage):
         # Run parent inheritance
         super().__init__(**kwargs)
         self.doubles_counter = 0
-        self.in_jail = False
         self.in_jail_counter = -1
         self.money = 1500
 
@@ -86,13 +85,22 @@ class Player(DynamicImage):
                 new_pos[0] * self.root.width - self.size[0] / 4, new_pos[1] * self.root.height - self.size[1] / 4)
 
             # Create animation object
-            move_animation = Animation(pos=new_centered_pos, duration=0.1)
+            move_animation = Animation(pos=new_centered_pos, duration=0.5)
 
             # Append animation to list
             total_animations += move_animation
 
         # Start the sequential animations
         total_animations.start(self)
+
+        # Unbind the roll dice button to prevent glitching
+        self.root.ids.player_turn_button.unbind(on_release=self.root.player_turn)
+
+        # Construct the rebinding function
+        rebinding_button = lambda _, __: self.root.ids.player_turn_button.bind(on_release=self.root.player_turn)
+
+        # Bind the completion of the animation to rebinding the roll_dice function
+        total_animations.bind(on_complete=rebinding_button)
 
         # Bind the animation to the size of the window
         self.stop_animation_flag = False
@@ -159,6 +167,9 @@ class GameBoard(Widget):
 
         self.cardInfo = CardInfoPop(root=self)
 
+        # Accessing ids after they are avaliable
+        Clock.schedule_once(lambda _: self.ids.player_turn_button.bind(on_release=self.player_turn))
+
     def roll_dice(self, event):
         dice_dict = {1: '\u2680', 2: '\u2681', 3: '\u2682', 4: '\u2683', 5: '\u2684', 6: '\u2685'}
         dice_1 = random.choice(list(dice_dict.values()))
@@ -187,22 +198,21 @@ class GameBoard(Widget):
         # Move player
         self.players[self.current_player_turn].move(final_place)
 
-    def player_turn(self, rolls=None):
+        return final_place
 
-        # If player in jail, perform jail behavior
-        if self.players[self.current_player_turn].in_jail:
+    def player_turn(self, *args, rolls=None):
 
-            # If the player has been in jail for three times, then kick them out
-            if self.players[self.current_player_turn].in_jail_counter > 2:
-                self.players[self.current_player_turn].money -= 50
-                self.players[self.current_player_turn].in_jail_counter = -1
+        # If the player has been in jail for three times, then kick them out
+        if self.players[self.current_player_turn].in_jail_counter > 1:
+            self.players[self.current_player_turn].money -= 50
+            self.players[self.current_player_turn].in_jail_counter = -1
 
-            # Else, ask them if they would like to pay to get out or try to roll doubles
-            else:
-                self.jail_select = JailSelectPop(root=self, current_player=self.players[self.current_player_turn].name)
-                self.jail_select.open()
+        # Else, ask them if they would like to pay to get out or try to roll doubles
+        elif self.players[self.current_player_turn].in_jail_counter >= 0:
+            self.jail_select = JailSelectPop(root=self, current_player=self.players[self.current_player_turn].name)
+            self.jail_select.open()
 
-                return 0
+            return 0
 
         '''
         # Roll the dice and get their values
@@ -224,9 +234,6 @@ class GameBoard(Widget):
             # Set an flag for next player turn
             next_player_turn = False
 
-        # else:
-        # Next player's turn
-
         # Check if doubles three times, if so, move the player to jail
         if self.players[self.current_player_turn].doubles_counter == 3:
 
@@ -237,7 +244,6 @@ class GameBoard(Widget):
             self.players[self.current_player_turn].move_direct('Jail')
 
             # Update jail attributes
-            self.players[self.current_player_turn].in_jail = True
             self.players[self.current_player_turn].in_jail_counter = 0
 
             # If going to jail, the next player plays instead
@@ -251,7 +257,10 @@ class GameBoard(Widget):
             self.ids.message_current_player_turn.text = f"[b][color=#800000]Current player {self.players[self.current_player_turn].name}[/color][/b]"
 
             # If player is not in jail, let them move
-            self.move_player(steps)
+            final_place = self.move_player(steps)
+
+            # Processing the action depending on the square name
+            #if
 
         # Update to next player if doubles is not true
         if next_player_turn:
@@ -265,12 +274,12 @@ class GameBoard(Widget):
 
         # Roll the dice
         # step_1, step_2 = self.roll_dice(None)
-        step_1 = step_2 = 2
+        step_1 = 1
+        step_2 = 3
 
         # If they roll doubles, then let them out
         if step_1 == step_2:
             self.players[self.current_player_turn].doubles_counter = 0
-            self.players[self.current_player_turn].in_jail = False
             self.players[self.current_player_turn].in_jail_counter = -1
             self.player_turn([step_1, step_2])
 
@@ -285,7 +294,6 @@ class GameBoard(Widget):
 
         # Change attributes to make player out of jail
         self.players[self.current_player_turn].money -= 50
-        self.players[self.current_player_turn].in_jail = False
         self.players[self.current_player_turn].in_jail_counter = -1
 
     def cardInfoPopup(self):
