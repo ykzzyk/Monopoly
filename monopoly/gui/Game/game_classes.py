@@ -117,6 +117,7 @@ class Player(DynamicImage):
         # Update the ratio_pos of the object
         self.ratio_pos = new_pos
 
+        return move_animation
 
 class GameBoard(Widget):
 
@@ -171,7 +172,7 @@ class GameBoard(Widget):
         else:
             step_1, step_2 = rolls
         '''
-        step_1 = 3
+        step_1 = 4
         step_2 = 4
 
         self.next_player_turn = True
@@ -191,7 +192,8 @@ class GameBoard(Widget):
             self.players[self.current_player_turn].doubles_counter = 0
 
             # Move the player to Jail
-            self.players[self.current_player_turn].move_direct('Jail')
+            move_animation = self.players[self.current_player_turn].move_direct(self.squares['Jail'])
+            move_animation.bind(on_complete=lambda _, __: self.player_end_turn(final_square=self.squares['Jail']))
 
             # Update jail attributes
             self.players[self.current_player_turn].in_jail_counter = 0
@@ -217,10 +219,16 @@ class GameBoard(Widget):
         # Processing the action depending on the square name
         # If land on the chance:
         if final_square.is_chance:
-            self.cardInfoPopup('chance')
+            chance_card = self.cardInfo.get_card(self.cardInfo.chance, 'chance')
+            self.cardInfo.open()
+            Clock.schedule_once(lambda dt: self.cardInfo.dismiss(), 3)
+            if 'ST.CHARLES PLACE' in chance_card:
+                self.players[self.current_player_turn].move_direct(self.squares['Pk1'])
 
-        elif final_square.is_chest:
-            self.cardInfoPopup('chest')
+        if final_square.is_chest:
+            chest_card = self.cardInfo.get_card(self.cardInfo.chest, 'chest')
+            self.cardInfo.open()
+            Clock.schedule_once(lambda dt: self.cardInfo.dismiss(), 3)
 
         # Update to next player if doubles is not true
         if self.next_player_turn:
@@ -287,7 +295,7 @@ class GameBoard(Widget):
         else:
             self.players[self.current_player_turn].in_jail_counter += 1
             self.current_player_turn = (self.current_player_turn + 1) % len(self.players)
-            self.ids.message_next_player_turn.text = f"[b][color=#800000]\n\nNext is {self.players[self.current_player_turn].name}![/color][/b]"
+            self.ids.message_player_turn.text = f"[b][color=#800000]\n\nNext is {self.players[self.current_player_turn].name}![/color][/b]"
             return 0
 
     def pay_out_jail(self):
@@ -295,11 +303,6 @@ class GameBoard(Widget):
         # Change attributes to make player out of jail
         self.players[self.current_player_turn].money -= 50
         self.players[self.current_player_turn].in_jail_counter = -1
-
-    def cardInfoPopup(self, card_type):
-        self.cardInfo.get_card(self.cardInfo.chance, card_type)
-        self.cardInfo.open()
-        Clock.schedule_once(lambda dt: self.cardInfo.dismiss(), 3)
 
     def stop_animation(self, *args):
 
