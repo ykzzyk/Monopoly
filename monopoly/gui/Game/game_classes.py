@@ -94,10 +94,10 @@ class Player(DynamicImage):
         total_animations.start(self)
 
         # Unbind the roll dice button to prevent glitching
-        self.root.ids.player_turn_button.unbind(on_release=self.root.player_turn)
+        self.root.ids.player_turn_button.unbind(on_release=self.root.player_start_turn)
 
         # Construct the rebinding function
-        rebinding_button = lambda _, __: self.root.ids.player_turn_button.bind(on_release=self.root.player_turn)
+        rebinding_button = lambda _, __: self.root.ids.player_turn_button.bind(on_release=self.root.player_start_turn)
 
         # Bind the completion of the animation to rebinding the roll_dice function
         total_animations.bind(on_complete=rebinding_button)
@@ -168,7 +168,7 @@ class GameBoard(Widget):
         self.cardInfo = CardInfoPop(root=self)
 
         # Accessing ids after they are avaliable
-        Clock.schedule_once(lambda _: self.ids.player_turn_button.bind(on_release=self.player_turn))
+        Clock.schedule_once(lambda _: self.ids.player_turn_button.bind(on_release=self.player_start_turn))
 
     def roll_dice(self, event):
         dice_dict = {1: '\u2680', 2: '\u2681', 3: '\u2682', 4: '\u2683', 5: '\u2684', 6: '\u2685'}
@@ -200,7 +200,7 @@ class GameBoard(Widget):
 
         return final_place
 
-    def player_turn(self, *args, rolls=None):
+    def player_start_turn(self, *args, rolls=None):
 
         # If the player has been in jail for three times, then kick them out
         if self.players[self.current_player_turn].in_jail_counter > 1:
@@ -221,8 +221,8 @@ class GameBoard(Widget):
         else:
             step_1, step_2 = rolls
         '''
-        step_1 = 2
-        step_2 = 2
+        step_1 = 3
+        step_2 = 4
 
         next_player_turn = True
 
@@ -260,7 +260,12 @@ class GameBoard(Widget):
             final_place = self.move_player(steps)
 
             # Processing the action depending on the square name
-            #if
+            # If land on the chance:
+            if final_place == ('Chance1' or 'Chance2' or 'Chance3'):
+                self.cardInfoPopup('chance')
+
+            if final_place == ('Chest1' or 'Chest2' or 'Chest3'):
+                self.cardInfoPopup('chest')
 
         # Update to next player if doubles is not true
         if next_player_turn:
@@ -269,6 +274,9 @@ class GameBoard(Widget):
 
         # Update the next turn text
         self.ids.message_next_player_turn.text = f"[b][color=#800000]\n\nNext is {self.players[self.current_player_turn].name}![/color][/b]"
+
+    def player_end_turn(self, final_place):
+        pass
 
     def roll_out_jail(self):
 
@@ -281,7 +289,7 @@ class GameBoard(Widget):
         if step_1 == step_2:
             self.players[self.current_player_turn].doubles_counter = 0
             self.players[self.current_player_turn].in_jail_counter = -1
-            self.player_turn([step_1, step_2])
+            self.player_start_turn([step_1, step_2])
 
         # If they don't roll a doubles, they stay in jail and move to the next player
         else:
@@ -296,10 +304,11 @@ class GameBoard(Widget):
         self.players[self.current_player_turn].money -= 50
         self.players[self.current_player_turn].in_jail_counter = -1
 
-    def cardInfoPopup(self):
-        self.cardInfo.get_card(self.cardInfo.chance, 'chance')
+    def cardInfoPopup(self, card_type):
+        self.cardInfo.get_card(self.cardInfo.chance, card_type)
         self.cardInfo.open()
         Clock.schedule_once(lambda dt: self.cardInfo.dismiss(), 3)
+
 
 
 class CardInfoPop(Popup):
@@ -374,3 +383,7 @@ class JailSelectPop(Popup):
 
         # Dismiss the popup
         self.dismiss()
+
+
+class BoardSquare:
+    pass
