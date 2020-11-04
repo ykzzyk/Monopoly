@@ -93,24 +93,10 @@ class Player(DynamicImage):
         # Start the sequential animations
         total_animations.start(self)
 
-        # Unbind the roll dice button to prevent glitching
-        self.root.ids.player_turn_button.unbind(on_release=self.root.player_start_turn)
-
-        # Construct the rebinding function
-        rebinding_button = lambda _, __: self.root.ids.player_turn_button.bind(on_release=self.root.player_start_turn)
-
-        # Bind the completion of the animation to rebinding the roll_dice function
-        total_animations.bind(on_complete=rebinding_button)
-
-        # Bind the animation to the size of the window
-        self.stop_animation_flag = False
-        self.binding_function = lambda x, y: self.stop_animation(new_pos, x, y)
-
-        # total_animations.bind(on_complete=unbinding_function)
-        self.root.bind(size=self.binding_function)
-
         # Update the ratio_pos of the object
         self.ratio_pos = new_pos
+
+        return total_animations
 
     def move_direct(self, destination):
 
@@ -134,23 +120,8 @@ class Player(DynamicImage):
         # Update the ratio_pos of the object
         self.ratio_pos = new_pos
 
-    def stop_animation(self, final_pos, instance, value):
-
-        if self.stop_animation_flag is False:
-            # Stop all animations occuring on the self player widget
-            Animation.stop_all(self)
-
-            # Set the final pos to the widget
-            self.ratio_pos = final_pos
-
-        # Make sure this function only passes once
-        self.stop_animation_flag = True
-
-        # Unbind this function
-        self.root.unbind(size=self.binding_function)
-
-
 class GameBoard(Widget):
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -196,11 +167,24 @@ class GameBoard(Widget):
         final_place = list(C.BOARD_LOCATIONS.keys())[final_id]
 
         # Move player
-        self.players[self.current_player_turn].move(final_place)
+        move_animation = self.players[self.current_player_turn].move(final_place)
 
-        return final_place
+        # Perform bindings
+        # Unbind the roll dice button to prevent glitching
+        self.ids.player_turn_button.unbind(on_release=self.player_start_turn)
+
+        # Bind the completion of the animation to rebinding the roll_dice function
+        move_animation.bind(on_complete=lambda _,__: self.player_end_turn(final_place=final_place))
+
+        # Bind the animation to the size of the window
+        #print(f'Binding the stop_animation function for player: {self.players[self.current_player_turn].name}')
+        self.stop_animation_flag = False
+        self.bind(size=self.stop_animation)
 
     def player_start_turn(self, *args, rolls=None):
+
+        # Update the current turn text
+        self.ids.message_player_turn.text = f"[b][color=#800000]Current player {self.players[self.current_player_turn].name}[/color][/b]"
 
         # If the player has been in jail for three times, then kick them out
         if self.players[self.current_player_turn].in_jail_counter > 1:
@@ -224,7 +208,7 @@ class GameBoard(Widget):
         step_1 = 3
         step_2 = 4
 
-        next_player_turn = True
+        self.next_player_turn = True
 
         # If doubles, update counter and make sure the player goes again
         if step_1 == step_2:
@@ -232,7 +216,7 @@ class GameBoard(Widget):
             self.players[self.current_player_turn].doubles_counter += 1
 
             # Set an flag for next player turn
-            next_player_turn = False
+            self.next_player_turn = False
 
         # Check if doubles three times, if so, move the player to jail
         if self.players[self.current_player_turn].doubles_counter == 3:
@@ -247,36 +231,38 @@ class GameBoard(Widget):
             self.players[self.current_player_turn].in_jail_counter = 0
 
             # If going to jail, the next player plays instead
-            next_player_turn = True
+            self.next_player_turn = True
 
         else:
             # Calculate the total
             steps = step_1 + step_2
 
-            # Update the current turn text
-            self.ids.message_current_player_turn.text = f"[b][color=#800000]Current player {self.players[self.current_player_turn].name}[/color][/b]"
-
             # If player is not in jail, let them move
-            final_place = self.move_player(steps)
+            self.move_player(steps)
 
-            # Processing the action depending on the square name
-            # If land on the chance:
-            if final_place == ('Chance1' or 'Chance2' or 'Chance3'):
-                self.cardInfoPopup('chance')
+    def player_end_turn(self, final_place):
 
-            if final_place == ('Chest1' or 'Chest2' or 'Chest3'):
-                self.cardInfoPopup('chest')
+        # Unbinding the stop_animation function
+        self.unbind(size=self.stop_animation)
+
+        # Rebinding the roll dice button
+        self.ids.player_turn_button.bind(on_release=self.player_start_turn)
+
+        # Processing the action depending on the square name
+        # If land on the chance:
+        if final_place == ('Chance1' or 'Chance2' or 'Chance3'):
+            self.cardInfoPopup('chance')
+
+        if final_place == ('Chest1' or 'Chest2' or 'Chest3'):
+            self.cardInfoPopup('chest')
 
         # Update to next player if doubles is not true
-        if next_player_turn:
+        if self.next_player_turn:
             self.players[self.current_player_turn].doubles_counter = 0
             self.current_player_turn = (self.current_player_turn + 1) % len(self.players)
 
         # Update the next turn text
-        self.ids.message_next_player_turn.text = f"[b][color=#800000]\n\nNext is {self.players[self.current_player_turn].name}![/color][/b]"
-
-    def player_end_turn(self, final_place):
-        pass
+        self.ids.message_player_turn.text = f"[b][color=#800000]Next is {self.players[self.current_player_turn].name}![/color][/b]"
 
     def roll_out_jail(self):
 
@@ -309,6 +295,17 @@ class GameBoard(Widget):
         self.cardInfo.open()
         Clock.schedule_once(lambda dt: self.cardInfo.dismiss(), 3)
 
+    def stop_animation(self, *args):
+
+        if self.stop_animation_flag is False:
+            # Stop all animations occuring on the currently moving player widget
+            Animation.stop_all(self.players[self.current_player_turn])
+
+        # Make sure this function only passes once
+        self.stop_animation_flag = True
+
+        # Unbind this function
+        self.unbind(size=self.stop_animation)
 
 
 class CardInfoPop(Popup):
