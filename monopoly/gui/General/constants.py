@@ -3,7 +3,7 @@ CORNER_TO_PROPERTY_INTERVAL = 0.105
 CORNER_OFFSET = 0.06
 BORDER_OFFSET = 0.015
 
-BOARD_LOCATIONS = {
+BOARD_SQUARE_LOCATIONS = {
     
     'GO': (CORNER_OFFSET, CORNER_OFFSET),
     
@@ -52,4 +52,55 @@ BOARD_LOCATIONS = {
     'Bl1': (1 - (CORNER_OFFSET + BORDER_OFFSET + CORNER_TO_PROPERTY_INTERVAL + 6*PROPERTY_INTERVAL), CORNER_OFFSET),
     'LTax': (1 - (CORNER_OFFSET + BORDER_OFFSET + CORNER_TO_PROPERTY_INTERVAL + 7*PROPERTY_INTERVAL), CORNER_OFFSET),
     'Bl2': (1 - (CORNER_OFFSET + BORDER_OFFSET + CORNER_TO_PROPERTY_INTERVAL + 8*PROPERTY_INTERVAL), CORNER_OFFSET),
+}
+
+BOARD_SQUARE_COST = {
+
+    'GO': None,
+    
+    'Br1': 60,
+    'Chest1': None,
+    'Br2': 60,
+    'ITax': 200,
+    'RR1': 200,
+    'Lb1': 100,
+    'Chance1': None,
+    'Lb2': 100,
+    'Lb3': 120,
+    
+    'Jail': None,
+    
+    'Pk1': 140,
+    'Util1': 150,
+    'Pk2': 140,
+    'Pk3': 160,
+    'RR2': 200,
+    'Or1': 180,
+    'Chest2': None,
+    'Or2': 180,
+    'Or3': 200,
+
+    'Parking': None,
+
+    'Rd1': 220,
+    'Chance2': None,
+    'Rd2': 220,
+    'Rd3': 240,
+    'RR3': 200,
+    'Yl1': 260,
+    'Yl2': 260,
+    'Util2': None,
+    'Yl3': 280,
+    
+    'GO-TO-JAIL': None,
+
+    'Gn1': 300,
+    'Gn2': 300,
+    'Chest3': None,
+    'Gn3': 320,
+    'RR4': 200,
+    'Chance3': None,
+    'Bl1': 350,
+    'LTax': 100,
+    'Bl2': 400,
 }

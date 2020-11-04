@@ -34,12 +34,12 @@ class Player(DynamicImage):
     def __init__(self, **kwargs):
 
         # Save the board location
-        self.board_location = kwargs.pop('board_location')
-        self.root = kwargs['root']
+        self.root = kwargs['root'] # Do not pop (DynamicImage requires it)
+        self.current_square = self.root.squares[kwargs.pop('starting_square')]
         self.name = kwargs.pop('player_name')
 
         # Obtain the pixel value of the board location
-        kwargs['ratio_pos'] = C.BOARD_LOCATIONS[self.board_location]
+        kwargs['ratio_pos'] = self.current_square.physical_location
         kwargs['ratio_size'] = (0.05, 0.05)
 
         # Run parent inheritance
@@ -50,42 +50,39 @@ class Player(DynamicImage):
 
         self.root_size_before = self.root.size
 
-    def move(self, new_board_location):
-
-        # Obtain the list of the board locations
-        list_board_locations = list(C.BOARD_LOCATIONS.keys())
+    def move(self, final_square):
 
         # Obtain the numeric location of the old board location
-        start = list_board_locations.index(self.board_location)
+        start = self.current_square.sequence_id
 
         # Obtain the numeric location of the new board location
-        end = list_board_locations.index(new_board_location)
+        end = final_square.sequence_id
 
         # Update the board location
-        self.board_location = new_board_location
+        self.current_square = final_square
 
         # Create animation for the whole movement
         total_animations = Animation()
 
         if start >= end:
-            end = end + len(list_board_locations)
+            end = end + len(self.root.squares)
 
         for i in range(start + 1, end + 1):
             # Applying modulus on i
-            i = i % len(list_board_locations)
+            i = i % len(self.root.squares)
 
-            # Obtain the intermediate board location keys
-            board_location_key = list_board_locations[i]
+            # Obtain the intermediate board location name
+            square_name = list(self.root.squares.keys())[i]
 
             # Obtain the pixel location
-            new_pos = C.BOARD_LOCATIONS[board_location_key]
+            new_pos = self.root.squares[square_name].physical_location
 
             # Update the pos
             new_centered_pos = (
                 new_pos[0] * self.root.width - self.size[0] / 4, new_pos[1] * self.root.height - self.size[1] / 4)
 
             # Create animation object
-            move_animation = Animation(pos=new_centered_pos, duration=0.5)
+            move_animation = Animation(pos=new_centered_pos, duration=0.1)
 
             # Append animation to list
             total_animations += move_animation
@@ -98,13 +95,13 @@ class Player(DynamicImage):
 
         return total_animations
 
-    def move_direct(self, destination):
+    def move_direct(self, final_square):
 
         # Update the board location
-        self.board_location = destination
+        self.current_square = final_square
 
         # Obtain the pixel location
-        new_pos = C.BOARD_LOCATIONS[destination]
+        new_pos = final_square.physical_location
 
         # Update the pos
         new_centered_pos = (
@@ -120,13 +117,20 @@ class Player(DynamicImage):
         # Update the ratio_pos of the object
         self.ratio_pos = new_pos
 
+
 class GameBoard(Widget):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        player1 = Player(root=self, source='assets/player_icons/duck.png', board_location='GO', player_name='Duck')
-        player2 = Player(root=self, source='assets/player_icons/squirrel.png', board_location='GO',
+        # Constructing all the squares
+        self.squares = {}
+        for square_name in C.BOARD_SQUARE_LOCATIONS.keys():            
+            self.squares[square_name] = BoardSquare(square_name)
+
+        # Constructing the players
+        player1 = Player(root=self, source='assets/player_icons/duck.png', starting_square='GO', player_name='Duck')
+        player2 = Player(root=self, source='assets/player_icons/squirrel.png', starting_square='GO',
                          player_name='Squirrel')
 
         self.players = [player1, player2]
@@ -134,52 +138,14 @@ class GameBoard(Widget):
         for player in self.players:
             self.add_widget(player)
 
+        # Keeping track of the current player
         self.current_player_turn = 0
 
+        # Creating a card info pop instance for later re-usable use
         self.cardInfo = CardInfoPop(root=self)
 
         # Accessing ids after they are avaliable
         Clock.schedule_once(lambda _: self.ids.player_turn_button.bind(on_release=self.player_start_turn))
-
-    def roll_dice(self, event):
-        dice_dict = {1: '\u2680', 2: '\u2681', 3: '\u2682', 4: '\u2683', 5: '\u2684', 6: '\u2685'}
-        dice_1 = random.choice(list(dice_dict.values()))
-        dice_2 = random.choice(list(dice_dict.values()))
-
-        self.ids.dice_1.text = f'[b][color=#000000]{dice_1}[/color][/b]'
-        self.ids.dice_2.text = f'[b][color=#000000]{dice_2}[/color][/b]'
-
-        step_1 = list(dice_dict.keys())[list(dice_dict.values()).index(dice_1)]
-        step_2 = list(dice_dict.keys())[list(dice_dict.values()).index(dice_2)]
-
-        return step_1, step_2
-
-    def move_player(self, steps):
-
-        # Obtain the players location and index along all the possible locations
-        original_place = self.players[self.current_player_turn].board_location
-        original_id = list(C.BOARD_LOCATIONS.keys()).index(original_place)
-
-        # Calculate the final step location
-        final_id = (steps + original_id) % len(list(C.BOARD_LOCATIONS.keys()))
-
-        # Retrive the key for the location
-        final_place = list(C.BOARD_LOCATIONS.keys())[final_id]
-
-        # Move player
-        move_animation = self.players[self.current_player_turn].move(final_place)
-
-        # Perform bindings
-        # Unbind the roll dice button to prevent glitching
-        self.ids.player_turn_button.unbind(on_release=self.player_start_turn)
-
-        # Bind the completion of the animation to rebinding the roll_dice function
-        move_animation.bind(on_complete=lambda _,__: self.player_end_turn(final_place=final_place))
-
-        # Bind the animation to the size of the window
-        #print(f'Binding the stop_animation function for player: {self.players[self.current_player_turn].name}')
-        self.stop_animation_flag = False
-        self.bind(size=self.stop_animation)
 
     def player_start_turn(self, *args, rolls=None):
 
@@ -240,7 +206,7 @@ class GameBoard(Widget):
             # If player is not in jail, let them move
             self.move_player(steps)
 
-    def player_end_turn(self, final_place):
+    def player_end_turn(self, final_square):
 
         # Unbinding the stop_animation function
         self.unbind(size=self.stop_animation)
@@ -250,10 +216,10 @@ class GameBoard(Widget):
 
         # Processing the action depending on the square name
         # If land on the chance:
-        if final_place == ('Chance1' or 'Chance2' or 'Chance3'):
+        if final_square.is_chance:
             self.cardInfoPopup('chance')
 
-        if final_place == ('Chest1' or 'Chest2' or 'Chest3'):
+        elif final_square.is_chest:
             self.cardInfoPopup('chest')
 
         # Update to next player if doubles is not true
@@ -263,6 +229,46 @@ class GameBoard(Widget):
 
         # Update the next turn text
         self.ids.message_player_turn.text = f"[b][color=#800000]Next is {self.players[self.current_player_turn].name}![/color][/b]"
+    
+    def roll_dice(self, event):
+        dice_dict = {1: '\u2680', 2: '\u2681', 3: '\u2682', 4: '\u2683', 5: '\u2684', 6: '\u2685'}
+        dice_1 = random.choice(list(dice_dict.values()))
+        dice_2 = random.choice(list(dice_dict.values()))
+
+        self.ids.dice_1.text = f'[b][color=#000000]{dice_1}[/color][/b]'
+        self.ids.dice_2.text = f'[b][color=#000000]{dice_2}[/color][/b]'
+
+        step_1 = list(dice_dict.keys())[list(dice_dict.values()).index(dice_1)]
+        step_2 = list(dice_dict.keys())[list(dice_dict.values()).index(dice_2)]
+
+        return step_1, step_2
+
+    def move_player(self, steps):
+
+        # Obtain the players location and index along all the possible locations
+        start_id = self.players[self.current_player_turn].current_square.sequence_id
+
+        # Calculate the final step location
+        final_id = (steps + start_id) % len(list(self.squares.keys()))
+
+        # Retrive the key for the location
+        final_square_name = list(self.squares.keys())[final_id]
+        final_square = self.squares[final_square_name]
+
+        # Move player
+        move_animation = self.players[self.current_player_turn].move(final_square)
+
+        # Perform bindings
+        # Unbind the roll dice button to prevent glitching
+        self.ids.player_turn_button.unbind(on_release=self.player_start_turn)
+
+        # Bind the completion of the animation to rebinding the roll_dice function
+        move_animation.bind(on_complete=lambda _,__: self.player_end_turn(final_square=final_square))
+
+        # Bind the animation to the size of the window
+        #print(f'Binding the stop_animation function for player: {self.players[self.current_player_turn].name}')
+        self.stop_animation_flag = False
+        self.bind(size=self.stop_animation)
 
     def roll_out_jail(self):
 
@@ -383,4 +389,34 @@ class JailSelectPop(Popup):
 
 
 class BoardSquare:
-    pass
+
+    def __init__(self, square_name):
+
+        # Storing the name of the square
+        self.name = square_name
+
+        # Determing if the cart is chest or community
+        if "Chance" in self.name:
+            self.is_chance = True
+        else:
+            self.is_chance = False
+
+        if "Chest" in self.name:
+            self.is_chest = True
+        else:
+            self.is_chest = False
+
+        # Obtain the square's pixel_ratio location
+        self.physical_location = C.BOARD_SQUARE_LOCATIONS[square_name]
+
+        # Obtain the chronological number of the property
+        self.sequence_id = list(C.BOARD_SQUARE_LOCATIONS.keys()).index(square_name)
+
+        # Obtain the square's property cost (if applicable)
+        self.cost_value = C.BOARD_SQUARE_COST[square_name]
+
+        # Pre-set values of properties
+        self.owner = None
+        self.number_of_houses = 0
+        self.has_hotel = False
+        self.mortgage = False
