@@ -1,10 +1,11 @@
 <AddPlayerPopup@Popup>:
+    title: 'Player Selection'
 
     BoxLayout:
         id: base_layout
         name: 'base_layout'
+        
         padding: [self.width // 20, self.height//20, self.width // 20, self.height//20]
-
         orientation: 'vertical'
         
         Label:
@@ -18,7 +19,7 @@
             id: player_id
             name: 'player_id'
 
-            text: "player1"
+            #text: "player1"
             size_hint_y: 0.1
 
         Label:
@@ -32,7 +33,7 @@
             id: selected_player_icon
             name: 'selected_player_icon'
 
-            text: 'boot'
+            #text: 'boot'
             values: root.options.keys()
             size_hint_y: 0.1
 
@@ -40,7 +41,7 @@
             # https://stackoverflow.com/questions/59725636/how-can-i-make-in-kivy-spinner-change-source-of-the-image-by-clicking-on-value
             id: spinner_image
             
-            source: root.options.get(selected_player_icon.text)#, 'mylogo.png')
+            source: root.options.get(selected_player_icon.text)
             size_hint_y: 0.5
             pos_hint: {'center_x': 0.5, 'center_y': 0.75}
 

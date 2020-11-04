@@ -24,7 +24,7 @@ gui_widgets = cwd / 'gui'
 tools.fh.import_dir(gui_widgets)
 
 
-class Logo(Screen):
+class Start(Screen):
     pass
 
 

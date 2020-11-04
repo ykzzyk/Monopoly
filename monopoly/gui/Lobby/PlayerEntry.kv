@@ -17,16 +17,21 @@
             id: player_text
             name: 'player_text'
 
-            text: '[b][color=#FF7F00]<Player Name>\n<IP Address>[/color][/b]'
+            size_hint_x: 0.9
             font_size: root.height//3
-            markup: True
             halign: 'left'
             valign: 'middle'
             text_size: self.size
+            
+            text: '[b][color=#FF7F00]<Player Name>\n<IP Address>[/color][/b]'
+            markup: True
 
-        PlayerIcon
+        PlayerIcon:
             id: player_icon
             name: 'player_icon'
+
+            size_hint: None, None
+            size: (root.height, root.height)
 
     Button:
         id: ready_button
