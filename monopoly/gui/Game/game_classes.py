@@ -364,7 +364,8 @@ class GameBoard(Widget):
     def pay_out_jail(self):
 
         # Change attributes to make player out of jail
-        self.players[self.current_player_turn].money -= 50
+        if not self.players[self.current_player_turn].jail_free_card:
+            self.players[self.current_player_turn].money -= 50
         self.players[self.current_player_turn].in_jail_counter = -1
         self.players[self.current_player_turn].jail_free_card = False
 
