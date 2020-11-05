@@ -49,6 +49,7 @@ class Player(DynamicImage):
         self.money = 1500
         self.house = 0
         self.hotel = 0
+        self.jail_free_card = False
 
         self.root_size_before = self.root.size
 
@@ -158,12 +159,22 @@ class GameBoard(Widget):
 
         # If the player has been in jail for three times, then kick them out
         if self.players[self.current_player_turn].in_jail_counter > 1:
-            self.players[self.current_player_turn].money -= 50
+            if not self.players[self.current_player_turn].jail_free_card:
+                self.players[self.current_player_turn].money -= 50
             self.players[self.current_player_turn].in_jail_counter = -1
+            self.players[self.current_player_turn].jail_free_card = False
 
         # Else, ask them if they would like to pay to get out or try to roll doubles
         elif self.players[self.current_player_turn].in_jail_counter >= 0:
-            self.jail_select = JailSelectPop(root=self, current_player=self.players[self.current_player_turn].name)
+            if self.players[self.current_player_turn].jail_free_card:
+                self.jail_select = JailSelectPop(root=self,
+                                                 current_player=self.players[self.current_player_turn].name,
+                                                 pay_info='Use Jail Free Card')
+            else:
+                self.jail_select = JailSelectPop(root=self,
+                                                 current_player=self.players[self.current_player_turn].name,
+                                                 pay_info='Pay $50')
+
             self.jail_select.open()
 
             return 0
@@ -175,8 +186,8 @@ class GameBoard(Widget):
         else:
             step_1, step_2 = rolls
         '''
-        step_1 = 30
-        step_2 = 6
+        step_1 = 2
+        step_2 = 2
 
         self.next_player_turn = True
 
@@ -238,7 +249,7 @@ class GameBoard(Widget):
                 final_square = self.squares[list(self.squares.keys())[final_id]]
                 self.players[self.current_player_turn].move_direct(final_square)
             elif 'JAIL FREE' in chance_card:
-                pass
+                self.players[self.current_player_turn].jail_free_card = True
             elif 'BOARDWALK' in chance_card:
                 self.players[self.current_player_turn].move_direct(self.squares['Bl2'])
             elif 'READING' in chance_card:
@@ -334,8 +345,8 @@ class GameBoard(Widget):
 
         # Roll the dice
         # step_1, step_2 = self.roll_dice(None)
-        step_1 = 4
-        step_2 = 4
+        step_1 = 2
+        step_2 = 2
 
         # If they roll doubles, then let them out
         if step_1 == step_2:
@@ -355,6 +366,7 @@ class GameBoard(Widget):
         # Change attributes to make player out of jail
         self.players[self.current_player_turn].money -= 50
         self.players[self.current_player_turn].in_jail_counter = -1
+        self.players[self.current_player_turn].jail_free_card = False
 
     def stop_animation(self, *args):
 
@@ -378,6 +390,7 @@ class CardInfoPop(Popup):
 
         self.chance = queue.Queue(maxsize=0)
 
+        self.chance.put('GET OUT OF JAIL FREE.')
         self.chance.put('YOU HAVE BEEN ELECTED\nCHAIRMAN OF THE BOARD.\nPAY EACH PLAYER $50.')
         self.chance.put('TAKE A TRIP TO READING\nRAILROAD. IF YOU PASS GO,\nCOLLECT $200.')
         self.chance.put('ADVANCE TO ILLINOIS AVENUE.\nIF YOU PASS GO, COLLECT $200.')
@@ -388,7 +401,6 @@ class CardInfoPop(Popup):
         self.chance.put('ADVANCE TO ST.CHARLES PLACE.\nIF YOU PASS GO, COLLECT $200.')
         self.chance.put(
             'MAKE GENERAL REPAIRS\nON ALL YOUR PROPERTY:\nFOR EACH HOUSE PAY $25.\nFOR EACH HOTEL, PAY $100.')
-        self.chance.put('GET OUT OF JAIL FREE.')
         self.chance.put('ADVANCE TO BOARDWALK.')
         self.chance.put('YOUR BULIDING LOAN MATURES.\nCOLLECT $150.')
         self.chance.put('SPEEDING FINE. PAY $15.')
@@ -427,10 +439,12 @@ class JailSelectPop(Popup):
         # Obtain root reference
         self.root = kwargs.pop('root')
         self.current_player = kwargs.pop('current_player')
+        self.pay_info = kwargs.pop('pay_info')
 
         super().__init__(**kwargs)
 
         self.ids.current_player_name.text = f"[b][color=#000000]{self.current_player}, do you want to PAY $50 or ROLL DOUBLES to get out of jail?[/b][/color]"
+        self.ids.pay_money.text = f'[b][color=#ffffff]{self.pay_info}[/b][/color]'
 
     def player_decision(self, choice):
 
