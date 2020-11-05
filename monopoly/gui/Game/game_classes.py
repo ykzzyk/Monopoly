@@ -34,7 +34,7 @@ class Player(DynamicImage):
     def __init__(self, **kwargs):
 
         # Save the board location
-        self.root = kwargs['root'] # Do not pop (DynamicImage requires it)
+        self.root = kwargs['root']  # Do not pop (DynamicImage requires it)
         self.current_square = self.root.squares[kwargs.pop('starting_square')]
         self.name = kwargs.pop('player_name')
 
@@ -47,6 +47,8 @@ class Player(DynamicImage):
         self.doubles_counter = 0
         self.in_jail_counter = -1
         self.money = 1500
+        self.house = 0
+        self.hotel = 0
 
         self.root_size_before = self.root.size
 
@@ -119,6 +121,7 @@ class Player(DynamicImage):
 
         return move_animation
 
+
 class GameBoard(Widget):
 
     def __init__(self, **kwargs):
@@ -126,7 +129,7 @@ class GameBoard(Widget):
 
         # Constructing all the squares
         self.squares = {}
-        for square_name in C.BOARD_SQUARE_LOCATIONS.keys():            
+        for square_name in C.BOARD_SQUARE_LOCATIONS.keys():
             self.squares[square_name] = BoardSquare(square_name)
 
         # Constructing the players
@@ -172,8 +175,8 @@ class GameBoard(Widget):
         else:
             step_1, step_2 = rolls
         '''
-        step_1 = 4
-        step_2 = 4
+        step_1 = 30
+        step_2 = 6
 
         self.next_player_turn = True
 
@@ -223,7 +226,56 @@ class GameBoard(Widget):
             self.cardInfo.open()
             Clock.schedule_once(lambda dt: self.cardInfo.dismiss(), 3)
             if 'ST.CHARLES PLACE' in chance_card:
+                if self.players[self.current_player_turn].current_square != self.squares['Chance1']:
+                    self.players[self.current_player_turn].money += 200
                 self.players[self.current_player_turn].move_direct(self.squares['Pk1'])
+            elif 'HOUSE' in chance_card:
+                self.players[self.current_player_turn].money -= 25 * self.players[self.current_player_turn].house
+                self.players[self.current_player_turn].money -= 100 * self.players[self.current_player_turn].hotel
+            elif 'THREE' in chance_card:
+                # Final square ID
+                final_id = self.players[self.current_player_turn].current_square.sequence_id - 3
+                final_square = self.squares[list(self.squares.keys())[final_id]]
+                self.players[self.current_player_turn].move_direct(final_square)
+            elif 'JAIL FREE' in chance_card:
+                pass
+            elif 'BOARDWALK' in chance_card:
+                self.players[self.current_player_turn].move_direct(self.squares['Bl2'])
+            elif 'READING' in chance_card:
+                if self.players[self.current_player_turn].current_square == self.squares['Chance3']:
+                    self.players[self.current_player_turn].money += 200
+                self.players[self.current_player_turn].move_direct(self.squares['RR1'])
+            elif '$150' in chance_card:
+                self.players[self.current_player_turn].money += 150
+            elif 'ILLINOIS AVENUE' in chance_card:
+                if self.players[self.current_player_turn].current_square == self.squares['Chance3']:
+                    self.players[self.current_player_turn].money += 200
+                self.players[self.current_player_turn].move_direct(self.squares['Rd3'])
+
+            elif 'NEAREST' in chance_card:
+                if self.players[self.current_player_turn].current_square == self.squares['Chance1']:
+                    self.players[self.current_player_turn].move_direct(self.squares['Util1'])
+                elif self.players[self.current_player_turn].current_square == self.squares['Chance2']:
+                    self.players[self.current_player_turn].move_direct(self.squares['Util2'])
+                elif self.players[self.current_player_turn].current_square == self.squares['Chance3']:
+                    self.players[self.current_player_turn].move_direct(self.squares['Util2'])
+
+            elif 'NEXT\nRAILROAD' in chance_card:
+                if self.players[self.current_player_turn].current_square == self.squares['Chance1']:
+                    self.players[self.current_player_turn].move_direct(self.squares['RR2'])
+                elif self.players[self.current_player_turn].current_square == self.squares['Chance2']:
+                    self.players[self.current_player_turn].move_direct(self.squares['RR3'])
+                elif self.players[self.current_player_turn].current_square == self.squares['Chance3']:
+                    self.players[self.current_player_turn].move_direct(self.squares['RR1'])
+            elif 'TO JAIL' in chance_card:
+                self.players[self.current_player_turn].move_direct(self.squares['Jail'])
+            elif 'PAY $15' in chance_card:
+                self.players[self.current_player_turn].money -= 15
+            elif 'PAY EACH PLAYER' in chance_card:
+                for player in self.players:
+                    if player != self.players[self.current_player_turn]:
+                        player.money += 50
+                        self.players[self.current_player_turn].money -= 50
 
         if final_square.is_chest:
             chest_card = self.cardInfo.get_card(self.cardInfo.chest, 'chest')
@@ -237,7 +289,7 @@ class GameBoard(Widget):
 
         # Update the next turn text
         self.ids.message_player_turn.text = f"[b][color=#800000]Next is {self.players[self.current_player_turn].name}![/color][/b]"
-    
+
     def roll_dice(self, event):
         dice_dict = {1: '\u2680', 2: '\u2681', 3: '\u2682', 4: '\u2683', 5: '\u2684', 6: '\u2685'}
         dice_1 = random.choice(list(dice_dict.values()))
@@ -271,10 +323,10 @@ class GameBoard(Widget):
         self.ids.player_turn_button.unbind(on_release=self.player_start_turn)
 
         # Bind the completion of the animation to rebinding the roll_dice function
-        move_animation.bind(on_complete=lambda _,__: self.player_end_turn(final_square=final_square))
+        move_animation.bind(on_complete=lambda _, __: self.player_end_turn(final_square=final_square))
 
         # Bind the animation to the size of the window
-        #print(f'Binding the stop_animation function for player: {self.players[self.current_player_turn].name}')
+        # print(f'Binding the stop_animation function for player: {self.players[self.current_player_turn].name}')
         self.stop_animation_flag = False
         self.bind(size=self.stop_animation)
 
@@ -282,8 +334,8 @@ class GameBoard(Widget):
 
         # Roll the dice
         # step_1, step_2 = self.roll_dice(None)
-        step_1 = 1
-        step_2 = 3
+        step_1 = 4
+        step_2 = 4
 
         # If they roll doubles, then let them out
         if step_1 == step_2:
@@ -325,20 +377,21 @@ class CardInfoPop(Popup):
         super().__init__(**kwargs)
 
         self.chance = queue.Queue(maxsize=0)
+
+        self.chance.put('YOU HAVE BEEN ELECTED\nCHAIRMAN OF THE BOARD.\nPAY EACH PLAYER $50.')
+        self.chance.put('TAKE A TRIP TO READING\nRAILROAD. IF YOU PASS GO,\nCOLLECT $200.')
+        self.chance.put('ADVANCE TO ILLINOIS AVENUE.\nIF YOU PASS GO, COLLECT $200.')
+        self.chance.put('ADVANCE TO THE NEAREST\nUTILITY.')
+        self.chance.put('ADVANCE TO THE NEXT\nRAILROAD.')
+        self.chance.put('GO DIRECTLY TO JAIL.\nDO NOT COLLECT $200.')
+        self.chance.put('GO BACK THREE SPACES.')
         self.chance.put('ADVANCE TO ST.CHARLES PLACE.\nIF YOU PASS GO, COLLECT $200.')
         self.chance.put(
             'MAKE GENERAL REPAIRS\nON ALL YOUR PROPERTY:\nFOR EACH HOUSE PAY $25.\nFOR EACH HOTEL, PAY $100.')
-        self.chance.put('GO BACK THREE SPACES.')
         self.chance.put('GET OUT OF JAIL FREE.')
         self.chance.put('ADVANCE TO BOARDWALK.')
-        self.chance.put('TAKE A TRIP TO READING\nRAILROAD. IF YOU PASS GO,\nCOLLECT $200.')
         self.chance.put('YOUR BULIDING LOAN MATURES.\nCOLLECT $150.')
-        self.chance.put('ADVANCE TO ILLINOIS AVENUE.\nIF YOU PASS GO, COLLECT $200.')
-        self.chance.put('ADVANCE TO THE NEAREST\nUTILITY.')
-        self.chance.put('GO DIRECTLY TO JAIL.\nDO NOT COLLECT $200.')
         self.chance.put('SPEEDING FINE. PAY $15.')
-        self.chance.put('ADVANCE TO THE NEXT\nRAILROAD.')
-        self.chance.put('YOU HAVE BEEN ELECTED\nCHAIRMAN OF THE BOARD.\nPAY EACH PLAYER $50.')
 
         self.chest = queue.Queue(maxsize=0)
         self.chest.put('LIFE INSURANCE MATURES.\nCOLLECT $100.')
