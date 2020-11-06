@@ -17,6 +17,7 @@ import time
 import functools
 
 from pprint import pprint
+import pdb
 
 # Local Imports
 
@@ -186,8 +187,8 @@ class GameBoard(Widget):
         else:
             step_1, step_2 = rolls
         '''
-        step_1 = 2
-        step_2 = 2
+        step_1 = 6
+        step_2 = 30
 
         self.next_player_turn = True
 
@@ -230,12 +231,30 @@ class GameBoard(Widget):
         # Rebinding the roll dice button
         self.ids.player_turn_button.bind(on_release=self.player_start_turn)
 
+        self.player_land_place(final_square)
+
+        # Update to next player if doubles is not true
+        if self.next_player_turn:
+            self.players[self.current_player_turn].doubles_counter = 0
+            self.current_player_turn = (self.current_player_turn + 1) % len(self.players)
+
+        # Update the next turn text
+        self.ids.message_player_turn.text = f"[b][color=#800000]Next is {self.players[self.current_player_turn].name}![/color][/b]"
+
+    def player_land_place(self, final_square):
+
         # Processing the action depending on the square name
+        # If the player lands on the 'GO-TO-JAIL' square
+        if final_square.name == 'GO-TO-JAIL':
+            self.players[self.current_player_turn].move_direct(self.squares['Jail'])
+            self.players[self.current_player_turn].in_jail_counter = 0
+
         # If land on the chance:
         if final_square.is_chance:
             chance_card = self.cardInfo.get_card(self.cardInfo.chance, 'chance')
             self.cardInfo.open()
             Clock.schedule_once(lambda dt: self.cardInfo.dismiss(), 3)
+
             if 'ST.CHARLES PLACE' in chance_card:
                 if self.players[self.current_player_turn].current_square != self.squares['Chance1']:
                     self.players[self.current_player_turn].money += 200
@@ -256,7 +275,7 @@ class GameBoard(Widget):
                 if self.players[self.current_player_turn].current_square == self.squares['Chance3']:
                     self.players[self.current_player_turn].money += 200
                 self.players[self.current_player_turn].move_direct(self.squares['RR1'])
-            elif '$150' in chance_card:
+            elif 'LOAN MATURES' in chance_card:
                 self.players[self.current_player_turn].money += 150
             elif 'ILLINOIS AVENUE' in chance_card:
                 if self.players[self.current_player_turn].current_square == self.squares['Chance3']:
@@ -280,7 +299,7 @@ class GameBoard(Widget):
                     self.players[self.current_player_turn].move_direct(self.squares['RR1'])
             elif 'TO JAIL' in chance_card:
                 self.players[self.current_player_turn].move_direct(self.squares['Jail'])
-            elif 'PAY $15' in chance_card:
+            elif 'SPEEDING FINE' in chance_card:
                 self.players[self.current_player_turn].money -= 15
             elif 'PAY EACH PLAYER' in chance_card:
                 for player in self.players:
@@ -293,13 +312,36 @@ class GameBoard(Widget):
             self.cardInfo.open()
             Clock.schedule_once(lambda dt: self.cardInfo.dismiss(), 3)
 
-        # Update to next player if doubles is not true
-        if self.next_player_turn:
-            self.players[self.current_player_turn].doubles_counter = 0
-            self.current_player_turn = (self.current_player_turn + 1) % len(self.players)
-
-        # Update the next turn text
-        self.ids.message_player_turn.text = f"[b][color=#800000]Next is {self.players[self.current_player_turn].name}![/color][/b]"
+            if ('MATURES' in chest_card) or ('YOU INHERIT $100' in chest_card):
+                self.players[self.current_player_turn].money += 100
+            elif ("DOCTOR'S FEES" in chest_card) or ('SCHOOL FEES' in chest_card):
+                self.players[self.current_player_turn].money -= 50
+            elif 'JAIL FREE' in chest_card:
+                self.players[self.current_player_turn].jail_free_card = True
+            elif 'INCOME TAX REFUND' in chest_card:
+                self.players[self.current_player_turn].money += 20
+            elif 'HOSPITAL FEES' in chest_card:
+                self.players[self.current_player_turn].money -= 100
+            elif 'TO JAIL' in chest_card:
+                self.players[self.current_player_turn].move_direct(self.squares['Jail'])
+            elif 'BIRTHDAY' in chest_card:
+                self.players[self.current_player_turn].money += 25
+                for player in self.players:
+                    if player != self.players[self.current_player_turn]:
+                        player.money -= 10
+                        self.players[self.current_player_turn].money += 10
+            elif 'FROM SALE OF STOCK' in chest_card:
+                self.players[self.current_player_turn].money += 50
+            elif 'WON SECOND PRIZE' in chest_card:
+                self.players[self.current_player_turn].money += 10
+            elif 'STREET REPAIRS' in chest_card:
+                self.players[self.current_player_turn].money -= 40 * self.players[self.current_player_turn].house
+                self.players[self.current_player_turn].money -= 115 * self.players[self.current_player_turn].hotel
+            elif 'TO GO' in chest_card:
+                self.players[self.current_player_turn].move_direct(self.squares['GO'])
+                self.players[self.current_player_turn].money += 200
+            elif 'BANK ERROR' in chest_card:
+                self.players[self.current_player_turn].money += 200
 
     def roll_dice(self, event):
         dice_dict = {1: '\u2680', 2: '\u2681', 3: '\u2682', 4: '\u2683', 5: '\u2684', 6: '\u2685'}
@@ -345,7 +387,7 @@ class GameBoard(Widget):
 
         # Roll the dice
         # step_1, step_2 = self.roll_dice(None)
-        step_1 = 2
+        step_1 = 3
         step_2 = 2
 
         # If they roll doubles, then let them out
@@ -391,10 +433,12 @@ class CardInfoPop(Popup):
 
         self.chance = queue.Queue(maxsize=0)
 
-        self.chance.put('GET OUT OF JAIL FREE.')
-        self.chance.put('YOU HAVE BEEN ELECTED\nCHAIRMAN OF THE BOARD.\nPAY EACH PLAYER $50.')
+        self.chance.put('SPEEDING FINE. PAY $15.')
+        self.chance.put('YOUR BULIDING LOAN MATURES.\nCOLLECT $150.')
         self.chance.put('TAKE A TRIP TO READING\nRAILROAD. IF YOU PASS GO,\nCOLLECT $200.')
         self.chance.put('ADVANCE TO ILLINOIS AVENUE.\nIF YOU PASS GO, COLLECT $200.')
+        self.chance.put('GET OUT OF JAIL FREE.')
+        self.chance.put('YOU HAVE BEEN ELECTED\nCHAIRMAN OF THE BOARD.\nPAY EACH PLAYER $50.')
         self.chance.put('ADVANCE TO THE NEAREST\nUTILITY.')
         self.chance.put('ADVANCE TO THE NEXT\nRAILROAD.')
         self.chance.put('GO DIRECTLY TO JAIL.\nDO NOT COLLECT $200.')
@@ -403,14 +447,8 @@ class CardInfoPop(Popup):
         self.chance.put(
             'MAKE GENERAL REPAIRS\nON ALL YOUR PROPERTY:\nFOR EACH HOUSE PAY $25.\nFOR EACH HOTEL, PAY $100.')
         self.chance.put('ADVANCE TO BOARDWALK.')
-        self.chance.put('YOUR BULIDING LOAN MATURES.\nCOLLECT $150.')
-        self.chance.put('SPEEDING FINE. PAY $15.')
 
         self.chest = queue.Queue(maxsize=0)
-        self.chest.put('LIFE INSURANCE MATURES.\nCOLLECT $100.')
-        self.chest.put('YOU INHERIT $100.')
-        self.chest.put('SCHOOL FEES. PAY $50.')
-        self.chest.put('GET OUT OF JAIL FREE.')
         self.chest.put('INCOME TAX REFUND.\nCOLLECT $20.')
         self.chest.put('HOLIDAY FUND MATURES.\nCOLLECT $100.')
         self.chest.put("DOCTOR'S FEES. PAY $50.")
@@ -419,9 +457,13 @@ class CardInfoPop(Popup):
         self.chest.put("COLLECT $25 CONSULTANCY FEE.\nIT'S YOUR BIRTHDAY.\nCOLLECT $10 FROM EACH PLAYER.")
         self.chest.put('FROM SALE OF STOCK, YOU GET $50.')
         self.chest.put('YOU HAVE WON SECOND PRIZE\nIN A BEAUTY CONTEST.\nCOLLECT $10.')
-        self.chest.put('YOU ARE ASSESSED FOR STREET REPAIRS:\nPAY $40 PER HOUSE AND $115 PER HOTEL YOU OWN.')
+        self.chest.put('YOU ARE ASSESSED FOR STREET REPAIRS:\nPAY $40 PER HOUSE AND \n$115 PER HOTEL YOU OWN.')
         self.chest.put('ADVANCE TO GO. COLLECT $200.')
         self.chest.put('BANK ERROR IN YOUR FAVOR.\nCOLLECT $200.')
+        self.chest.put('LIFE INSURANCE MATURES.\nCOLLECT $100.')
+        self.chest.put('YOU INHERIT $100.')
+        self.chest.put('SCHOOL FEES. PAY $50.')
+        self.chest.put('GET OUT OF JAIL FREE.')
 
     def get_card(self, cards, name):
         card = cards.get()
