@@ -373,18 +373,18 @@ class GameBoard(Widget):
         # If land on property that is not owned
         if (final_square.cost_value is not None) and (final_square.owner is None):
             # Determine if the player has enough money to buy the property
-            if self.players[self.current_player_turn].money > final_square.cost_value:
+            if self.players[self.current_player_turn].money >= final_square.cost_value:
                 # Buy or Auction
                 self.buy_or_auction = CardSelectPop(root=self,
                                                     current_player=self.players[self.current_player_turn].name,
-                                                    property_name=final_square.name,
+                                                    property_name=final_square.square_full_name,
                                                     property_value=final_square.cost_value,
                                                     button_left='BUY',
                                                     button_right='AUCTION')
             else:
                 self.buy_or_auction = CardSelectPop(root=self,
                                                     current_player=self.players[self.current_player_turn].name,
-                                                    property_name=final_square.name,
+                                                    property_name=final_square.square_full_name,
                                                     property_value=final_square.cost_value,
                                                     button_left='MORTGAGE',
                                                     button_right='AUCTION')
@@ -602,7 +602,10 @@ class BoardSquare:
         self.sequence_id = list(C.BOARD_SQUARE_LOCATIONS.keys()).index(square_name)
 
         # Obtain the square's property cost (if applicable)
-        self.cost_value = C.BOARD_SQUARE_COST[square_name]
+        self.cost_value = C.BOARD_SQUARE_ATTRIBUTES[square_name]['cost_value']
+        self.square_full_name = C.BOARD_SQUARE_ATTRIBUTES[square_name]['full_name']
+        self.mortgage_value = C.BOARD_SQUARE_ATTRIBUTES[square_name]['mortgage_value']
+        self.unmortgage_value = C.BOARD_SQUARE_ATTRIBUTES[square_name]['unmortgage_value']
 
         # Pre-set values of properties
         self.owner = None
