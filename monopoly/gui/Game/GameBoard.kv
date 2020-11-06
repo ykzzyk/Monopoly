@@ -111,7 +111,7 @@
             source: "assets/background/master.png"
 
 
-<JailSelectPop@Popup>:
+<CardSelectPop@Popup>
     size_hint: (None, None)
     size: (Window.width//2, Window.height//2)
     title: ""
@@ -126,7 +126,7 @@
             source: 'assets/background/monopoly_logo.png'
 
         Label:
-            id: current_player_name
+            id: label_1
             text: ''
             font_size: root.width // 40
             markup: True
@@ -138,62 +138,7 @@
             padding: [root.width//15, 0, root.width//15, root.width//30]
 
             Button:
-                id: pay_money
-                text: ''
-                font_size: root.width // 42
-                background_normal: 'assets/buttons/red.png'
-                markup: True
-                canvas.before:
-                    Color:
-                        rgba: .1, .1, .1, 1
-                    Line:
-                        width: 5
-                        rectangle: self.x, self.y, self.width, self.height
-                on_release: root.player_decision('pay')
-
-            Button:
-                text: '[b][color=#ffffff]Roll Again[/b][/color]'
-                font_size: root.width // 42
-                background_normal: 'assets/buttons/red.png'
-                markup: True
-                canvas.before:
-                    Color:
-                        rgba: .1, .1, .1, 1
-                    Line:
-                        width: 5
-                        rectangle: self.x, self.y, self.width, self.height
-                on_release:
-                    root.player_decision('roll')
-
-
-<BuyActionPop@Popup>
-    size_hint: (None, None)
-    size: (Window.width//2, Window.height//2)
-    title: ""
-    separator_height: 0
-    background: "assets/background/card.jpg"
-    auto_dismiss: False
-
-    GridLayout:
-        rows: 3
-
-        Image:
-            source: 'assets/background/monopoly_logo.png'
-
-        Label:
-            id: property_name
-            text: ''
-            font_size: root.width // 40
-            markup: True
-
-        GridLayout:
-            cols: 2
-            size_hint_y: 0.5
-            spacing: [root.width//15, root.width//15]
-            padding: [root.width//15, 0, root.width//15, root.width//30]
-
-            Button:
-                id: buy_button
+                id: button_left
                 text: ''
                 font_size: root.width // 42
                 background_normal: 'assets/buttons/red.png'
@@ -205,9 +150,10 @@
                         width: 5
                         rectangle: self.x, self.y, self.width, self.height
                 on_release:
-                    root.buy_or_auction('buy')
+                    root.player_decision(root.button_left)
 
             Button:
+                id: button_right
                 text: '[b][color=#ffffff]AUCTION[/b][/color]'
                 font_size: root.width // 42
                 background_normal: 'assets/buttons/red.png'
@@ -219,4 +165,4 @@
                         width: 5
                         rectangle: self.x, self.y, self.width, self.height
                 on_release:
-                    root.buy_or_auction('auction')
+                    root.player_decision(root.button_right)

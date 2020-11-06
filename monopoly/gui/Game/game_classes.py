@@ -168,15 +168,21 @@ class GameBoard(Widget):
         # Else, ask them if they would like to pay to get out or try to roll doubles
         elif self.players[self.current_player_turn].in_jail_counter >= 0:
             if self.players[self.current_player_turn].jail_free_card:
-                self.jail_select = JailSelectPop(root=self,
-                                                 current_player=self.players[self.current_player_turn].name,
-                                                 pay_info='Use Jail Free Card')
+                self.jail_decision = CardSelectPop(root=self,
+                                                   current_player=self.players[self.current_player_turn].name,
+                                                   property_name=None,
+                                                   property_value=None,
+                                                   button_left='Use Jail Free Card',
+                                                   button_right='ROLL AGAIN')
             else:
-                self.jail_select = JailSelectPop(root=self,
-                                                 current_player=self.players[self.current_player_turn].name,
-                                                 pay_info='Pay $50')
+                self.jail_decision = CardSelectPop(root=self,
+                                                   current_player=self.players[self.current_player_turn].name,
+                                                   property_name=None,
+                                                   property_value=None,
+                                                   button_left='PAY $50',
+                                                   button_right='ROLL AGAIN')
 
-            self.jail_select.open()
+            self.jail_decision.open()
 
             return 0
 
@@ -187,8 +193,8 @@ class GameBoard(Widget):
         else:
             step_1, step_2 = rolls
         '''
-        step_1 = 0
-        step_2 = 1
+        step_1 = 3
+        step_2 = 4
 
         self.next_player_turn = True
 
@@ -351,24 +357,25 @@ class GameBoard(Widget):
             self.players[self.current_player_turn].money -= 100
 
         # If land on property that is not owned
-        elif final_square.owner is None:
+        elif (final_square.owner is None) and (final_square.name != 'GO'):
 
             # Determine if the player has enough money to buy the property
-            if self.players[self.current_player_turn].money > final_square.cost_value:
+            if self.players[self.current_player_turn].money < final_square.cost_value:
                 # Buy or Auction
-                self.buy_or_auction = BuyActionPop(root=self,
-                                                   current_player=self.players[self.current_player_turn].name,
-                                                   property_name=final_square.name,
-                                                   property_value=final_square.cost_value,
-                                                   pay_info='BUY')
-                self.buy_or_auction.open()
+                self.buy_or_auction = CardSelectPop(root=self,
+                                                    current_player=self.players[self.current_player_turn].name,
+                                                    property_name=final_square.name,
+                                                    property_value=final_square.cost_value,
+                                                    button_left='BUY',
+                                                    button_right='AUCTION')
             else:
-                self.buy_or_auction = BuyActionPop(root=self,
-                                                   current_player=self.players[self.current_player_turn].name,
-                                                   property_name=final_square.name,
-                                                   property_value=final_square.cost_value,
-                                                   pay_info='MORTGAGE')
-                self.buy_or_auction.open()
+                self.buy_or_auction = CardSelectPop(root=self,
+                                                    current_player=self.players[self.current_player_turn].name,
+                                                    property_name=final_square.name,
+                                                    property_value=final_square.cost_value,
+                                                    button_left='MORTGAGE',
+                                                    button_right='AUCTION')
+            self.buy_or_auction.open()
 
     def roll_dice(self, event):
         dice_dict = {1: '\u2680', 2: '\u2681', 3: '\u2682', 4: '\u2683', 5: '\u2684', 6: '\u2685'}
@@ -513,51 +520,39 @@ class CardInfoPop(Popup):
         return card
 
 
-class JailSelectPop(Popup):
-    def __init__(self, **kwargs):
-        # Obtain root reference
-        self.root = kwargs.pop('root')
-        self.current_player = kwargs.pop('current_player')
-        self.pay_info = kwargs.pop('pay_info')
-
-        super().__init__(**kwargs)
-
-        self.ids.current_player_name.text = f"[b][color=#000000]{self.current_player}, do you want to PAY $50 or ROLL DOUBLES to get out of jail?[/b][/color]"
-        self.ids.pay_money.text = f'[b][color=#ffffff]{self.pay_info}[/b][/color]'
-
-    def player_decision(self, choice):
-
-        if choice == 'roll':
-            # Execute the roll_out_jail from the gameboard
-            self.root.roll_out_jail()
-        elif choice == 'pay':
-            self.root.pay_out_jail()
-
-        # Dismiss the popup
-        self.dismiss()
-
-
-class BuyActionPop(Popup):
+class CardSelectPop(Popup):
     def __init__(self, **kwargs):
         # Obtain root reference
         self.root = kwargs.pop('root')
         self.current_player = kwargs.pop('current_player')
         self.property_name = kwargs.pop('property_name')
         self.property_value = kwargs.pop('property_value')
-        self.pay_info = kwargs.pop('pay_info')
+        self.button_right = kwargs.pop('button_right')
+        self.button_left = kwargs.pop('button_left')
 
         super().__init__(**kwargs)
-        self.ids.property_name.text = f"[b][color=#000000]For {self.property_name}, do {self.current_player} want to PAY ${self.property_value} or AUCTION?[/b][/color]"
-        self.ids.buy_button.text = f'[b][color=#ffffff]{self.pay_info}[/b][/color]'
+        if self.property_name is not None:
+            self.ids.label_1.text = f"[b][color=#000000]For {self.property_name}, do {self.current_player} want to PAY ${self.property_value} or AUCTION?[/b][/color]"
+        else:
+            self.ids.label_1.text = f"[b][color=#000000]{self.current_player}, do you want to PAY $50 or ROLL DOUBLES to get out of jail?[/b][/color]"
+        self.ids.button_left.text = f'[b][color=#ffffff]{self.button_left}[/b][/color]'
+        self.ids.button_right.text = f'[b][color=#ffffff]{self.button_right}[/b][/color]'
 
-    def buy_or_auction(self, choice):
-        if choice == 'buy':
+    def player_decision(self, choice):
+
+        if choice == 'ROLL AGAIN':
             # Execute the roll_out_jail from the gameboard
-            if self.pay_info == 'BUY':
+            self.root.roll_out_jail()
+        elif choice == 'PAY $50':
+            self.root.pay_out_jail()
+
+        elif choice == 'BUY':
+            # Execute the roll_out_jail from the gameboard
+            if self.button_left == 'BUY':
                 self.root.buy_property()
-            elif self.pay_info == 'MORTGATE':
+            elif self.button_left == 'MORTGATE':
                 self.root.mortgage_property()
-        elif choice == 'auction':
+        elif choice == 'AUCTION':
             self.root.auction_property()
 
         # Dismiss the popup
