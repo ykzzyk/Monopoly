@@ -205,8 +205,8 @@ class GameBoard(Widget):
         else:
             step_1, step_2 = rolls
         '''
-        step_1 = 2
-        step_2 = 8
+        step_1 = 1
+        step_2 = 0
 
         self.next_player_turn = True
 
@@ -371,7 +371,6 @@ class GameBoard(Widget):
             self.players[self.current_player_turn].money -= 100
 
         # If land on property that is not owned
-        # elif (final_square.owner is None) and (final_square.name != 'GO') and (final_square.name != 'Jail'):
         if (final_square.cost_value is not None) and (final_square.owner is None):
             # Determine if the player has enough money to buy the property
             if self.players[self.current_player_turn].money > final_square.cost_value:
@@ -554,18 +553,23 @@ class CardSelectPop(Popup):
 
     def player_decision(self, choice):
 
+        # Execute the roll_out_jail from the gameboard
         if choice == 'ROLL AGAIN':
-            # Execute the roll_out_jail from the gameboard
             self.root.roll_out_jail()
+
+        # Execute the pay_out_jail from the gameboard
         elif choice == 'PAY $50':
             self.root.pay_out_jail()
 
+        # Execute the buy_property from the gameboard
         elif choice == 'BUY':
-            # Execute the roll_out_jail from the gameboard
-            if self.button_left == 'BUY':
-                self.root.buy_property()
-            elif self.button_left == 'MORTGATE':
-                self.root.mortgage_property()
+            self.root.buy_property()
+
+        # Execute the mortgage_property from the gameboard
+        elif choice == 'MORTGATE':
+            self.root.mortgage_property()
+
+        # Execute the auction_property from the gameboard
         elif choice == 'AUCTION':
             self.root.auction_property()
 
