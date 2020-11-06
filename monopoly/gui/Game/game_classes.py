@@ -138,8 +138,20 @@ class GameBoard(Widget):
         player1 = Player(root=self, source='assets/player_icons/duck.png', starting_square='GO', player_name='Duck')
         player2 = Player(root=self, source='assets/player_icons/squirrel.png', starting_square='GO',
                          player_name='Squirrel')
+        # player3 = Player(root=self, source='assets/player_icons/cat.png', starting_square='GO',
+        #                  player_name='Cat')
+        # player4 = Player(root=self, source='assets/player_icons/boot.png', starting_square='GO',
+        #                  player_name='Boot')
+        # player5 = Player(root=self, source='assets/player_icons/flight.png', starting_square='GO',
+        #                  player_name='flight')
+        # player6 = Player(root=self, source='assets/player_icons/hat.png', starting_square='GO',
+        #                  player_name='Hat')
+        # player7 = Player(root=self, source='assets/player_icons/ship.png', starting_square='GO',
+        #                  player_name='Ship')
+        # player8 = Player(root=self, source='assets/player_icons/dog.png', starting_square='GO',
+        #                  player_name='Dog')
 
-        self.players = [player1, player2]
+        self.players = [player1, player2]#, player3, player4, player5, player6, player7, player8]
 
         for player in self.players:
             self.add_widget(player)
@@ -193,8 +205,8 @@ class GameBoard(Widget):
         else:
             step_1, step_2 = rolls
         '''
-        step_1 = 3
-        step_2 = 4
+        step_1 = 2
+        step_2 = 8
 
         self.next_player_turn = True
 
@@ -305,6 +317,7 @@ class GameBoard(Widget):
                     self.players[self.current_player_turn].move_direct(self.squares['RR1'])
             elif 'TO JAIL' in chance_card:
                 self.players[self.current_player_turn].move_direct(self.squares['Jail'])
+                self.players[self.current_player_turn].in_jail_counter = 0
             elif 'SPEEDING FINE' in chance_card:
                 self.players[self.current_player_turn].money -= 15
             elif 'PAY EACH PLAYER' in chance_card:
@@ -331,6 +344,7 @@ class GameBoard(Widget):
                 self.players[self.current_player_turn].money -= 100
             elif 'TO JAIL' in chest_card:
                 self.players[self.current_player_turn].move_direct(self.squares['Jail'])
+                self.players[self.current_player_turn].in_jail_counter = 0
             elif 'BIRTHDAY' in chest_card:
                 self.players[self.current_player_turn].money += 25
                 for player in self.players:
@@ -357,10 +371,10 @@ class GameBoard(Widget):
             self.players[self.current_player_turn].money -= 100
 
         # If land on property that is not owned
-        elif (final_square.owner is None) and (final_square.name != 'GO'):
-
+        # elif (final_square.owner is None) and (final_square.name != 'GO') and (final_square.name != 'Jail'):
+        if (final_square.cost_value is not None) and (final_square.owner is None):
             # Determine if the player has enough money to buy the property
-            if self.players[self.current_player_turn].money < final_square.cost_value:
+            if self.players[self.current_player_turn].money > final_square.cost_value:
                 # Buy or Auction
                 self.buy_or_auction = CardSelectPop(root=self,
                                                     current_player=self.players[self.current_player_turn].name,
@@ -534,7 +548,7 @@ class CardSelectPop(Popup):
         if self.property_name is not None:
             self.ids.label_1.text = f"[b][color=#000000]For {self.property_name}, do {self.current_player} want to PAY ${self.property_value} or AUCTION?[/b][/color]"
         else:
-            self.ids.label_1.text = f"[b][color=#000000]{self.current_player}, do you want to PAY $50 or ROLL DOUBLES to get out of jail?[/b][/color]"
+            self.ids.label_1.text = f"[b][color=#000000]Do {self.current_player} want to PAY $50 or ROLL DOUBLES to get out of jail?[/b][/color]"
         self.ids.button_left.text = f'[b][color=#ffffff]{self.button_left}[/b][/color]'
         self.ids.button_right.text = f'[b][color=#ffffff]{self.button_right}[/b][/color]'
 
