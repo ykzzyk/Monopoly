@@ -184,6 +184,8 @@ class GameBoard(Widget):
         # Randomly shuffling the list to determine who goes first
         random.shuffle(self.players)
 
+        self.ids.message_player_turn.text = f"[b][color=#800000]Player {self.players[0].name} Goes first![/color][/b]"
+
         # Adding the player to the gameboard
         for player in self.players:
             self.add_widget(player)
