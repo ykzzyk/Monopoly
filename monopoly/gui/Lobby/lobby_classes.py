@@ -40,14 +40,15 @@ class LobbyOptions(GridLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.num_of_players = 0
+
+        self.players = {}
         self.game_mode = 'LOCAL'
         self.taken_options = []
 
     def request_new_player_info(self):
 
         # Determine if there is still room for a new player
-        if self.num_of_players >= 8:
+        if len(list(self.players.keys())) >= 8:
             return 
 
         # create popup
@@ -59,7 +60,7 @@ class LobbyOptions(GridLayout):
     def add_player(self, player_name, player_icon):
 
         # Finding the corresponding player_entry
-        player_entry = self.parent.parent.ids['lobby_inter_grid'].ids['player_box'].ids[f'player{self.num_of_players+1}']
+        player_entry = self.parent.parent.ids['lobby_inter_grid'].ids['player_box'].ids[f'player{len(list(self.players.keys()))+1}']
 
         # Then change the player_info text to whatever you would like
         player_entry.ids['player_text'].text = f'[b][color=#FF7F00]{player_name}\n{self.game_mode}[/color][/b]'
@@ -70,8 +71,8 @@ class LobbyOptions(GridLayout):
         # Remove the selected player icon to prevent people using the same icon
         self.taken_options.append(player_icon)
 
-        # Update the number of players
-        self.num_of_players += 1
+        # Saving the information of the players into the lobby_options
+        self.players[player_name] = player_icon
 
 class AddPlayerPopup(Popup):
 
@@ -117,7 +118,7 @@ class AddPlayerPopup(Popup):
         self.ids.selected_player_icon.text = default_icon_name
 
         # Make the default player name text increase everytime 
-        self.ids.player_id.text = f'player{self.root.num_of_players+1}'
+        self.ids.player_id.text = f'player{len(list(self.root.players.keys()))+1}'
     
     def accept_player_info(self):
 

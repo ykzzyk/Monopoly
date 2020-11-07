@@ -134,6 +134,7 @@ class GameBoard(Widget):
         for square_name in C.BOARD_SQUARE_LOCATIONS.keys():
             self.squares[square_name] = BoardSquare(square_name)
 
+        """
         # Constructing the players
         player1 = Player(root=self, source='assets/player_icons/duck.png', starting_square='GO', player_name='Duck')
         player2 = Player(root=self, source='assets/player_icons/squirrel.png', starting_square='GO',
@@ -155,6 +156,7 @@ class GameBoard(Widget):
 
         for player in self.players:
             self.add_widget(player)
+        """
 
         # Keeping track of the current player
         self.current_player_turn = 0
@@ -164,6 +166,27 @@ class GameBoard(Widget):
 
         # Accessing ids after they are avaliable
         Clock.schedule_once(lambda _: self.ids.player_turn_button.bind(on_release=self.player_start_turn))
+
+    def add_players(self, players_info):
+        print(f'add_players fn: {players_info}')
+
+        # Creating the player objects
+        self.players = []
+        for player_name, player_icon in players_info.items():
+            self.players.append(Player(
+                root=self, 
+                source="assets/player_icons/" + player_icon + ".png", 
+                starting_square='GO', 
+                player_name=player_name
+                )
+            )
+
+        # Randomly shuffling the list to determine who goes first
+        random.shuffle(self.players)
+
+        # Adding the player to the gameboard
+        for player in self.players:
+            self.add_widget(player)
 
     def player_start_turn(self, *args, rolls=None):
 

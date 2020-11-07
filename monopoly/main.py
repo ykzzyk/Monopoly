@@ -12,6 +12,8 @@ from kivy.graphics import *
 from kivy.properties import NumericProperty
 import webbrowser
 
+import pdb
+
 # Imports tools
 import tools
 
@@ -39,7 +41,29 @@ class Home(Screen):
 
 
 class WindowManager(ScreenManager):
-    pass
+
+    def __init__(self, **kwargs):
+
+        # Adding the no transition argument
+        kwargs['transition'] = NoTransition()
+
+        super().__init__(**kwargs)
+    
+    def start_game(self):
+        
+        # Start the game only if 2 or more players have been added
+        if len(list(self.ids['lobby'].ids['lobby_options'].players.keys())) > 1:
+            
+            # Change to the next screen
+            self.current = 'game'
+
+            # Pass the players from the lobby to the game
+            self.ids['game'].ids["game_board"].add_players(self.ids['lobby'].ids['lobby_options'].players)
+
+        else:
+
+            # Notify that players have not been added
+            pass
 
 
 class MonopolyApp(App):
