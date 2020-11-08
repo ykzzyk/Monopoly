@@ -1,3 +1,4 @@
+
 from kivy.uix.screenmanager import Screen
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
@@ -27,10 +28,10 @@ from General import constants as C
 
 class Game(Screen):
     
-    def add_players_to_frame(self, event):
+    def update_players_to_frame(self, *args):
 
-        print("Game: add_players_to_frame")
-        print(self.ids.game_board.players)
+        #print("Game: update_players_to_frame")
+        #print(self.ids.game_board.players)
 
         for i, player in enumerate(self.ids.game_board.players):
 
@@ -39,7 +40,7 @@ class Game(Screen):
             # Place into the data from the player into the player_data_obj 
             player_data_obj.ids['player_text'].text = f'[b][color=#FF7F00]{player.name}\n{player.money}[/color][/b]'
             player_data_obj.ids['player_icon'].image_source = player.source
-
+        
 
 class Player(DynamicImage):
     rectangle = ObjectProperty(None)
@@ -56,15 +57,17 @@ class Player(DynamicImage):
         kwargs['ratio_size'] = (0.05, 0.05)
 
         # Run parent inheritance
-        super().__init__(**kwargs)
         self.doubles_counter = 0
         self.in_jail_counter = -1
         self.money = 1500
         self.house = 0
         self.hotel = 0
         self.jail_free_card = False
+        self.property_own = []
 
         self.root_size_before = self.root.size
+
+        super().__init__(**kwargs)
 
     def move(self, final_square):
 
@@ -135,6 +138,11 @@ class Player(DynamicImage):
 
         return move_animation
 
+    def __str__(self):
+        return f"Player [Name: {self.name} - Money: {self.money} - Property Own: {self.property_own}]"
+
+    def __repr__(self):
+        return self.__str__()
 
 class GameBoard(Widget):
 
@@ -204,7 +212,7 @@ class GameBoard(Widget):
             self.add_widget(player)
 
         # Adding the player to the players info box
-        Clock.schedule_once(self.parent.parent.add_players_to_frame)
+        Clock.schedule_once(self.parent.parent.update_players_to_frame)
 
     def player_start_turn(self, *args, rolls=None):
 
@@ -222,16 +230,14 @@ class GameBoard(Widget):
         elif self.players[self.current_player_turn].in_jail_counter >= 0:
             if self.players[self.current_player_turn].jail_free_card:
                 self.jail_decision = CardSelectPop(root=self,
-                                                   current_player=self.players[self.current_player_turn].name,
-                                                   property_name=None,
-                                                   property_value=None,
+                                                   current_player=self.players[self.current_player_turn],
+                                                   square_property=None,
                                                    button_left='Use Jail Free Card',
                                                    button_right='ROLL AGAIN')
             else:
                 self.jail_decision = CardSelectPop(root=self,
-                                                   current_player=self.players[self.current_player_turn].name,
-                                                   property_name=None,
-                                                   property_value=None,
+                                                   current_player=self.players[self.current_player_turn],
+                                                   square_property=None,
                                                    button_left='PAY $50',
                                                    button_right='ROLL AGAIN')
 
@@ -246,8 +252,8 @@ class GameBoard(Widget):
         else:
             step_1, step_2 = rolls
         '''
-        step_1 = 1
-        step_2 = 0
+        step_1 = 20
+        step_2 = 1
 
         self.next_player_turn = True
 
@@ -309,7 +315,7 @@ class GameBoard(Widget):
             self.players[self.current_player_turn].in_jail_counter = 0
 
         # If land on the chance:
-        elif final_square.is_chance:
+        elif final_square.type == "Chance":
             chance_card = self.cardInfo.get_card(self.cardInfo.chance, 'chance')
             self.cardInfo.open()
             Clock.schedule_once(lambda dt: self.cardInfo.dismiss(), 3)
@@ -368,7 +374,7 @@ class GameBoard(Widget):
                         self.players[self.current_player_turn].money -= 50
 
         # If land on chest
-        elif final_square.is_chest:
+        elif final_square.type == "Chest":
             chest_card = self.cardInfo.get_card(self.cardInfo.chest, 'chest')
             self.cardInfo.open()
             Clock.schedule_once(lambda dt: self.cardInfo.dismiss(), 3)
@@ -405,31 +411,63 @@ class GameBoard(Widget):
             elif 'BANK ERROR' in chest_card:
                 self.players[self.current_player_turn].money += 200
 
-        elif final_square.name == 'ITax':
-            self.players[self.current_player_turn].money -= 200
+        # If land on tax penalty squares
+        elif final_square.type == "Tax":
+            
+            if final_square.name == 'ITax':
+                self.players[self.current_player_turn].money -= 200
 
-        elif final_square.name == 'LTax':
-            self.players[self.current_player_turn].money -= 100
+            elif final_square.name == 'LTax':
+                self.players[self.current_player_turn].money -= 100
 
-        # If land on property that is not owned
-        if (final_square.cost_value is not None) and (final_square.owner is None):
-            # Determine if the player has enough money to buy the property
-            if self.players[self.current_player_turn].money >= final_square.cost_value:
-                # Buy or Auction
-                self.buy_or_auction = CardSelectPop(root=self,
-                                                    current_player=self.players[self.current_player_turn].name,
-                                                    property_name=final_square.square_full_name,
-                                                    property_value=final_square.cost_value,
-                                                    button_left='BUY',
-                                                    button_right='AUCTION')
+        # If land on property
+        elif final_square.type == "Property" or final_square.type == "Railroad" or final_square.type == 'Utilities': # Also handle railroads
+            
+            # if the property is not owned
+            if (final_square.owner is None):
+                
+                # Determine if the player has enough money to buy the property
+                if self.players[self.current_player_turn].money >= final_square.cost_value:
+                    # Buy or Auction
+                    self.buy_or_auction = CardSelectPop(root=self,
+                                                        current_player=self.players[self.current_player_turn],
+                                                        square_property=final_square,
+                                                        button_left='BUY',
+                                                        button_right='AUCTION')
+                else:
+                    self.buy_or_auction = CardSelectPop(root=self,
+                                                        current_player=self.players[self.current_player_turn],
+                                                        square_property=final_square,
+                                                        button_left='MORTGAGE',
+                                                        button_right='AUCTION')
+                self.buy_or_auction.open()
+
+            # else the property is owned
             else:
-                self.buy_or_auction = CardSelectPop(root=self,
-                                                    current_player=self.players[self.current_player_turn].name,
-                                                    property_name=final_square.square_full_name,
-                                                    property_value=final_square.cost_value,
-                                                    button_left='MORTGAGE',
-                                                    button_right='AUCTION')
-            self.buy_or_auction.open()
+
+                # If the property is owned by someone else
+                if (final_square.owner != self.players[self.current_player_turn]):
+                    
+                    if final_square.type == 'Property' or final_square.type == 'Railroad':
+                        
+                        # If the player can afford the rent
+                        if self.players[self.current_player_turn].money >= final_square.rent:
+                            self.players[self.current_player_turn].money -= final_square.rent
+                            final_square.owner.money += final_square.rent
+                        
+                        # else
+                        else:
+                            self.mortgage_or_sell = CardSelectPop(root=self,
+                                                            current_player=self.players[self.current_player_turn],
+                                                            square_property=final_square,
+                                                            button_left='MORTGAGE',
+                                                            button_right='SELL')
+                    
+                    elif final_square.type == 'Utilities':
+                        pass
+                    
+        # Update the player's info in the right side panel
+        self.parent.parent.update_players_to_frame()
 
     def roll_dice(self, event):
         dice_dict = {1: '\u2680', 2: '\u2681', 3: '\u2682', 4: '\u2683', 5: '\u2684', 6: '\u2685'}
@@ -449,8 +487,15 @@ class GameBoard(Widget):
         # Obtain the players location and index along all the possible locations
         start_id = self.players[self.current_player_turn].current_square.sequence_id
 
+        # Determine if the player passes go
+        final_id = steps + start_id
+
+        # if passed GO
+        if final_id >= len(list(self.squares.keys())):
+            self.players[self.current_player_turn].money += 200
+
         # Calculate the final step location
-        final_id = (steps + start_id) % len(list(self.squares.keys()))
+        final_id = (final_id) % len(list(self.squares.keys()))
 
         # Retrive the key for the location
         final_square_name = list(self.squares.keys())[final_id]
@@ -471,6 +516,7 @@ class GameBoard(Widget):
         self.stop_animation_flag = False
         self.bind(size=self.stop_animation)
 
+    # Handling player decisions
     def roll_out_jail(self):
 
         # Roll the dice
@@ -499,8 +545,19 @@ class GameBoard(Widget):
         self.players[self.current_player_turn].in_jail_counter = -1
         self.players[self.current_player_turn].jail_free_card = False
 
-    def buy_property(self):
-        pass
+    def buy_property(self, player, square_property):
+        
+        # Deduce the player's money according to the properties value
+        player.money -= square_property.cost_value
+
+        # Modify the attribute owned in square_property to the player
+        square_property.owner = player
+
+        # Store the property into the player.property_own
+        player.property_own.append(square_property)
+
+        # Update the player's info in the right side panel
+        self.parent.parent.update_players_to_frame()
 
     def auction_property(self):
         pass
@@ -508,6 +565,10 @@ class GameBoard(Widget):
     def mortgage_property(self):
         pass
 
+    def sell_belongings(self):
+        pass
+
+    # Handling animations
     def stop_animation(self, *args):
 
         if self.stop_animation_flag is False:
@@ -575,20 +636,22 @@ class CardInfoPop(Popup):
 
 
 class CardSelectPop(Popup):
+
     def __init__(self, **kwargs):
         # Obtain root reference
         self.root = kwargs.pop('root')
         self.current_player = kwargs.pop('current_player')
-        self.property_name = kwargs.pop('property_name')
-        self.property_value = kwargs.pop('property_value')
+        self.square_property = kwargs.pop('square_property')
         self.button_right = kwargs.pop('button_right')
         self.button_left = kwargs.pop('button_left')
 
         super().__init__(**kwargs)
-        if self.property_name is not None:
-            self.ids.label_1.text = f"[b][color=#000000]For {self.property_name}, do {self.current_player} want to PAY ${self.property_value} or AUCTION?[/b][/color]"
+        
+        if self.square_property is not None:
+            self.ids.label_1.text = f"[b][color=#000000]For {self.square_property.full_name}, do {self.current_player.name} want to PAY ${self.square_property.cost_value} or AUCTION?[/b][/color]"
         else:
-            self.ids.label_1.text = f"[b][color=#000000]Do {self.current_player} want to PAY $50 or ROLL DOUBLES to get out of jail?[/b][/color]"
+            self.ids.label_1.text = f"[b][color=#000000]Do {self.current_player.name} want to PAY $50 or ROLL DOUBLES to get out of jail?[/b][/color]"
+        
         self.ids.button_left.text = f'[b][color=#ffffff]{self.button_left}[/b][/color]'
         self.ids.button_right.text = f'[b][color=#ffffff]{self.button_right}[/b][/color]'
 
@@ -604,7 +667,7 @@ class CardSelectPop(Popup):
 
         # Execute the buy_property from the gameboard
         elif choice == 'BUY':
-            self.root.buy_property()
+            self.root.buy_property(self.current_player, self.square_property)
 
         # Execute the mortgage_property from the gameboard
         elif choice == 'MORTGATE':
@@ -614,6 +677,9 @@ class CardSelectPop(Popup):
         elif choice == 'AUCTION':
             self.root.auction_property()
 
+        elif choice == "SELL":
+            self.root.sell_belongings()
+
         # Dismiss the popup
         self.dismiss()
 
@@ -621,6 +687,7 @@ class CardSelectPop(Popup):
 class PlayerData(GridLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
 
 class BoardSquare:
 
@@ -631,14 +698,20 @@ class BoardSquare:
 
         # Determing if the cart is chest or community
         if "Chance" in self.name:
-            self.is_chance = True
+            self.type = "Chance"
+        elif "Chest" in self.name:
+            self.type = "Chest"
+        elif "RR" in self.name:
+            self.type = "Railroad"
+        elif "Util" in self.name:
+            self.type = "Utilities"
+        elif "Tax" in self.name:
+            self.type = "Tax"
+        elif self.name == "GO" or self.name == "Jail" or self.name == "GO-TO-JAIL" or self.name == "Parking":
+            self.type = "Corner"
         else:
-            self.is_chance = False
-
-        if "Chest" in self.name:
-            self.is_chest = True
-        else:
-            self.is_chest = False
+            self.type = "Property"
+        
 
         # Obtain the square's pixel_ratio location
         self.physical_location = C.BOARD_SQUARE_LOCATIONS[square_name]
@@ -648,12 +721,23 @@ class BoardSquare:
 
         # Obtain the square's property cost (if applicable)
         self.cost_value = C.BOARD_SQUARE_ATTRIBUTES[square_name]['cost_value']
-        self.square_full_name = C.BOARD_SQUARE_ATTRIBUTES[square_name]['full_name']
+        self.full_name = C.BOARD_SQUARE_ATTRIBUTES[square_name]['full_name']
         self.mortgage_value = C.BOARD_SQUARE_ATTRIBUTES[square_name]['mortgage_value']
         self.unmortgage_value = C.BOARD_SQUARE_ATTRIBUTES[square_name]['unmortgage_value']
+        
+        # For color set properties
+        if square_name in C.BOARD_SQUARE_RENT.keys():
+            self.rents = C.BOARD_SQUARE_RENT[square_name]
+            self.rent = self.rents['rent']
 
         # Pre-set values of properties
         self.owner = None
         self.number_of_houses = 0
         self.has_hotel = False
         self.mortgage = False
+
+    def __str__(self):
+        return f"BoardSquare [Name: {self.name} - Cost Value: {self.cost_value} - Owner: {self.owner}]"
+
+    def __repr__(self):
+        return f"BoardSquare [Name: {self.name} - Cost Value: {self.cost_value}]"
