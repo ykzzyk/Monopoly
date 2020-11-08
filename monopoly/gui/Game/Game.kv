@@ -1,4 +1,7 @@
 #:import Window kivy.core.window.Window
+<TabbedPanelHeader>:
+    background_normal: 'assets/buttons/deep_grey.jpg'
+    background_down: 'assets/buttons/light_grey.jpg'
 
 <Game>:
     name: "game"
@@ -18,19 +21,24 @@
             TabbedPanel:
                 id: top_right_panel
                 tab_width: self.width/len(self.tab_list)
+                background_normal: 'assets/buttons/light_yellow.jpg'
                 border: [0,0,0,0]
+                background_color: [0,0,0,0]
+                strip_image: 'assets/buttons/light_yellow.jpg'
+
                 default_tab: players
                 
                 TabbedPanelItem:
                     id: players
-                    text: 'Players'
+                    text: '[b]Players[/b]'
+                    markup: True
                     PlayersInfo:
                         id: player_info
 
                 TabbedPanelItem:
                     id: instructions
-                    text: 'Instructions'
-                    
+                    text: '[b]Instructions[/b]'
+                    markup: True
                     GameInstruction:
                         id: game_instruction
 
