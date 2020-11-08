@@ -26,7 +26,19 @@ from General import constants as C
 
 
 class Game(Screen):
-    pass
+    
+    def add_players_to_frame(self, event):
+
+        print("Game: add_players_to_frame")
+        print(self.ids.game_board.players)
+
+        for i, player in enumerate(self.ids.game_board.players):
+
+            player_data_obj = self.ids.info_frame.ids[f'player_{i+1}']
+
+            # Place into the data from the player into the player_data_obj 
+            player_data_obj.ids['player_text'].text = f'[b][color=#FF7F00]{player.name}\n{player.money}[/color][/b]'
+            player_data_obj.ids['player_icon'].image_source = player.source
 
 
 class Player(DynamicImage):
@@ -192,7 +204,7 @@ class GameBoard(Widget):
             self.add_widget(player)
 
         # Adding the player to the players info box
-        #self.parent.ids['players']
+        Clock.schedule_once(self.parent.parent.add_players_to_frame)
 
     def player_start_turn(self, *args, rolls=None):
 
