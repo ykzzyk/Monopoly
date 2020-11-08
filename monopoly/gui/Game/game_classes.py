@@ -156,7 +156,7 @@ class GameBoard(Widget):
 
         for player in self.players:
             self.add_widget(player)
-        """
+        #"""
 
         # Keeping track of the current player
         self.current_player_turn = 0
@@ -184,11 +184,15 @@ class GameBoard(Widget):
         # Randomly shuffling the list to determine who goes first
         random.shuffle(self.players)
 
+        # Informing the lobby who goes first
         self.ids.message_player_turn.text = f"[b][color=#800000]Player {self.players[0].name} Goes first![/color][/b]"
 
         # Adding the player to the gameboard
         for player in self.players:
             self.add_widget(player)
+
+        # Adding the player to the players info box
+        #self.parent.ids['players']
 
     def player_start_turn(self, *args, rolls=None):
 
@@ -601,6 +605,10 @@ class CardSelectPop(Popup):
         # Dismiss the popup
         self.dismiss()
 
+
+class PlayerData(GridLayout):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 class BoardSquare:
 

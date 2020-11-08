@@ -1,0 +1,29 @@
+<PlayerData@GridLayout>
+    cols: 2
+
+    canvas.before:
+        Color:
+            rgb: [0,0,0]
+        Line:
+            width: 2
+            rectangle: self.x, self.y, self.width, self.height
+    
+    Label:
+        id: player_text
+        name: 'player_text'
+
+        size_hint_x: 0.9
+        font_size: min(root.height//3, root.width//10)
+        halign: 'left'
+        valign: 'middle'
+        text_size: self.size
+        
+        text: '[b][color=#FF7F00]<Player Name>\n<Money>[/color][/b]'
+        markup: True
+
+    PlayerIcon:
+        id: player_icon
+        name: 'player_icon'
+
+        size_hint: None, None
+        size: (root.height, root.height)

@@ -11,19 +11,28 @@
             id: game_board
 
         GridLayout:
+            id: right_side_panel
             rows: 2
             size_hint_x: (Window.width - Window.height)/Window.height
-            padding: [self.width // 20, self.width // 50, self.width // 20, self.width // 50]
-            spacing: [0, self.width // 50]
 
-            GridLayout:
-                cols: 2
-                spacing: [self.width // 50, 0]
-                Button:
-                    text: '[b][color=#FFB533]Players Information[/color][/b]'
-                    font_size: self.width // 55
-                    color: [1, 1, 1, 1]
-                    markup: True
-                GameInstruction:
+            TabbedPanel:
+                id: top_right_panel
+                border: [0,0,0,0]
+                default_tab: players
+                
+                TabbedPanelItem:
+                    id: players
+                    text: 'Players'
+                    
+                    PlayersInfo:
+                        id: player_info
+
+                TabbedPanelItem:
+                    id: instructions
+                    text: 'Instructions'
+                    
+                    GameInstruction:
+                        id: game_instruction
 
             HistoryLog:
+                id: history_log
