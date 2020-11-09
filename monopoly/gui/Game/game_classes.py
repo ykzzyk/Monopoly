@@ -146,6 +146,7 @@ class Player(DynamicImage):
 
 class GameBoard(Widget):
 
+    # Initialization of objects
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -153,30 +154,6 @@ class GameBoard(Widget):
         self.squares = {}
         for square_name in C.BOARD_SQUARE_LOCATIONS.keys():
             self.squares[square_name] = BoardSquare(square_name)
-
-        """
-        # Constructing the players
-        player1 = Player(root=self, source='assets/player_icons/duck.png', starting_square='GO', player_name='Duck')
-        player2 = Player(root=self, source='assets/player_icons/squirrel.png', starting_square='GO',
-                         player_name='Squirrel')
-        # player3 = Player(root=self, source='assets/player_icons/cat.png', starting_square='GO',
-        #                  player_name='Cat')
-        # player4 = Player(root=self, source='assets/player_icons/boot.png', starting_square='GO',
-        #                  player_name='Boot')
-        # player5 = Player(root=self, source='assets/player_icons/flight.png', starting_square='GO',
-        #                  player_name='flight')
-        # player6 = Player(root=self, source='assets/player_icons/hat.png', starting_square='GO',
-        #                  player_name='Hat')
-        # player7 = Player(root=self, source='assets/player_icons/ship.png', starting_square='GO',
-        #                  player_name='Ship')
-        # player8 = Player(root=self, source='assets/player_icons/dog.png', starting_square='GO',
-        #                  player_name='Dog')
-
-        self.players = [player1, player2]#, player3, player4, player5, player6, player7, player8]
-
-        for player in self.players:
-            self.add_widget(player)
-        #"""
 
         # Keeping track of the current player
         self.current_player_turn = 0
@@ -214,6 +191,29 @@ class GameBoard(Widget):
         # Adding the player to the players info box
         Clock.schedule_once(self.parent.parent.update_players_to_frame)
 
+    def place_ownership_icon(self, player, square_property):
+
+        # If there was a previous owner icon, remove that widget
+        if square_property.owner_icon != None:
+            self.remove_widget(square_property.owner_icon)
+
+        # Create a grey-version of the player's icon to visualize ownership
+        square_property.owner_icon = DynamicImage(
+            root=self,
+            source=player.source, 
+            ratio_pos=player.ratio_pos, 
+            ratio_size=(player.ratio_size[0]//2, player.ratio_size[1]//2)
+        )
+
+        """
+        with square_property.owner_icon.canvas:
+            Rectangle(source='assets/buttons/light_grey.jpg', pos=self.pos, size=self.size)
+        """
+        
+        # Adding the image to the game_board
+        self.add_widget(square_property.owner_icon, index=-1)
+
+    # Handling player movement
     def player_start_turn(self, *args, rolls=None):
 
         # Update the current turn text
@@ -252,8 +252,8 @@ class GameBoard(Widget):
         else:
             step_1, step_2 = rolls
         '''
-        step_1 = 20
-        step_2 = 1
+        step_1 = 1
+        step_2 = 0
 
         self.next_player_turn = True
 
@@ -553,6 +553,9 @@ class GameBoard(Widget):
         # Modify the attribute owned in square_property to the player
         square_property.owner = player
 
+        # Place the ownership icon
+        self.place_ownership_icon(player, square_property)
+
         # Store the property into the player.property_own
         player.property_own.append(square_property)
 
@@ -732,6 +735,7 @@ class BoardSquare:
 
         # Pre-set values of properties
         self.owner = None
+        self.owner_icon = None
         self.number_of_houses = 0
         self.has_hotel = False
         self.mortgage = False
