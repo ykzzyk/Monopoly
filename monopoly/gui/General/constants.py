@@ -2,6 +2,16 @@ PROPERTY_INTERVAL = 0.082
 CORNER_TO_PROPERTY_INTERVAL = 0.105
 CORNER_OFFSET = 0.06
 BORDER_OFFSET = 0.015
+PLAYER_ICON_OFFSET = 0.025
+RR_PLAYER_ICON_OFFSET = 0.015
+
+BOARD_LINES = {
+        #'Corner': ['GO', 'Jail', 'Parking', 'GO-TO-JAIL'],
+        'Line1': ['Br1', 'Chest1', 'Br2', 'ITax', 'RR1', 'Lb1', 'Chance1', 'Lb2', 'Lb3'],
+        'Line2': ['Pk1', 'Util1', 'Pk2', 'Pk3', 'RR2', 'Or1', 'Chest2', 'Or2', 'Or3'],
+        'Line3': ['Rd1', 'Chance2', 'Rd2', 'Rd3', 'RR3', 'Yl1', 'Yl2', 'Util2', 'Yl3'],
+        'Line4': ['Gn1', 'Gn2', 'Chest3', 'Gn3', 'RR4', 'Chance3', 'Bl1', 'LTax', 'Bl2']
+}
 
 BOARD_SQUARE_LOCATIONS = {
 

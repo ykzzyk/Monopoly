@@ -165,7 +165,6 @@ class GameBoard(Widget):
         Clock.schedule_once(lambda _: self.ids.player_turn_button.bind(on_release=self.player_start_turn))
 
     def add_players(self, players_info):
-        print(f'add_players fn: {players_info}')
 
         # Creating the player objects
         self.players = []
@@ -201,8 +200,8 @@ class GameBoard(Widget):
         square_property.owner_icon = DynamicImage(
             root=self,
             source=player.source, 
-            ratio_pos=player.ratio_pos, 
-            ratio_size=(player.ratio_size[0]//2, player.ratio_size[1]//2)
+            ratio_pos=square_property.owner_icon_placement, 
+            ratio_size=(player.ratio_size[0]/2, player.ratio_size[1]/2)
         )
 
         """
@@ -252,8 +251,8 @@ class GameBoard(Widget):
         else:
             step_1, step_2 = rolls
         '''
-        step_1 = 1
-        step_2 = 0
+        step_1 = 5
+        step_2 = 30
 
         self.next_player_turn = True
 
@@ -727,7 +726,43 @@ class BoardSquare:
         self.full_name = C.BOARD_SQUARE_ATTRIBUTES[square_name]['full_name']
         self.mortgage_value = C.BOARD_SQUARE_ATTRIBUTES[square_name]['mortgage_value']
         self.unmortgage_value = C.BOARD_SQUARE_ATTRIBUTES[square_name]['unmortgage_value']
-        
+
+        # For determine the overall section (line{1,2,3,4} or corner) of the property
+        self.section = None
+        for section in C.BOARD_LINES.keys():
+            if square_name in C.BOARD_LINES[section]:
+                self.section = section
+
+        # Calculating the player ownership icon placement
+        add = lambda x, y: x + y
+        subtract = lambda x, y: x - y
+
+        def offset(data, axis, fn, value=C.PLAYER_ICON_OFFSET):
+            if axis == 'x':
+                return (fn(data[0], value), data[1])
+            return (data[0], fn(data[1], value))
+
+        if self.section == 'Line1':
+            if self.type == 'Railroad':
+                self.owner_icon_placement = offset(self.physical_location, 'x', add, value=C.RR_PLAYER_ICON_OFFSET)
+            else:
+                self.owner_icon_placement = offset(self.physical_location, 'x', subtract)
+        elif self.section == 'Line2':
+            if self.type == 'Railroad':
+                self.owner_icon_placement = offset(self.physical_location, 'y', subtract, value=C.RR_PLAYER_ICON_OFFSET)
+            else:
+                self.owner_icon_placement = offset(self.physical_location, 'y', add)
+        elif self.section == 'Line3':
+            if self.type == 'Railroad':
+                self.owner_icon_placement = offset(self.physical_location, 'x', subtract, value=C.RR_PLAYER_ICON_OFFSET)
+            else:
+                self.owner_icon_placement = offset(self.physical_location, 'x', add)
+        elif self.section == 'Line4':
+            if self.type == 'Railroad':
+                self.owner_icon_placement = offset(self.physical_location, 'y', add, value=C.RR_PLAYER_ICON_OFFSET)
+            else:
+                self.owner_icon_placement = offset(self.physical_location, 'y', subtract)
+
         # For color set properties
         if square_name in C.BOARD_SQUARE_RENT.keys():
             self.rents = C.BOARD_SQUARE_RENT[square_name]
