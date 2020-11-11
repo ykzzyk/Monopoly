@@ -58,7 +58,7 @@ class Player(DynamicImage):
         # Run parent inheritance
         self.doubles_counter = 0
         self.in_jail_counter = -1
-        self.money = 1500
+        self.money = 0
         self.house = 0
         self.hotel = 0
         self.jail_free_card = False
@@ -252,10 +252,10 @@ class GameBoard(Widget):
             step_1, step_2 = rolls
         #'''
 
-        #"""
+        # """
         step_1 = 0
         step_2 = 1
-        #"""
+        # """
 
         self.next_player_turn = True
 
@@ -522,7 +522,7 @@ class GameBoard(Widget):
     def roll_out_jail(self):
 
         # Roll the dice
-        #step_1, step_2 = self.roll_dice(None)
+        # step_1, step_2 = self.roll_dice(None)
         step_1 = 3
         step_2 = 2
 
@@ -547,10 +547,13 @@ class GameBoard(Widget):
         self.players[self.current_player_turn].in_jail_counter = -1
         self.players[self.current_player_turn].jail_free_card = False
 
-    def buy_property(self, player, square_property):
+    def buy_property(self, player, square_property, cost=None):
 
         # Deduce the player's money according to the properties value
-        player.money -= square_property.cost_value
+        if cost:
+            player.money -= cost
+        else:
+            player.money -= square_property.cost_value
 
         # Modify the attribute owned in square_property to the player
         square_property.owner = player
@@ -567,7 +570,7 @@ class GameBoard(Widget):
     def auction_property(self, square_property):
         self.auction_pop = PlayerAuctionPop(
             root=self,
-            property_name=square_property.full_name
+            current_property=square_property
         )
 
         self.auction_pop.open()
@@ -794,11 +797,11 @@ class PlayerAuctionPop(Popup):
     def __init__(self, **kwargs):
         # Obtain root reference
         self.root = kwargs.pop('root')
-        self.property_name = kwargs.pop('property_name')
+        self.current_property = kwargs.pop('current_property')
 
         super().__init__(**kwargs)
 
-        self.ids.current_square.text = f'[b][color=#ff0000]{self.property_name}[/b][/color]'
+        self.ids.current_square.text = f'[b][color=#ff0000]{self.current_property.full_name}[/b][/color]'
         self.highest_bid = 10
 
         # Create timer
@@ -815,8 +818,8 @@ class PlayerAuctionPop(Popup):
 
         # Create all the players, in the right order
         self.players_info = []
-        for counter, i in enumerate(range(self.root.current_player_turn, self.root.current_player_turn + len(self.root.players))):
-
+        for counter, i in enumerate(
+                range(self.root.current_player_turn, self.root.current_player_turn + len(self.root.players))):
             # Apply modolus
             i = i % len(self.root.players)
 
@@ -824,7 +827,7 @@ class PlayerAuctionPop(Popup):
             player = self.root.players[i]
 
             # Create player info
-            player_info = AuctionPlayerInfo()
+            player_info = AuctionPlayerInfo(player=player)
 
             # Setting the data
             player_info.image_source = player.source
@@ -842,10 +845,11 @@ class PlayerAuctionPop(Popup):
         self.players_info.reverse()
 
         # Make the first player to auction to be colored red
-        self.current_bidder = 0
+        self.current_bidder = -1
         self.skipped_bids = 0
-        self.set_color(self.players_info[self.current_bidder], color='red')
-        self.bid_winner = self.players_info[self.current_bidder]
+        #self.set_color(self.players_info[self.current_bidder], color='red')
+        self.bid_winner = None  # self.players_info[self.current_bidder]
+        self.next_player()
 
     def update_timer_value(self, *args):
 
@@ -854,7 +858,6 @@ class PlayerAuctionPop(Popup):
 
         # Skip to the next player
         if self.timer_value == 0:
-
             # Set current bidder to black, since they skipped
             self.set_color(self.players_info[self.current_bidder], color='black')
 
@@ -875,6 +878,11 @@ class PlayerAuctionPop(Popup):
             # Set current bidder to black, since they skipped
             self.set_color(self.players_info[self.current_bidder], color='black')
 
+            # If the first person skips, then make them the initial winner
+            if self.bid_winner is None:
+                self.bid_winner = self.players_info[self.current_bidder]
+                self.set_color(self.players_info[self.current_bidder], color='blue')
+
         # Current bidder increased the bid
         else:
 
@@ -882,7 +890,8 @@ class PlayerAuctionPop(Popup):
             self.skipped_bids = 0
 
             # Make the previous winner from blue to black
-            self.set_color(self.bid_winner, color='black')
+            if self.bid_winner is not None:
+                self.set_color(self.bid_winner, color='black')
 
             # Set the winner
             self.bid_winner = self.players_info[self.current_bidder]
@@ -898,6 +907,18 @@ class PlayerAuctionPop(Popup):
 
     def next_player(self):
 
+        if self.skipped_bids > len(self.players_info) - 1:
+
+            # If the first person skips, then make them the initial winner
+            if self.bid_winner is None:
+                self.bid_winner = self.players_info[0]
+                self.set_color(self.players_info[0], color='blue')
+
+            # Determine the player_winner (player class) given the bid_winner (player_info)
+            self.root.buy_property(self.bid_winner.player, self.current_property, cost=self.highest_bid)
+            self.dismiss()
+            return
+
         # Reset timer for the next player
         self.timer_value = 10
 
@@ -907,21 +928,29 @@ class PlayerAuctionPop(Popup):
         # Current bidder needs to be colored red
         self.set_color(self.players_info[self.current_bidder], color='red')
 
+        # Check if the now current bidder has enough money to pay the bid,
+        # if not, skip them automatically
+        if self.players_info[self.current_bidder].player.money < self.highest_bid:
+            # Account for skipped bid counter
+            self.skipped_bids += 1
+
+            # Set current bidder to black, since they skipped
+            self.set_color(self.players_info[self.current_bidder], color='black')
+
+            # Move the next player
+            self.next_player()
+
     def set_color(self, players_info, color='black'):
 
         if color == 'red':
-            players_info.player_icon_border_color = [1,0,0]
+            players_info.player_icon_border_color = [1, 0, 0]
             players_info.money_text = f"[b][color=#ff0000]${players_info.money}[/b][/color]"
         elif color == 'blue':
             players_info.player_icon_border_color = [0, 0, 1]
             players_info.money_text = f"[b][color=#0000ff]${players_info.money}[/b][/color]"
-        else: # Black
+        else:  # Black
             players_info.player_icon_border_color = [0, 0, 0]
             players_info.money_text = f"[b][color=#000000]${players_info.money}[/b][/color]"
-
-        # Ask the widget to update
-        # players_info.ids.player_icon.canvas.ask_update()
-        # players_info.ids.player_money.canvas.ask_update()
 
     def dismiss(self):
 
@@ -934,8 +963,12 @@ class PlayerAuctionPop(Popup):
 
 class AuctionPlayerInfo(BoxLayout):
 
+    def __init__(self, **kwargs):
+        self.player = kwargs.pop('player')
+        super().__init__(**kwargs)
+
     money = NumericProperty(0)
     money_text = StringProperty("0")
     image_source = StringProperty("None")
-    widget_color = ListProperty([1,1,1,0]) # rgba
-    player_icon_border_color = ListProperty([0,0,0]) # rgb
+    widget_color = ListProperty([1, 1, 1, 0])  # rgba
+    player_icon_border_color = ListProperty([0, 0, 0])  # rgb
