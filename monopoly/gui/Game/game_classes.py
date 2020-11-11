@@ -1,6 +1,6 @@
-
 from kivy.uix.screenmanager import Screen
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
 from kivy.uix.popup import Popup
@@ -8,8 +8,8 @@ from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.uix.label import Label
 from kivy.uix.image import Image
-from kivy.properties import ObjectProperty
-from kivy.graphics import Rectangle, Line
+from kivy.properties import ObjectProperty, ListProperty, StringProperty, NumericProperty
+from kivy.graphics import Rectangle, Line, Color
 from kivy.animation import Animation
 
 import queue
@@ -23,24 +23,23 @@ import pdb
 # Local Imports
 
 from General.general_classes import DynamicImage
+from General.general_classes import PlayerIcon
 from General import constants as C
 
 
 class Game(Screen):
-    
-    def update_players_to_frame(self, *args):
 
-        #print("Game: update_players_to_frame")
-        #print(self.ids.game_board.players)
+    def update_players_to_frame(self, *args):
+        # print("Game: update_players_to_frame")
+        # print(self.ids.game_board.players)
 
         for i, player in enumerate(self.ids.game_board.players):
-
-            player_data_obj = self.ids.info_frame.ids[f'player_{i+1}']
+            player_data_obj = self.ids.info_frame.ids[f'player_{i + 1}']
 
             # Place into the data from the player into the player_data_obj 
             player_data_obj.ids['player_text'].text = f'[b][color=#FF7F00]{player.name}\n{player.money}[/color][/b]'
             player_data_obj.ids['player_icon'].image_source = player.source
-        
+
 
 class Player(DynamicImage):
     rectangle = ObjectProperty(None)
@@ -144,6 +143,7 @@ class Player(DynamicImage):
     def __repr__(self):
         return self.__str__()
 
+
 class GameBoard(Widget):
 
     # Initialization of objects
@@ -170,11 +170,11 @@ class GameBoard(Widget):
         self.players = []
         for player_name, player_icon in players_info.items():
             self.players.append(Player(
-                root=self, 
-                source="assets/player_icons/" + player_icon + ".png", 
-                starting_square='GO', 
+                root=self,
+                source="assets/player_icons/" + player_icon + ".png",
+                starting_square='GO',
                 player_name=player_name
-                )
+            )
             )
 
         # Randomly shuffling the list to determine who goes first
@@ -193,22 +193,22 @@ class GameBoard(Widget):
     def place_ownership_icon(self, player, square_property):
 
         # If there was a previous owner icon, remove that widget
-        if square_property.owner_icon != None:
+        if square_property.owner_icon is not None:
             self.remove_widget(square_property.owner_icon)
 
         # Create a grey-version of the player's icon to visualize ownership
         square_property.owner_icon = DynamicImage(
             root=self,
-            source=player.source, 
-            ratio_pos=square_property.owner_icon_placement, 
-            ratio_size=(player.ratio_size[0]/2, player.ratio_size[1]/2)
+            source=player.source,
+            ratio_pos=square_property.owner_icon_placement,
+            ratio_size=(player.ratio_size[0] / 2, player.ratio_size[1] / 2)
         )
 
         """
         with square_property.owner_icon.canvas:
             Rectangle(source='assets/buttons/light_grey.jpg', pos=self.pos, size=self.size)
         """
-        
+
         # Adding the image to the game_board
         self.add_widget(square_property.owner_icon, index=-1)
 
@@ -250,9 +250,12 @@ class GameBoard(Widget):
             step_1, step_2 = self.roll_dice(None)
         else:
             step_1, step_2 = rolls
-        '''
-        step_1 = 5
-        step_2 = 30
+        #'''
+
+        #"""
+        step_1 = 0
+        step_2 = 1
+        #"""
 
         self.next_player_turn = True
 
@@ -412,7 +415,7 @@ class GameBoard(Widget):
 
         # If land on tax penalty squares
         elif final_square.type == "Tax":
-            
+
             if final_square.name == 'ITax':
                 self.players[self.current_player_turn].money -= 200
 
@@ -420,11 +423,11 @@ class GameBoard(Widget):
                 self.players[self.current_player_turn].money -= 100
 
         # If land on property
-        elif final_square.type == "Property" or final_square.type == "Railroad" or final_square.type == 'Utilities': # Also handle railroads
-            
+        elif final_square.type == "Property" or final_square.type == "Railroad" or final_square.type == 'Utilities':  # Also handle railroads
+
             # if the property is not owned
-            if (final_square.owner is None):
-                
+            if final_square.owner is None:
+
                 # Determine if the player has enough money to buy the property
                 if self.players[self.current_player_turn].money >= final_square.cost_value:
                     # Buy or Auction
@@ -445,26 +448,26 @@ class GameBoard(Widget):
             else:
 
                 # If the property is owned by someone else
-                if (final_square.owner != self.players[self.current_player_turn]):
-                    
+                if final_square.owner != self.players[self.current_player_turn]:
+
                     if final_square.type == 'Property' or final_square.type == 'Railroad':
-                        
+
                         # If the player can afford the rent
                         if self.players[self.current_player_turn].money >= final_square.rent:
                             self.players[self.current_player_turn].money -= final_square.rent
                             final_square.owner.money += final_square.rent
-                        
+
                         # else
                         else:
                             self.mortgage_or_sell = CardSelectPop(root=self,
-                                                            current_player=self.players[self.current_player_turn],
-                                                            square_property=final_square,
-                                                            button_left='MORTGAGE',
-                                                            button_right='SELL')
-                    
+                                                                  current_player=self.players[self.current_player_turn],
+                                                                  square_property=final_square,
+                                                                  button_left='MORTGAGE',
+                                                                  button_right='SELL')
+
                     elif final_square.type == 'Utilities':
                         pass
-                    
+
         # Update the player's info in the right side panel
         self.parent.parent.update_players_to_frame()
 
@@ -494,7 +497,7 @@ class GameBoard(Widget):
             self.players[self.current_player_turn].money += 200
 
         # Calculate the final step location
-        final_id = (final_id) % len(list(self.squares.keys()))
+        final_id = final_id % len(list(self.squares.keys()))
 
         # Retrive the key for the location
         final_square_name = list(self.squares.keys())[final_id]
@@ -519,7 +522,7 @@ class GameBoard(Widget):
     def roll_out_jail(self):
 
         # Roll the dice
-        # step_1, step_2 = self.roll_dice(None)
+        #step_1, step_2 = self.roll_dice(None)
         step_1 = 3
         step_2 = 2
 
@@ -545,7 +548,7 @@ class GameBoard(Widget):
         self.players[self.current_player_turn].jail_free_card = False
 
     def buy_property(self, player, square_property):
-        
+
         # Deduce the player's money according to the properties value
         player.money -= square_property.cost_value
 
@@ -561,8 +564,13 @@ class GameBoard(Widget):
         # Update the player's info in the right side panel
         self.parent.parent.update_players_to_frame()
 
-    def auction_property(self):
-        pass
+    def auction_property(self, square_property):
+        self.auction_pop = PlayerAuctionPop(
+            root=self,
+            property_name=square_property.full_name
+        )
+
+        self.auction_pop.open()
 
     def mortgage_property(self):
         pass
@@ -648,12 +656,12 @@ class CardSelectPop(Popup):
         self.button_left = kwargs.pop('button_left')
 
         super().__init__(**kwargs)
-        
+
         if self.square_property is not None:
             self.ids.label_1.text = f"[b][color=#000000]For {self.square_property.full_name}, do {self.current_player.name} want to PAY ${self.square_property.cost_value} or AUCTION?[/b][/color]"
         else:
             self.ids.label_1.text = f"[b][color=#000000]Do {self.current_player.name} want to PAY $50 or ROLL DOUBLES to get out of jail?[/b][/color]"
-        
+
         self.ids.button_left.text = f'[b][color=#ffffff]{self.button_left}[/b][/color]'
         self.ids.button_right.text = f'[b][color=#ffffff]{self.button_right}[/b][/color]'
 
@@ -677,7 +685,7 @@ class CardSelectPop(Popup):
 
         # Execute the auction_property from the gameboard
         elif choice == 'AUCTION':
-            self.root.auction_property()
+            self.root.auction_property(self.square_property)
 
         elif choice == "SELL":
             self.root.sell_belongings()
@@ -713,7 +721,6 @@ class BoardSquare:
             self.type = "Corner"
         else:
             self.type = "Property"
-        
 
         # Obtain the square's pixel_ratio location
         self.physical_location = C.BOARD_SQUARE_LOCATIONS[square_name]
@@ -780,3 +787,155 @@ class BoardSquare:
 
     def __repr__(self):
         return f"BoardSquare [Name: {self.name} - Cost Value: {self.cost_value}]"
+
+
+class PlayerAuctionPop(Popup):
+
+    def __init__(self, **kwargs):
+        # Obtain root reference
+        self.root = kwargs.pop('root')
+        self.property_name = kwargs.pop('property_name')
+
+        super().__init__(**kwargs)
+
+        self.ids.current_square.text = f'[b][color=#ff0000]{self.property_name}[/b][/color]'
+        self.highest_bid = 10
+
+        # Create timer
+        self.timer_value = 10
+        self.timer = Clock.schedule_interval(self.update_timer_value, 1)
+
+        # Remove the left-side button and place the players icons and money
+        Clock.schedule_once(self.set_player_icons, 0)
+
+    def set_player_icons(self, *args):
+
+        # Remove the unwanted label
+        self.ids.player_container.remove_widget(self.ids.player_1)
+
+        # Create all the players, in the right order
+        self.players_info = []
+        for counter, i in enumerate(range(self.root.current_player_turn, self.root.current_player_turn + len(self.root.players))):
+
+            # Apply modolus
+            i = i % len(self.root.players)
+
+            # Indexing the player
+            player = self.root.players[i]
+
+            # Create player info
+            player_info = AuctionPlayerInfo()
+
+            # Setting the data
+            player_info.image_source = player.source
+            player_info.money = player.money
+            player_info.money_text = f"[b][color=#000000]${player_info.money}[/b][/color]"
+
+            # Add the player info to the front-end
+            self.ids.player_container.add_widget(player_info, index=counter)
+
+            # Store into list
+            self.players_info.append(player_info)
+
+        # Reverse python list of players info to make the first added also the first in the
+        # list
+        self.players_info.reverse()
+
+        # Make the first player to auction to be colored red
+        self.current_bidder = 0
+        self.skipped_bids = 0
+        self.set_color(self.players_info[self.current_bidder], color='red')
+        self.bid_winner = self.players_info[self.current_bidder]
+
+    def update_timer_value(self, *args):
+
+        # Updating the text value
+        self.ids.timer.text = f"[b][color=#000000]{self.timer_value}[b][color=#000000]"
+
+        # Skip to the next player
+        if self.timer_value == 0:
+
+            # Set current bidder to black, since they skipped
+            self.set_color(self.players_info[self.current_bidder], color='black')
+
+            # Select next player
+            self.next_player()
+
+        # Reducing the timer value
+        self.timer_value -= 1
+
+    def add_bid(self, bid):
+
+        # Skip
+        if bid == 0:
+
+            # Account for skipped bid counter
+            self.skipped_bids += 1
+
+            # Set current bidder to black, since they skipped
+            self.set_color(self.players_info[self.current_bidder], color='black')
+
+        # Current bidder increased the bid
+        else:
+
+            # Reset skipped_bids counter
+            self.skipped_bids = 0
+
+            # Make the previous winner from blue to black
+            self.set_color(self.bid_winner, color='black')
+
+            # Set the winner
+            self.bid_winner = self.players_info[self.current_bidder]
+
+            # The current bidder is now the winner
+            self.set_color(self.bid_winner, color='blue')
+
+            # Update the bid value and its corresponding text
+            self.highest_bid += bid
+            self.ids.highest_bid.text = f"[b][color=#000000]HIGHEST BID: {self.highest_bid}[/color][/b]"
+
+        self.next_player()
+
+    def next_player(self):
+
+        # Reset timer for the next player
+        self.timer_value = 10
+
+        # Update the current bidder
+        self.current_bidder = (self.current_bidder + 1) % len(self.players_info)
+
+        # Current bidder needs to be colored red
+        self.set_color(self.players_info[self.current_bidder], color='red')
+
+    def set_color(self, players_info, color='black'):
+
+        if color == 'red':
+            players_info.player_icon_border_color = [1,0,0]
+            players_info.money_text = f"[b][color=#ff0000]${players_info.money}[/b][/color]"
+        elif color == 'blue':
+            players_info.player_icon_border_color = [0, 0, 1]
+            players_info.money_text = f"[b][color=#0000ff]${players_info.money}[/b][/color]"
+        else: # Black
+            players_info.player_icon_border_color = [0, 0, 0]
+            players_info.money_text = f"[b][color=#000000]${players_info.money}[/b][/color]"
+
+        # Ask the widget to update
+        # players_info.ids.player_icon.canvas.ask_update()
+        # players_info.ids.player_money.canvas.ask_update()
+
+    def dismiss(self):
+
+        # Stop the clock event
+        self.timer.cancel()
+
+        # Then officially dismiss
+        super().dismiss()
+
+
+class AuctionPlayerInfo(BoxLayout):
+
+    money = NumericProperty(0)
+    money_text = StringProperty("0")
+    image_source = StringProperty("None")
+    widget_color = ListProperty([1,1,1,0]) # rgba
+    player_icon_border_color = ListProperty([0,0,0]) # rgb

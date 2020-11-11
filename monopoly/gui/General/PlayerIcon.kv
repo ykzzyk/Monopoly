@@ -2,12 +2,28 @@
 
 <PlayerIcon@Label>
 
+    canvas.before:
+
+        Color:
+            rgba: self.bg_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+        Color:
+            rgb: self.inside_circle_color
+        Ellipse:
+            size: (min(root.size), min(root.size))
+            pos: (root.pos[0] - min(root.size)//2 + self.width/2, root.pos[1] - min(root.size)//2 + self.height/2)
+            angle_start: 0
+            angle_end: 360
+
     canvas.after:
 
         Color:
-            rgb: [0,0,0]
+            rgb: self.border_color
         Line:
-            width: 1.1
+            width: 2
             circle: 
                 (self.pos[0] + self.width/2, self.pos[1] + self.height/2, min(self.width, self.height)
                 / 2, 0, 360)

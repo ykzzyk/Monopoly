@@ -1,7 +1,7 @@
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.graphics import Rectangle, Line
-from kivy.properties import StringProperty
+from kivy.properties import StringProperty, ListProperty
 
 class DynamicWidget():
 
@@ -42,3 +42,6 @@ class DynamicImage(DynamicWidget, Image):
 class PlayerIcon(Label):
 
     image_source = StringProperty('None')
+    border_color = ListProperty([0,0,0]) # rgb
+    bg_color = ListProperty([1,1,1,0]) # rgba
+    inside_circle_color = ListProperty([1,1,1]) # rgb

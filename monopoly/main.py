@@ -20,8 +20,8 @@ import tools
 # Importing all GUI
 import gui
 
+# TODO:
 """
-TODO:
     - Auction Bidding
     - Trade
     - Buy Houses and Hotels
@@ -31,11 +31,11 @@ TODO:
     - Player Bankrupt/Win Condition
 """
 
-
 cwd = pathlib.Path(os.path.abspath(__file__)).parent
 gui_widgets = cwd / 'gui'
 
 tools.fh.import_dir(gui_widgets)
+
 
 class Start(Screen):
     pass
@@ -59,12 +59,12 @@ class WindowManager(ScreenManager):
         kwargs['transition'] = NoTransition()
 
         super().__init__(**kwargs)
-    
+
     def start_game(self):
-        
+
         # Start the game only if 2 or more players have been added
         if len(list(self.ids['lobby'].ids['lobby_options'].players.keys())) > 1:
-            
+
             # Change to the next screen
             self.current = 'game'
 
