@@ -232,6 +232,7 @@
                     text: "[b][color=#ffffff] + $100[/color][/b]"
                     markup: True
                     background_normal: "assets/buttons/red.png"
+                    background_disabled_normal: "assets/buttons/light_grey.jpg"
                     font_size: root.width // 42
                     canvas.before:
                         Color:
@@ -249,6 +250,7 @@
                     text: "[b][color=#ffffff] + $50[/color][/b]"
                     markup: True
                     background_normal: "assets/buttons/red.png"
+                    background_disabled_normal: "assets/buttons/light_grey.jpg"
                     font_size: root.width // 42
                     canvas.before:
                         Color:
@@ -265,6 +267,7 @@
                     text: "[b][color=#ffffff] + $20[/color][/b]"
                     markup: True
                     background_normal: "assets/buttons/red.png"
+                    background_disabled_normal: "assets/buttons/light_grey.jpg"
                     font_size: root.width // 42
                     canvas.before:
                         Color:
@@ -281,6 +284,7 @@
                     text: "[b][color=#ffffff] + $10[/color][/b]"
                     markup: True
                     background_normal: "assets/buttons/red.png"
+                    background_disabled_normal: "assets/buttons/light_grey.jpg"
                     font_size: root.width // 42
                     canvas.before:
                         Color:
@@ -297,7 +301,15 @@
                 size_hint_x: 1
                 text: ""
                 markup: True
-#                font_size: root.width // 42
+                font_size: root.width // 20
+                canvas:
+                    Color:
+                        rgb: [0.502,0.502,0.502]
+                    Line:
+                        width: 4
+                        circle:
+                            (self.pos[0] + self.width/2, self.pos[1] + self.height/2, min(self.width, self.height)
+                            / 4, 0, 360)
 
 <AuctionPlayerInfo@BoxLayout>
 

@@ -58,7 +58,7 @@ class Player(DynamicImage):
         # Run parent inheritance
         self.doubles_counter = 0
         self.in_jail_counter = -1
-        self.money = 0
+        self.money = 1500
         self.house = 0
         self.hotel = 0
         self.jail_free_card = False
@@ -928,9 +928,19 @@ class PlayerAuctionPop(Popup):
         # Current bidder needs to be colored red
         self.set_color(self.players_info[self.current_bidder], color='red')
 
+        # Disable the buttons if the player does not have required money
+        if self.players_info[self.current_bidder].player.money - self.highest_bid < 100:
+            self.ids.bid_100.disabled = True
+        if self.players_info[self.current_bidder].player.money - self.highest_bid < 50:
+            self.ids.bid_50.disabled = True
+        if self.players_info[self.current_bidder].player.money - self.highest_bid < 20:
+            self.ids.bid_20.disabled = True
+        if self.players_info[self.current_bidder].player.money - self.highest_bid < 10:
+            self.ids.bid_10.disabled = True
+
         # Check if the now current bidder has enough money to pay the bid,
         # if not, skip them automatically
-        if self.players_info[self.current_bidder].player.money < self.highest_bid:
+        if self.players_info[self.current_bidder].player.money <= self.highest_bid:
             # Account for skipped bid counter
             self.skipped_bids += 1
 
