@@ -253,7 +253,7 @@ class GameBoard(Widget):
         #'''
 
         # """
-        step_1 = 0
+        step_1 = 2
         step_2 = 1
         # """
 
@@ -575,6 +575,10 @@ class GameBoard(Widget):
 
         self.auction_pop.open()
 
+    def trade(self):
+        self.tradeInfo = TradePop(root=self)
+        self.tradeInfo.open()
+
     def mortgage_property(self):
         pass
 
@@ -847,7 +851,7 @@ class PlayerAuctionPop(Popup):
         # Make the first player to auction to be colored red
         self.current_bidder = -1
         self.skipped_bids = 0
-        #self.set_color(self.players_info[self.current_bidder], color='red')
+        # self.set_color(self.players_info[self.current_bidder], color='red')
         self.bid_winner = None  # self.players_info[self.current_bidder]
         self.next_player()
 
@@ -858,6 +862,10 @@ class PlayerAuctionPop(Popup):
 
         # Skip to the next player
         if self.timer_value == 0:
+
+            # Account for skipped bid counter
+            self.skipped_bids += 1
+
             # Set current bidder to black, since they skipped
             self.set_color(self.players_info[self.current_bidder], color='black')
 
@@ -869,7 +877,7 @@ class PlayerAuctionPop(Popup):
 
     def add_bid(self, bid):
 
-        # Skip
+        # Player decide to skip the bid
         if bid == 0:
 
             # Account for skipped bid counter
@@ -907,7 +915,7 @@ class PlayerAuctionPop(Popup):
 
     def next_player(self):
 
-        if self.skipped_bids > len(self.players_info) - 1:
+        if self.skipped_bids > len(self.players_info) - 2:
 
             # If the first person skips, then make them the initial winner
             if self.bid_winner is None:
@@ -931,12 +939,23 @@ class PlayerAuctionPop(Popup):
         # Disable the buttons if the player does not have required money
         if self.players_info[self.current_bidder].player.money - self.highest_bid < 100:
             self.ids.bid_100.disabled = True
+        else:
+            self.ids.bid_100.disabled = False
+
         if self.players_info[self.current_bidder].player.money - self.highest_bid < 50:
             self.ids.bid_50.disabled = True
+        else:
+            self.ids.bid_50.disabled = False
+
         if self.players_info[self.current_bidder].player.money - self.highest_bid < 20:
             self.ids.bid_20.disabled = True
+        else:
+            self.ids.bid_20.disabled = False
+
         if self.players_info[self.current_bidder].player.money - self.highest_bid < 10:
             self.ids.bid_10.disabled = True
+        else:
+            self.ids.bid_10.disabled = False
 
         # Check if the now current bidder has enough money to pay the bid,
         # if not, skip them automatically
@@ -982,3 +1001,11 @@ class AuctionPlayerInfo(BoxLayout):
     image_source = StringProperty("None")
     widget_color = ListProperty([1, 1, 1, 0])  # rgba
     player_icon_border_color = ListProperty([0, 0, 0])  # rgb
+
+
+class TradePop(Popup):
+    def __init__(self, **kwargs):
+        # Obtain root reference
+        self.root = kwargs.pop('root')
+
+        super().__init__(**kwargs)
