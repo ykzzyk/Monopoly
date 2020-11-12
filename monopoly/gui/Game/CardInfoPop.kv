@@ -1,0 +1,28 @@
+<CardInfoPop@Popup>:
+    size_hint: (None, None)
+    size: (Window.width//2, Window.height//2)
+    title: ""
+    separator_height: 0
+    background: "assets/background/card.jpg"
+    auto_dismiss: False
+
+    GridLayout:
+
+        cols: 2
+
+        GridLayout:
+
+            rows: 2
+
+            size_hint_x: 1.5
+
+            Image:
+                id: card_image
+
+            Label:
+                id: card_info
+                markup: True
+                font_size: root.height//23
+
+        Image:
+            source: "assets/background/master.png"

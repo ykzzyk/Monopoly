@@ -64,7 +64,15 @@ class Player(DynamicImage):
         self.house = 0
         self.hotel = 0
         self.jail_free_card = False
-        self.property_own = []
+        #self.property_own = []
+        self.property_own = [
+            BoardSquare('Br1'), BoardSquare('Br2'), BoardSquare('Pk1'), BoardSquare('Lb1'), BoardSquare('Lb2'),
+            BoardSquare('Lb3'), BoardSquare('Pk2'), BoardSquare('Util1'), BoardSquare('Pk3'), BoardSquare('Yl1'),
+            BoardSquare('Lb3'), BoardSquare('Pk2'), BoardSquare('Util1'), BoardSquare('Pk3'), BoardSquare('Yl1'),
+            BoardSquare('Lb3'), BoardSquare('Pk2'), BoardSquare('Util1'), BoardSquare('Pk3'), BoardSquare('Yl1'),
+            BoardSquare('Lb3'), BoardSquare('Pk2'), BoardSquare('Util1'), BoardSquare('Pk3'), BoardSquare('Yl1'),
+            BoardSquare('Lb3'), BoardSquare('Pk2'), BoardSquare('Util1')
+        ]
 
         self.root_size_before = self.root.size
 
@@ -601,6 +609,96 @@ class GameBoard(Widget):
         self.unbind(size=self.stop_animation)
 
 
+class BoardSquare:
+
+    def __init__(self, square_name):
+
+        # Storing the name of the square
+        self.name = square_name
+
+        # Determing if the cart is chest or community
+        if "Chance" in self.name:
+            self.type = "Chance"
+        elif "Chest" in self.name:
+            self.type = "Chest"
+        elif "RR" in self.name:
+            self.type = "Railroad"
+        elif "Util" in self.name:
+            self.type = "Utilities"
+        elif "Tax" in self.name:
+            self.type = "Tax"
+        elif self.name == "GO" or self.name == "Jail" or self.name == "GO-TO-JAIL" or self.name == "Parking":
+            self.type = "Corner"
+        else:
+            self.type = "Property"
+
+        # Obtain the square's pixel_ratio location
+        self.physical_location = C.BOARD_SQUARE_LOCATIONS[square_name]
+
+        # Obtain the chronological number of the property
+        self.sequence_id = list(C.BOARD_SQUARE_LOCATIONS.keys()).index(square_name)
+
+        # Obtain the square's property cost (if applicable)
+        self.cost_value = C.BOARD_SQUARE_ATTRIBUTES[square_name]['cost_value']
+        self.full_name = C.BOARD_SQUARE_ATTRIBUTES[square_name]['full_name']
+        self.mortgage_value = C.BOARD_SQUARE_ATTRIBUTES[square_name]['mortgage_value']
+        self.unmortgage_value = C.BOARD_SQUARE_ATTRIBUTES[square_name]['unmortgage_value']
+
+        # For determine the overall section (line{1,2,3,4} or corner) of the property
+        self.section = None
+        for section in C.BOARD_LINES.keys():
+            if square_name in C.BOARD_LINES[section]:
+                self.section = section
+
+        # Calculating the player ownership icon placement
+        add = lambda x, y: x + y
+        subtract = lambda x, y: x - y
+
+        def offset(data, axis, fn, value=C.PLAYER_ICON_OFFSET):
+            if axis == 'x':
+                return (fn(data[0], value), data[1])
+            return (data[0], fn(data[1], value))
+
+        if self.section == 'Line1':
+            if self.type == 'Railroad':
+                self.owner_icon_placement = offset(self.physical_location, 'x', add, value=C.RR_PLAYER_ICON_OFFSET)
+            else:
+                self.owner_icon_placement = offset(self.physical_location, 'x', subtract)
+        elif self.section == 'Line2':
+            if self.type == 'Railroad':
+                self.owner_icon_placement = offset(self.physical_location, 'y', subtract, value=C.RR_PLAYER_ICON_OFFSET)
+            else:
+                self.owner_icon_placement = offset(self.physical_location, 'y', add)
+        elif self.section == 'Line3':
+            if self.type == 'Railroad':
+                self.owner_icon_placement = offset(self.physical_location, 'x', subtract, value=C.RR_PLAYER_ICON_OFFSET)
+            else:
+                self.owner_icon_placement = offset(self.physical_location, 'x', add)
+        elif self.section == 'Line4':
+            if self.type == 'Railroad':
+                self.owner_icon_placement = offset(self.physical_location, 'y', add, value=C.RR_PLAYER_ICON_OFFSET)
+            else:
+                self.owner_icon_placement = offset(self.physical_location, 'y', subtract)
+
+        # For color set properties
+        if square_name in C.BOARD_SQUARE_RENT.keys():
+            self.rents = C.BOARD_SQUARE_RENT[square_name]
+            self.rent = self.rents['rent']
+
+        # Pre-set values of properties
+        self.owner = None
+        self.owner_icon = None
+        self.number_of_houses = 0
+        self.has_hotel = False
+        self.mortgage = False
+
+    def __str__(self):
+        return f"BoardSquare [Name: {self.name} - Cost Value: {self.cost_value} - Owner: {self.owner}]"
+
+    def __repr__(self):
+        return f"BoardSquare [Name: {self.name} - Cost Value: {self.cost_value}]"
+
+
 class CardInfoPop(Popup):
     def __init__(self, **kwargs):
         # Obtain root reference
@@ -708,96 +806,6 @@ class PlayerData(GridLayout):
         super().__init__(**kwargs)
 
 
-class BoardSquare:
-
-    def __init__(self, square_name):
-
-        # Storing the name of the square
-        self.name = square_name
-
-        # Determing if the cart is chest or community
-        if "Chance" in self.name:
-            self.type = "Chance"
-        elif "Chest" in self.name:
-            self.type = "Chest"
-        elif "RR" in self.name:
-            self.type = "Railroad"
-        elif "Util" in self.name:
-            self.type = "Utilities"
-        elif "Tax" in self.name:
-            self.type = "Tax"
-        elif self.name == "GO" or self.name == "Jail" or self.name == "GO-TO-JAIL" or self.name == "Parking":
-            self.type = "Corner"
-        else:
-            self.type = "Property"
-
-        # Obtain the square's pixel_ratio location
-        self.physical_location = C.BOARD_SQUARE_LOCATIONS[square_name]
-
-        # Obtain the chronological number of the property
-        self.sequence_id = list(C.BOARD_SQUARE_LOCATIONS.keys()).index(square_name)
-
-        # Obtain the square's property cost (if applicable)
-        self.cost_value = C.BOARD_SQUARE_ATTRIBUTES[square_name]['cost_value']
-        self.full_name = C.BOARD_SQUARE_ATTRIBUTES[square_name]['full_name']
-        self.mortgage_value = C.BOARD_SQUARE_ATTRIBUTES[square_name]['mortgage_value']
-        self.unmortgage_value = C.BOARD_SQUARE_ATTRIBUTES[square_name]['unmortgage_value']
-
-        # For determine the overall section (line{1,2,3,4} or corner) of the property
-        self.section = None
-        for section in C.BOARD_LINES.keys():
-            if square_name in C.BOARD_LINES[section]:
-                self.section = section
-
-        # Calculating the player ownership icon placement
-        add = lambda x, y: x + y
-        subtract = lambda x, y: x - y
-
-        def offset(data, axis, fn, value=C.PLAYER_ICON_OFFSET):
-            if axis == 'x':
-                return (fn(data[0], value), data[1])
-            return (data[0], fn(data[1], value))
-
-        if self.section == 'Line1':
-            if self.type == 'Railroad':
-                self.owner_icon_placement = offset(self.physical_location, 'x', add, value=C.RR_PLAYER_ICON_OFFSET)
-            else:
-                self.owner_icon_placement = offset(self.physical_location, 'x', subtract)
-        elif self.section == 'Line2':
-            if self.type == 'Railroad':
-                self.owner_icon_placement = offset(self.physical_location, 'y', subtract, value=C.RR_PLAYER_ICON_OFFSET)
-            else:
-                self.owner_icon_placement = offset(self.physical_location, 'y', add)
-        elif self.section == 'Line3':
-            if self.type == 'Railroad':
-                self.owner_icon_placement = offset(self.physical_location, 'x', subtract, value=C.RR_PLAYER_ICON_OFFSET)
-            else:
-                self.owner_icon_placement = offset(self.physical_location, 'x', add)
-        elif self.section == 'Line4':
-            if self.type == 'Railroad':
-                self.owner_icon_placement = offset(self.physical_location, 'y', add, value=C.RR_PLAYER_ICON_OFFSET)
-            else:
-                self.owner_icon_placement = offset(self.physical_location, 'y', subtract)
-
-        # For color set properties
-        if square_name in C.BOARD_SQUARE_RENT.keys():
-            self.rents = C.BOARD_SQUARE_RENT[square_name]
-            self.rent = self.rents['rent']
-
-        # Pre-set values of properties
-        self.owner = None
-        self.owner_icon = None
-        self.number_of_houses = 0
-        self.has_hotel = False
-        self.mortgage = False
-
-    def __str__(self):
-        return f"BoardSquare [Name: {self.name} - Cost Value: {self.cost_value} - Owner: {self.owner}]"
-
-    def __repr__(self):
-        return f"BoardSquare [Name: {self.name} - Cost Value: {self.cost_value}]"
-
-
 class PlayerAuctionPop(Popup):
 
     def __init__(self, **kwargs):
@@ -824,8 +832,7 @@ class PlayerAuctionPop(Popup):
 
         # Create all the players, in the right order
         self.players_info = []
-        for counter, i in enumerate(
-                range(self.root.current_player_turn, self.root.current_player_turn + len(self.root.players))):
+        for counter, i in enumerate(range(self.root.current_player_turn, self.root.current_player_turn + len(self.root.players))):
             # Apply modolus
             i = i % len(self.root.players)
 
@@ -1055,29 +1062,64 @@ class TradePop(Popup):
 
         # Binding the select name btns to also update their text values
         self.dropdown_list_left.bind(
-            on_select=functools.partial(self.select_player, self.ids.select_name_btn_left)
+            on_select=functools.partial(self.select_player, self.ids.select_name_btn_left, 'left')
         )
         self.dropdown_list_right.bind(
-            on_select=functools.partial(self.select_player, self.ids.select_name_btn_right)
+            on_select=functools.partial(self.select_player, self.ids.select_name_btn_right, 'right')
         )
 
-    def select_player(self, btn, instance, x):
+    def select_player(self, btn, side, instance, button_text):
 
         # Obtain the true value in the text
-        previous_x = btn.text.split(']')[2].split('[')[0]
-        clean_x = x.split(']')[2].split('[')[0]
+        previous_player_name = btn.text.split(']')[2].split('[')[0]
+        player_name = button_text.split(']')[2].split('[')[0]
 
         # If the selection change from not the default value
-        if previous_x != 'SELECT PLAYER NAME':
-            self.dropdown_list_right.add_widget(self.right_btns[previous_x])
-            self.dropdown_list_left.add_widget(self.left_btns[previous_x])
+        if previous_player_name != 'SELECT PLAYER NAME':
+            self.dropdown_list_right.add_widget(self.right_btns[previous_player_name])
+            self.dropdown_list_left.add_widget(self.left_btns[previous_player_name])
 
         # Removing the corresponding button from
         # right dropdown window
-        self.dropdown_list_left.remove_widget(self.left_btns[clean_x])
-        self.dropdown_list_right.remove_widget(self.right_btns[clean_x])
+        self.dropdown_list_left.remove_widget(self.left_btns[player_name])
+        self.dropdown_list_right.remove_widget(self.right_btns[player_name])
 
         # Update text to given x
-        btn.text = x
+        btn.text = button_text
 
+        # Update the property container with the selected player
+        self.update_property_container(player_name, side)
 
+    def update_property_container(self, player_name, side):
+
+        # Find the matching player given the player_name
+        selected_player = None
+        for player in self.root.players:
+            if player.name.upper() == player_name:
+                selected_player = player
+                break
+
+        # Clean property container
+        if side == 'left':
+            self.ids.left_property_container.clear_widgets()
+        elif side == 'right':
+            self.ids.right_property_container.clear_widgets()
+
+        # Fill the property container given the properties of the
+        # selected player
+        for square_property in player.property_own:
+
+            # Create button for property
+            property_btn = Button(
+                text=f'[b][color=#000000]{square_property.full_name}[/b][/color]',
+                markup=True,
+                # size_hint_y=None
+            )
+
+            # Bind the property button to function
+
+            # Add button to the property container
+            if side == 'left':
+                self.ids.left_property_container.add_widget(property_btn)
+            elif side == 'right':
+                self.ids.right_property_container.add_widget(property_btn)
