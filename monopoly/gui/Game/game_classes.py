@@ -1055,13 +1055,13 @@ class TradePop(Popup):
 
         # Binding the select name btns to also update their text values
         self.dropdown_list_left.bind(
-            on_select=functools.partial(self.select_player, 'left', self.ids.select_name_btn_left)
+            on_select=functools.partial(self.select_player, self.ids.select_name_btn_left)
         )
         self.dropdown_list_right.bind(
-            on_select=functools.partial(self.select_player, 'right', self.ids.select_name_btn_right)
+            on_select=functools.partial(self.select_player, self.ids.select_name_btn_right)
         )
 
-    def select_player(self, side, btn, instance, x):
+    def select_player(self, btn, instance, x):
 
         # Obtain the true value in the text
         previous_x = btn.text.split(']')[2].split('[')[0]
@@ -1069,17 +1069,13 @@ class TradePop(Popup):
 
         # If the selection change from not the default value
         if previous_x != 'SELECT PLAYER NAME':
-            if side == 'right':
-                self.dropdown_list_left.add_widget(self.left_btns[previous_x])
-            else:
-                self.dropdown_list_right.add_widget(self.right_btns[previous_x])
+            self.dropdown_list_right.add_widget(self.right_btns[previous_x])
+            self.dropdown_list_left.add_widget(self.left_btns[previous_x])
 
         # Removing the corresponding button from
         # right dropdown window
-        if side == 'right':
-            self.dropdown_list_left.remove_widget(self.left_btns[clean_x])
-        else:
-            self.dropdown_list_right.remove_widget(self.right_btns[clean_x])
+        self.dropdown_list_left.remove_widget(self.left_btns[clean_x])
+        self.dropdown_list_right.remove_widget(self.right_btns[clean_x])
 
         # Update text to given x
         btn.text = x
