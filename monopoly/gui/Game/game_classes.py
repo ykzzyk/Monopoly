@@ -1,9 +1,11 @@
 from kivy.uix.screenmanager import Screen
+from kivy.uix.dropdown import DropDown
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
 from kivy.uix.popup import Popup
+from kivy.uix.button import Button
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.uix.label import Label
@@ -862,7 +864,6 @@ class PlayerAuctionPop(Popup):
 
         # Skip to the next player
         if self.timer_value == 0:
-
             # Account for skipped bid counter
             self.skipped_bids += 1
 
@@ -1007,5 +1008,80 @@ class TradePop(Popup):
     def __init__(self, **kwargs):
         # Obtain root reference
         self.root = kwargs.pop('root')
+        self.left_btns = {}
+        self.right_btns = {}
 
         super().__init__(**kwargs)
+
+        Clock.schedule_once(self.create_dropdown, 0)
+
+    def create_dropdown(self, *args):
+
+        self.dropdown_list_left = DropDown()
+        self.dropdown_list_right = DropDown()
+
+        for player in self.root.players:
+
+            player_name = player.name.upper()
+            # button for dropdown list 1
+            btn_left = Button(
+                text=f'[b][color=#ffffff]{player_name}[/b][/color]', size_hint_y=None,
+                height=self.width // 25,
+                markup=True
+            )
+
+            # button for dropdown list 2
+            btn_right = Button(
+                text=f'[b][color=#ffffff]{player_name}[/b][/color]', size_hint_y=None,
+                height=self.width // 25,
+                markup=True
+            )
+
+            # Storing the btn references into a list
+            self.left_btns[player_name] = btn_left
+            self.right_btns[player_name] = btn_right
+
+            # Create the binding function
+            btn_left.bind(on_release=lambda btn_left: self.dropdown_list_left.select(btn_left.text))
+            btn_right.bind(on_release=lambda btn_right: self.dropdown_list_right.select(btn_right.text))
+
+            # Add the widget to the dropdown window
+            self.dropdown_list_left.add_widget(btn_left)
+            self.dropdown_list_right.add_widget(btn_right)
+
+        # Bind the select name btns to opening the dropdown window
+        self.ids.select_name_btn_left.bind(on_release=self.dropdown_list_left.open)
+        self.ids.select_name_btn_right.bind(on_release=self.dropdown_list_right.open)
+
+        # Binding the select name btns to also update their text values
+        self.dropdown_list_left.bind(
+            on_select=functools.partial(self.select_player, 'left', self.ids.select_name_btn_left)
+        )
+        self.dropdown_list_right.bind(
+            on_select=functools.partial(self.select_player, 'right', self.ids.select_name_btn_right)
+        )
+
+    def select_player(self, side, btn, instance, x):
+
+        # Obtain the true value in the text
+        previous_x = btn.text.split(']')[2].split('[')[0]
+        clean_x = x.split(']')[2].split('[')[0]
+
+        # If the selection change from not the default value
+        if previous_x != 'SELECT PLAYER NAME':
+            if side == 'right':
+                self.dropdown_list_left.add_widget(self.left_btns[previous_x])
+            else:
+                self.dropdown_list_right.add_widget(self.right_btns[previous_x])
+
+        # Removing the corresponding button from
+        # right dropdown window
+        if side == 'right':
+            self.dropdown_list_left.remove_widget(self.left_btns[clean_x])
+        else:
+            self.dropdown_list_right.remove_widget(self.right_btns[clean_x])
+
+        # Update text to given x
+        btn.text = x
+
+
