@@ -15,6 +15,7 @@
             padding: [root.width//30, 0, root.width//30, 0]
             GridLayout:
                 rows: 2
+
                 Button:
                     id: select_name_btn_left
                     text: "[b][color=#ffffff]SELECT PLAYER NAME[/b][/color]"
@@ -43,6 +44,9 @@
                         row_force_default: True
                         row_default_height: '44sp'
                         height: self.minimum_height
+                        padding: [self.width//20, self.width//20, self.width//20, self.width//20]
+                        spacing: [0,self.width//20]
+
                         Label:
                             id: left_remove_label
 
@@ -64,10 +68,23 @@
                             width: 3
                             rectangle: self.x, self.y, self.width, self.height
 
-                Button:
-                    size_hint_y: 0.9
-                    text: '2'
-                    multiline: False
+                ScrollView:
+                    id: right_property_scrollview
+                    do_scroll_y: True
+                    do_scroll_x: True
+
+                    GridLayout:
+                        id: right_property_container
+                        cols: 1
+                        size_hint_y: None
+                        row_force_default: True
+                        row_default_height: '44sp'
+                        height: self.minimum_height
+                        padding: [self.width//20, self.width//20, self.width//20, self.width//20]
+                        spacing: [0,self.width//20]
+
+                        Label:
+                            id: right_remove_label
 
         GridLayout:
             cols: 2
@@ -85,6 +102,8 @@
                     Line:
                         width: 5
                         rectangle: self.x, self.y, self.width, self.height
+                on_release:
+                    root.accept()
 
             Button:
                 text: "[b][color=#ffffff]BACK TO GAME[/b][/color]"
@@ -99,3 +118,12 @@
 
                 on_release:
                     root.dismiss()
+
+<PropertyButton@Button>
+
+    canvas.before:
+        Color:
+            rgba: .1, .1, .1, 1
+        Line:
+            width: 5
+            rectangle: self.x, self.y, self.width, self.height

@@ -64,15 +64,16 @@ class Player(DynamicImage):
         self.house = 0
         self.hotel = 0
         self.jail_free_card = False
-        #self.property_own = []
-        self.property_own = [
-            BoardSquare('Br1'), BoardSquare('Br2'), BoardSquare('Pk1'), BoardSquare('Lb1'), BoardSquare('Lb2'),
-            BoardSquare('Lb3'), BoardSquare('Pk2'), BoardSquare('Util1'), BoardSquare('Pk3'), BoardSquare('Yl1'),
-            BoardSquare('Lb3'), BoardSquare('Pk2'), BoardSquare('Util1'), BoardSquare('Pk3'), BoardSquare('Yl1'),
-            BoardSquare('Lb3'), BoardSquare('Pk2'), BoardSquare('Util1'), BoardSquare('Pk3'), BoardSquare('Yl1'),
-            BoardSquare('Lb3'), BoardSquare('Pk2'), BoardSquare('Util1'), BoardSquare('Pk3'), BoardSquare('Yl1'),
-            BoardSquare('Lb3'), BoardSquare('Pk2'), BoardSquare('Util1')
-        ]
+        self.property_own = []
+
+        if self.name == 'player1':
+            self.property_own = [
+                BoardSquare('Br1')
+            ]
+        elif self.name == 'player2':
+            self.property_own = [
+                BoardSquare('Br2')
+            ]
 
         self.root_size_before = self.root.size
 
@@ -1015,8 +1016,18 @@ class TradePop(Popup):
     def __init__(self, **kwargs):
         # Obtain root reference
         self.root = kwargs.pop('root')
+
+        # Btns list of players
         self.left_btns = {}
         self.right_btns = {}
+
+        # Selected players
+        self.left_player = None
+        self.right_player = None
+
+        # Properties selected containers
+        self.left_square_properties = []
+        self.right_square_properties = []
 
         super().__init__(**kwargs)
 
@@ -1087,17 +1098,23 @@ class TradePop(Popup):
         # Update text to given x
         btn.text = button_text
 
-        # Update the property container with the selected player
-        self.update_property_container(player_name, side)
-
-    def update_property_container(self, player_name, side):
-
         # Find the matching player given the player_name
         selected_player = None
         for player in self.root.players:
             if player.name.upper() == player_name:
                 selected_player = player
                 break
+
+        # Store the selected player
+        if side == 'left':
+            self.left_player = selected_player
+        elif side == 'right':
+            self.right_player = selected_player
+
+        # Update the property container with the selected player
+        self.update_property_container(selected_player, side)
+
+    def update_property_container(self, selected_player, side):
 
         # Clean property container
         if side == 'left':
@@ -1107,19 +1124,75 @@ class TradePop(Popup):
 
         # Fill the property container given the properties of the
         # selected player
-        for square_property in player.property_own:
+        for square_property in selected_player.property_own:
 
             # Create button for property
-            property_btn = Button(
+            property_btn = PropertyButton(
                 text=f'[b][color=#000000]{square_property.full_name}[/b][/color]',
                 markup=True,
-                # size_hint_y=None
+                background_normal="",
+                square_property=square_property
             )
 
             # Bind the property button to function
+            property_btn.bind(on_release=functools.partial(self.property_button_press, side))
 
             # Add button to the property container
             if side == 'left':
                 self.ids.left_property_container.add_widget(property_btn)
             elif side == 'right':
                 self.ids.right_property_container.add_widget(property_btn)
+
+    def property_button_press(self, side, btn_instance):
+
+        square_property_container = self.left_square_properties if side == 'left' else self.right_square_properties
+
+        # If the property is already selected, deselect it by:
+        if btn_instance.square_property in square_property_container:
+
+            # Remove from the list
+            square_property_container.remove(btn_instance.square_property)
+
+            # Change the color of the button back to white
+            btn_instance.background_normal = ""
+
+        else:
+
+            # Append to the list
+            square_property_container.append(btn_instance.square_property)
+
+            # Change the color of the button to be highlighted
+            btn_instance.background_normal = "assets/buttons/red.png"
+
+    def accept(self):
+
+        # Exchange properties
+        # Left player gets the right properties
+        for square_property in self.left_square_properties:
+
+            # Remove left's ownership
+            self.left_player.property_own.remove(square_property)
+
+            # Add right's ownership
+            self.right_player.property_own.append(square_property)
+
+        # Right player gets the left properties
+        for square_property in self.right_square_properties:
+
+            # Remove right's ownership
+            self.right_player.property_own.remove(square_property)
+
+            # Add left's ownership
+            self.left_player.property_own.append(square_property)
+
+        # Exchange money
+
+        # Dismiss the popup
+        self.dismiss()
+
+
+class PropertyButton(Button):
+
+    square_property = ObjectProperty()
+
+    pass
