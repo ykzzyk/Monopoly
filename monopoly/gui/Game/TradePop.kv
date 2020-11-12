@@ -14,7 +14,7 @@
             spacing: [root.width // 50, 0]
             padding: [root.width//30, 0, root.width//30, 0]
             GridLayout:
-                rows: 2
+                rows: 3
 
                 Button:
                     id: select_name_btn_left
@@ -31,6 +31,28 @@
                         Line:
                             width: 3
                             rectangle: self.x, self.y, self.width, self.height
+
+                GridLayout:
+                    cols: 3
+                    size_hint_y: 0.2
+
+                    Label:
+                        size_hint_x: 0.45
+                        text: "[b][color=#000000]Trade Money: [/b][/color]"
+                        markup: True
+
+                    Slider:
+                        id: left_slider
+                        orientation: 'horizontal'
+                        min: 0
+                        max: 1500
+                        step: 10
+
+                    Label:
+                        id: left_slider_value
+                        size_hint_x: 0.1
+                        text: "[b][color=#000000]$" + str(int(left_slider.value)) + "[/b][/color]"
+                        markup: True
 
                 ScrollView:
                     id: left_property_scrollview
@@ -51,7 +73,7 @@
                             id: left_remove_label
 
             GridLayout:
-                rows: 2
+                rows: 3
                 Button:
                     id: select_name_btn_right
                     text: "[b][color=#ffffff]SELECT PLAYER NAME[/b][/color]"
@@ -67,6 +89,28 @@
                         Line:
                             width: 3
                             rectangle: self.x, self.y, self.width, self.height
+
+                GridLayout:
+                    cols: 3
+                    size_hint_y: 0.2
+
+                    Label:
+                        size_hint_x: 0.45
+                        text: "[b][color=#000000]Trade Money: [/b][/color]"
+                        markup: True
+
+                    Slider:
+                        id: right_slider
+                        orientation: 'horizontal'
+                        min: 0
+                        max: 1500
+                        step: 10
+
+                    Label:
+                        id: right_slider_value
+                        size_hint_x: 0.1
+                        text: "[b][color=#000000]$" + str(int(right_slider.value)) + "[/b][/color]"
+                        markup: True
 
                 ScrollView:
                     id: right_property_scrollview

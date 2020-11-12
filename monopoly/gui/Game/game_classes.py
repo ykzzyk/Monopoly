@@ -39,7 +39,8 @@ class Game(Screen):
             player_data_obj = self.ids.info_frame.ids[f'player_{i + 1}']
 
             # Place into the data from the player into the player_data_obj 
-            player_data_obj.ids['player_text'].text = f'[b][color=#FF7F00]{player.name}\n{player.money}[/color][/b]'
+            player_data_obj.ids[
+                'player_text'].text = f'[b][color=#FF7F00]{player.name}\n{int(player.money)}[/color][/b]'
             player_data_obj.ids['player_icon'].image_source = player.source
 
 
@@ -561,7 +562,7 @@ class GameBoard(Widget):
     def buy_property(self, player, square_property, cost=None):
 
         # Deduce the player's money according to the properties value
-        if cost:
+        if cost or (cost == 0):
             player.money -= cost
         else:
             player.money -= square_property.cost_value
@@ -833,7 +834,8 @@ class PlayerAuctionPop(Popup):
 
         # Create all the players, in the right order
         self.players_info = []
-        for counter, i in enumerate(range(self.root.current_player_turn, self.root.current_player_turn + len(self.root.players))):
+        for counter, i in enumerate(
+                range(self.root.current_player_turn, self.root.current_player_turn + len(self.root.players))):
             # Apply modolus
             i = i % len(self.root.players)
 
@@ -1039,7 +1041,6 @@ class TradePop(Popup):
         self.dropdown_list_right = DropDown()
 
         for player in self.root.players:
-
             player_name = player.name.upper()
             # button for dropdown list 1
             btn_left = Button(
@@ -1108,8 +1109,10 @@ class TradePop(Popup):
         # Store the selected player
         if side == 'left':
             self.left_player = selected_player
+            self.ids.left_slider.max = self.left_player.money
         elif side == 'right':
             self.right_player = selected_player
+            self.ids.right_slider.max = self.right_player.money
 
         # Update the property container with the selected player
         self.update_property_container(selected_player, side)
@@ -1169,30 +1172,38 @@ class TradePop(Popup):
         # Exchange properties
         # Left player gets the right properties
         for square_property in self.left_square_properties:
-
             # Remove left's ownership
             self.left_player.property_own.remove(square_property)
 
             # Add right's ownership
-            self.right_player.property_own.append(square_property)
+            self.root.buy_property(self.right_player, square_property, cost=0)
 
         # Right player gets the left properties
         for square_property in self.right_square_properties:
-
             # Remove right's ownership
             self.right_player.property_own.remove(square_property)
 
             # Add left's ownership
-            self.left_player.property_own.append(square_property)
+            self.root.buy_property(self.left_player, square_property, cost=0)
 
         # Exchange money
+        left_slider_value = int(self.ids.left_slider.value)
+        right_slider_value = int(self.ids.right_slider.value)
+
+        self.left_player.money -= left_slider_value
+        self.right_player.money += left_slider_value
+
+        self.left_player.money += right_slider_value
+        self.right_player.money -= right_slider_value
+
+        # Inform root to update property ownership and update player's money
+        self.root.parent.parent.update_players_to_frame()
 
         # Dismiss the popup
         self.dismiss()
 
 
 class PropertyButton(Button):
-
     square_property = ObjectProperty()
 
     pass
