@@ -70,17 +70,17 @@ class Player(DynamicImage):
         # """
         if self.name == 'player1':
             self.property_own = [
-                BoardSquare('Br1'),
-                BoardSquare('Br2'),
-                BoardSquare('Pk1'),
-                BoardSquare('Pk2'),
-                BoardSquare('Pk3')
+                BoardSquare('Br1', self.root),
+                BoardSquare('Br2', self.root),
+                BoardSquare('Pk1', self.root),
+                BoardSquare('Pk2', self.root),
+                BoardSquare('Pk3', self.root)
             ]
             for square_property in self.property_own:
                 square_property.full_set = True
         elif self.name == 'player2':
             self.property_own = [
-                BoardSquare('Lb1')
+                BoardSquare('Lb1', self.root)
             ]
         # """
 
@@ -173,7 +173,7 @@ class GameBoard(Widget):
         # Constructing all the squares
         self.squares = {}
         for square_name in C.BOARD_SQUARE_LOCATIONS.keys():
-            self.squares[square_name] = BoardSquare(square_name)
+            self.squares[square_name] = BoardSquare(square_name, self)
 
         # Keeping track of the current player
         self.current_player_turn = 0
@@ -645,7 +645,10 @@ class GameBoard(Widget):
 
 class BoardSquare:
 
-    def __init__(self, square_name):
+    def __init__(self, square_name, root):
+
+        # Store the board widget
+        self.root = root
 
         # Storing the name of the square
         self.name = square_name
@@ -704,24 +707,57 @@ class BoardSquare:
                 self.owner_icon_placement = offset(self.physical_location, 'x', add, value=C.RR_PLAYER_ICON_OFFSET)
             else:
                 self.owner_icon_placement = offset(self.physical_location, 'x', subtract)
+                self.set_line = offset(self.physical_location, 'x', add, value=C.SET_LINE_OFFSET)
+                self.house_locations = [
+                    offset(self.set_line, 'y', add, value=1.15 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'y', add, value=0.5 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'y', subtract, value=0.175 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'y', subtract, value=0.85 * C.HOUSE_OFFSET)
+                ]
                 self.buy_house_cost = 50
+
         elif self.section == 'Line2':
             if self.type == 'Railroad':
                 self.owner_icon_placement = offset(self.physical_location, 'y', subtract, value=C.RR_PLAYER_ICON_OFFSET)
             else:
                 self.owner_icon_placement = offset(self.physical_location, 'y', add)
+                self.set_line = offset(self.physical_location, 'y', subtract,
+                                       value=C.SET_LINE_OFFSET - 0.65 * C.BORDER_OFFSET)
+                self.house_locations = [
+                    offset(self.set_line, 'x', add, value=1.15 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'x', add, value=0.5 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'x', subtract, value=0.175 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'x', subtract, value=0.85 * C.HOUSE_OFFSET)
+                ]
                 self.buy_house_cost = 100
+
         elif self.section == 'Line3':
             if self.type == 'Railroad':
                 self.owner_icon_placement = offset(self.physical_location, 'x', subtract, value=C.RR_PLAYER_ICON_OFFSET)
             else:
                 self.owner_icon_placement = offset(self.physical_location, 'x', add)
+                self.set_line = offset(self.physical_location, 'x', subtract,
+                                       value=C.SET_LINE_OFFSET - 0.65 * C.BORDER_OFFSET)
+                self.house_locations = [
+                    offset(self.set_line, 'y', add, value=1.15 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'y', add, value=0.5 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'y', subtract, value=0.175 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'y', subtract, value=0.85 * C.HOUSE_OFFSET)
+                ]
                 self.buy_house_cost = 150
+
         elif self.section == 'Line4':
             if self.type == 'Railroad':
                 self.owner_icon_placement = offset(self.physical_location, 'y', add, value=C.RR_PLAYER_ICON_OFFSET)
             else:
                 self.owner_icon_placement = offset(self.physical_location, 'y', subtract)
+                self.set_line = offset(self.physical_location, 'y', add, value=C.SET_LINE_OFFSET)
+                self.house_locations = [
+                    offset(self.set_line, 'x', add, value=1.15 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'x', add, value=0.5 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'x', subtract, value=0.175 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'x', subtract, value=0.85 * C.HOUSE_OFFSET)
+                ]
                 self.buy_house_cost = 200
 
         # For color set properties
@@ -729,10 +765,31 @@ class BoardSquare:
             self.rents = C.BOARD_SQUARE_RENT[square_name]
             self.rent = self.rents['rent']
 
+        # Draw the houses
+        if self.type == 'Property':
+            self.houses = []
+
+            for house_location in self.house_locations:
+                # Create a rectangle
+                house = DynamicImage(
+                    root=self.root,
+                    source='assets/background/house_square.png',
+                    color=[0, 1, 0, 0],
+                    ratio_pos=house_location,
+                    ratio_size=(0.01, 0.01),
+                    keep_ratio=False
+                )
+
+                # Store them in the property square
+                self.houses.append(house)
+
+                # Add the image to the board
+                self.root.add_widget(house, index=-1)
+
         # Pre-set values of properties
         self.owner = None
         self.owner_icon = None
-        self.number_of_houses = 0 #5 = 1 hotel
+        self.number_of_houses = 0  # 5 = 1 hotel
         self.has_hotel = False
         self.mortgage = False
         self.full_set = False
@@ -1542,7 +1599,7 @@ class BuyHousesPop(Popup):
             self.update_button_status()
 
             # Bind the property button to function
-            #entry.bind(on_release=functools.partial(self.property_button_press))
+            # entry.bind(on_release=functools.partial(self.property_button_press))
             entry.ids.buy_houses.bind(on_release=functools.partial(self.buy_houses, entry))
             entry.ids.sell_houses.bind(on_release=functools.partial(self.sell_houses, entry))
 
@@ -1605,7 +1662,7 @@ class BuyHousesPop(Popup):
                     houses_sold -= houses_diff
 
             # Calculate the total cost
-            self.total_money += int(houses_sold * (cost_of_house/2))
+            self.total_money += int(houses_sold * (cost_of_house / 2))
             self.total_money -= int(houses_bought * cost_of_house)
 
         # Update the buy_sell money and the player's total money
@@ -1674,13 +1731,31 @@ class BuyHousesPop(Popup):
 
     def accept(self):
 
-        # The properties that were selected must be mortgage/unmortgage
-        for square_property in self.selected_square_properties:
-            # Update the mortgage boolean
-            square_property.mortgage = not square_property.mortgage
+        # Update the houses visible after buying/selling houses/hotel
+        for set_name in self.entries.keys():
+            for entry in self.entries[set_name]:
 
-            # Call the gameboard to make the properties look mortgage or unmortgage
-            self.root.place_ownership_icon(self.player, square_property)
+                color_values = []
+                r = [1, 0, 0, 1]
+                g = [0, 1, 0, 1]
+                n = [0, 0, 0, 0]
+
+                # Select the correct color sequence given the number of houses
+                if entry.total_houses < 5:
+                    for i in range(4): # 0, 1, 2, 3
+                        if i < entry.total_houses:
+                            color_values.append(g)
+                        else:
+                            color_values.append(n)
+                else:
+                    color_values = [r, n, n, n]
+
+                # Change the color attribute of the houses
+                for house, color in zip(entry.square_property.houses, color_values):
+                    house.color = color
+
+                # Change the attributes of the property to the new number of houses
+                entry.square_property.number_of_houses = entry.total_houses
 
         # Modify the player's money given the mortgage_unmortgage money
         self.player.money = self.total_money
@@ -1696,7 +1771,3 @@ class BuyHousesEntry(GridLayout):
     square_property = ObjectProperty()
     initial_houses = NumericProperty()
     total_houses = NumericProperty()
-
-
-
-
