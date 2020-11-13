@@ -27,8 +27,8 @@ import gui
     - Buy Houses and Hotels
     - Rent Update
     - Sell Houses and Hotels
-    - Mortgage/Unmortgage properties
-    - Player Bankrupt/Win Condition
+    - Mortgage/Unmortgage properties (DONE)
+    - Player Bankrupt/Win Condition 
 """
 
 cwd = pathlib.Path(os.path.abspath(__file__)).parent

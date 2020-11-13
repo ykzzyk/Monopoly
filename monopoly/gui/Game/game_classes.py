@@ -67,16 +67,22 @@ class Player(DynamicImage):
         self.jail_free_card = False
         self.property_own = []
 
-        """
+        # """
         if self.name == 'player1':
             self.property_own = [
-                BoardSquare('Br1')
+                BoardSquare('Br1'),
+                BoardSquare('Br2'),
+                BoardSquare('Pk1'),
+                BoardSquare('Pk2'),
+                BoardSquare('Pk3')
             ]
+            for square_property in self.property_own:
+                square_property.full_set = True
         elif self.name == 'player2':
             self.property_own = [
-                BoardSquare('Br2')
+                BoardSquare('Lb1')
             ]
-        """
+        # """
 
         self.root_size_before = self.root.size
 
@@ -580,6 +586,23 @@ class GameBoard(Widget):
         # Store the property into the player.property_own
         player.property_own.append(square_property)
 
+        # Check for full set condition
+        current_set = square_property.property_set
+        set_counter = 0
+        for square_property in player.property_own:
+
+            if current_set == square_property.property_set:
+                set_counter += 1
+
+        # Check if set is full for the player
+        if set_counter == len(C.BOARD_SQUARE_FULLSETS[current_set]):
+
+            # Obtain the set's properties and modify their full_set attribute
+            for square_property in player.property_own:
+
+                if square_property.property_set == current_set:
+                    square_property.full_set = True
+
         # Update the player's info in the right side panel
         self.parent.parent.update_players_to_frame()
 
@@ -614,6 +637,10 @@ class GameBoard(Widget):
 
         # Unbind this function
         self.unbind(size=self.stop_animation)
+
+    def buy_houses(self):
+        self.buyHouseInfo = BuyHousesPop(root=self)
+        self.buyHouseInfo.open()
 
 
 class BoardSquare:
@@ -657,6 +684,12 @@ class BoardSquare:
             if square_name in C.BOARD_LINES[section]:
                 self.section = section
 
+        # Determine the set for the property
+        if self.type == 'Property' or self.type == 'Railroad' or self.type == 'Utilities':
+            for property_set in C.BOARD_SQUARE_FULLSETS.keys():
+                if square_name in C.BOARD_SQUARE_FULLSETS[property_set]:
+                    self.property_set = property_set
+
         # Calculating the player ownership icon placement
         add = lambda x, y: x + y
         subtract = lambda x, y: x - y
@@ -671,21 +704,25 @@ class BoardSquare:
                 self.owner_icon_placement = offset(self.physical_location, 'x', add, value=C.RR_PLAYER_ICON_OFFSET)
             else:
                 self.owner_icon_placement = offset(self.physical_location, 'x', subtract)
+                self.buy_house_cost = 50
         elif self.section == 'Line2':
             if self.type == 'Railroad':
                 self.owner_icon_placement = offset(self.physical_location, 'y', subtract, value=C.RR_PLAYER_ICON_OFFSET)
             else:
                 self.owner_icon_placement = offset(self.physical_location, 'y', add)
+                self.buy_house_cost = 100
         elif self.section == 'Line3':
             if self.type == 'Railroad':
                 self.owner_icon_placement = offset(self.physical_location, 'x', subtract, value=C.RR_PLAYER_ICON_OFFSET)
             else:
                 self.owner_icon_placement = offset(self.physical_location, 'x', add)
+                self.buy_house_cost = 150
         elif self.section == 'Line4':
             if self.type == 'Railroad':
                 self.owner_icon_placement = offset(self.physical_location, 'y', add, value=C.RR_PLAYER_ICON_OFFSET)
             else:
                 self.owner_icon_placement = offset(self.physical_location, 'y', subtract)
+                self.buy_house_cost = 200
 
         # For color set properties
         if square_name in C.BOARD_SQUARE_RENT.keys():
@@ -695,9 +732,10 @@ class BoardSquare:
         # Pre-set values of properties
         self.owner = None
         self.owner_icon = None
-        self.number_of_houses = 0
+        self.number_of_houses = 0 #5 = 1 hotel
         self.has_hotel = False
         self.mortgage = False
+        self.full_set = False
 
     def __str__(self):
         return f"BoardSquare [Name: {self.name} - Cost Value: {self.cost_value} - Owner: {self.owner}]"
@@ -1177,20 +1215,34 @@ class TradePop(Popup):
 
         # Exchange properties
         # Left player gets the right properties
-        for square_property in self.left_square_properties:
+        for traded_square_property in self.left_square_properties:
             # Remove left's ownership
-            self.left_player.property_own.remove(square_property)
+            self.left_player.property_own.remove(traded_square_property)
+
+            # Check for set completion is removed
+            current_set = traded_square_property.property_set
+            for square_property in self.left_player.property_own:
+
+                if square_property.property_set == current_set:
+                    square_property.full_set = False
 
             # Add right's ownership
-            self.root.buy_property(self.right_player, square_property, cost=0)
+            self.root.buy_property(self.right_player, traded_square_property, cost=0)
 
         # Right player gets the left properties
-        for square_property in self.right_square_properties:
+        for traded_square_property in self.right_square_properties:
             # Remove right's ownership
-            self.right_player.property_own.remove(square_property)
+            self.right_player.property_own.remove(traded_square_property)
+
+            # Check for set completion is removed
+            current_set = traded_square_property.property_set
+            for square_property in self.right_player.property_own:
+
+                if square_property.property_set == current_set:
+                    square_property.full_set = False
 
             # Add left's ownership
-            self.root.buy_property(self.left_player, square_property, cost=0)
+            self.root.buy_property(self.left_player, traded_square_property, cost=0)
 
         # Exchange money
         left_slider_value = int(self.ids.left_slider.value)
@@ -1360,7 +1412,6 @@ class MortgagePop(Popup):
 
         # The properties that were selected must be mortgage/unmortgage
         for square_property in self.selected_square_properties:
-
             # Update the mortgage boolean
             square_property.mortgage = not square_property.mortgage
 
@@ -1375,3 +1426,277 @@ class MortgagePop(Popup):
 
         # Dismiss the popup
         self.dismiss()
+
+
+class BuyHousesPop(Popup):
+
+    def __init__(self, **kwargs):
+        # Obtain root reference
+        self.root = kwargs.pop('root')
+        self.btns = {}
+        self.entries = {}
+        self.total_money = 0
+
+        super().__init__(**kwargs)
+
+        self.selected_square_properties = []
+
+        Clock.schedule_once(self.create_dropdown, 0)
+
+    def create_dropdown(self, *args):
+
+        self.dropdown_list = DropDown()
+
+        for player in self.root.players:
+            player_name = player.name.upper()
+            # button for dropdown list 1
+            btn = Button(
+                text=f'[b][color=#ffffff]{player_name}[/b][/color]', size_hint_y=None,
+                height=self.width // 25,
+                markup=True
+            )
+
+            # Storing the btn references into a list
+            self.btns[player_name] = btn
+
+            # Create the binding function
+            btn.bind(on_release=lambda btn: self.dropdown_list.select(btn.text))
+
+            # Add the widget to the dropdown window
+            self.dropdown_list.add_widget(btn)
+
+        # Bind the select name btns to opening the dropdown window
+        self.ids.select_name_btn.bind(on_release=self.dropdown_list.open)
+
+        # Binding the select name btns to also update their text values
+        self.dropdown_list.bind(
+            on_select=functools.partial(self.select_player, self.ids.select_name_btn)
+        )
+
+    def select_player(self, btn, instance, button_text):
+
+        # Obtain the true value in the text
+        previous_player_name = btn.text.split(']')[2].split('[')[0]
+        player_name = button_text.split(']')[2].split('[')[0]
+
+        # If the selection change from not the default value
+        if previous_player_name != 'SELECT PLAYER NAME':
+            self.dropdown_list.add_widget(self.btns[previous_player_name])
+
+        # Removing the corresponding button from
+        # right dropdown window
+        self.dropdown_list.remove_widget(self.btns[player_name])
+
+        # Update text to given x
+        btn.text = button_text
+
+        # Find the matching player given the player_name
+        selected_player = None
+        for player in self.root.players:
+            if player.name.upper() == player_name:
+                selected_player = player
+                break
+
+        # Storing the selected player
+        self.player = selected_player
+
+        # Update the player_current_money label
+        self.ids.player_current_money.text = f"[b][color=#000000]Player Current Money: ${self.player.money}[/b][/color]"
+
+        # Update the property container with the selected player
+        self.update_property_container(selected_player)
+
+    def update_property_container(self, selected_player):
+
+        # Clean property container
+        self.ids.property_container.clear_widgets()
+
+        # Fill the property container given the properties of the
+        # selected player
+        for square_property in selected_player.property_own:
+
+            # If the property is not part of a full set, then ignore it
+            if square_property.full_set is False:
+                continue
+
+            # Create button for property
+            entry = BuyHousesEntry(
+                square_property=square_property,
+                initial_houses=square_property.number_of_houses,
+                total_houses=square_property.number_of_houses
+            )
+
+            # Add it to the entries of the popup
+            if entry.square_property.property_set not in self.entries.keys():
+                self.entries[entry.square_property.property_set] = [entry]
+            else:
+                self.entries[entry.square_property.property_set].append(entry)
+
+            # Place property name
+            entry.ids.property_name.text = f'[b][color=#000000]{entry.square_property.full_name}[/b][/color]'
+
+            # Updateing the entry's text
+            self.update_house_numbers(entry)
+
+            # Update the button status
+            self.update_button_status()
+
+            # Bind the property button to function
+            #entry.bind(on_release=functools.partial(self.property_button_press))
+            entry.ids.buy_houses.bind(on_release=functools.partial(self.buy_houses, entry))
+            entry.ids.sell_houses.bind(on_release=functools.partial(self.sell_houses, entry))
+
+            # Add button to the property container
+            self.ids.property_container.add_widget(entry)
+
+        # Update the money values
+        self.update_money_values()
+
+    def update_button_status(self):
+
+        for set_name in self.entries.keys():
+
+            # Checking all the other entries within the same set
+            number_of_total_houses = list(map(lambda x: x.total_houses, self.entries[set_name]))
+
+            # Determine the min and max
+            min_val, max_val = min(number_of_total_houses), max(number_of_total_houses)
+
+            for entry in self.entries[set_name]:
+
+                # Determine if the entry's specific buttons are enabled or disabled
+                if min_val == max_val:
+                    if min_val == 0:
+                        entry.ids.buy_houses.disabled = False
+                        entry.ids.sell_houses.disabled = True
+                    elif max_val == 5:
+                        entry.ids.buy_houses.disabled = True
+                        entry.ids.sell_houses.disabled = False
+                    else:
+                        entry.ids.buy_houses.disabled = False
+                        entry.ids.sell_houses.disabled = False
+
+                elif entry.total_houses == min_val:
+                    entry.ids.buy_houses.disabled = False
+                    entry.ids.sell_houses.disabled = True
+                elif entry.total_houses == max_val:
+                    entry.ids.sell_houses.disabled = False
+                    entry.ids.buy_houses.disabled = True
+
+    def update_money_values(self):
+
+        self.total_money = 0
+
+        for set_name in self.entries.keys():
+
+            # Determine the cost of the house for the set
+            cost_of_house = self.entries[set_name][0].square_property.buy_house_cost
+
+            # Determine the houses bought and the houses sold
+            houses_bought = 0
+            houses_sold = 0
+
+            for entry in self.entries[set_name]:
+                houses_diff = entry.total_houses - entry.initial_houses
+
+                if houses_diff > 0:
+                    houses_bought += houses_diff
+                else:
+                    houses_sold -= houses_diff
+
+            # Calculate the total cost
+            self.total_money += int(houses_sold * (cost_of_house/2))
+            self.total_money -= int(houses_bought * cost_of_house)
+
+        # Update the buy_sell money and the player's total money
+        if self.total_money > 0:
+            self.ids.buy_sell_money.text = f"[b][color=#000000]Property Money: ${self.total_money}[/b][/color]"
+        else:
+            self.ids.buy_sell_money.text = f"[b][color=#000000]Property Money: -${abs(self.total_money)}[/b][/color]"
+
+        # Update the total money of the player after the transaciton
+        self.total_money += self.player.money
+        self.ids.total_money.text = f"[b][color=#000000]Total Money: ${self.total_money}[/b][/color]"
+
+        # Disable buttons if the player does not have enough money to pay for the houses/hotel
+        self.cannot_pay()
+
+    def update_house_numbers(self, entry):
+
+        # Updateing the entry's text
+        if entry.total_houses == 5:
+            entry.ids.houses_numbers.text = "[b][color=#000000]1[/b][/color]"
+            entry.ids.house.color = [1, 0, 0, 1]
+        else:
+            entry.ids.houses_numbers.text = f"[b][color=#000000]{entry.total_houses}[/b][/color]"
+            entry.ids.house.color = [0, 1, 0, 1]
+
+    def cannot_pay(self):
+
+        # Disable buttons based on not enough money
+        for set_name in self.entries.keys():
+
+            # Determine the cost of the house for the set
+            cost_of_house = self.entries[set_name][0].square_property.buy_house_cost
+
+            # If they don't have enough money to buy houses in this set
+            if cost_of_house > self.total_money:
+                for entry in self.entries[set_name]:
+                    entry.ids.buy_houses.disabled = True
+
+    def buy_houses(self, entry, btn_instance):
+
+        # Increase the entry's total houses
+        entry.total_houses += 1
+
+        # Updateing the entry's text
+        self.update_house_numbers(entry)
+
+        # Place the houses/hotel number
+        self.update_button_status()
+
+        # Update money values
+        self.update_money_values()
+
+    def sell_houses(self, entry, btn_instance):
+
+        # Increase the entry's total houses
+        entry.total_houses -= 1
+
+        # Updateing the entry's text
+        self.update_house_numbers(entry)
+
+        # Update total houses number displayed
+        self.update_button_status()
+
+        # Update money values
+        self.update_money_values()
+
+    def accept(self):
+
+        # The properties that were selected must be mortgage/unmortgage
+        for square_property in self.selected_square_properties:
+            # Update the mortgage boolean
+            square_property.mortgage = not square_property.mortgage
+
+            # Call the gameboard to make the properties look mortgage or unmortgage
+            self.root.place_ownership_icon(self.player, square_property)
+
+        # Modify the player's money given the mortgage_unmortgage money
+        self.player.money = self.total_money
+
+        # Inform root to update property ownership and update player's money
+        self.root.parent.parent.update_players_to_frame()
+
+        # Dismiss the popup
+        self.dismiss()
+
+
+class BuyHousesEntry(GridLayout):
+    square_property = ObjectProperty()
+    initial_houses = NumericProperty()
+    total_houses = NumericProperty()
+
+
+
+

@@ -13,6 +13,19 @@ BOARD_LINES = {
         'Line4': ['Gn1', 'Gn2', 'Chest3', 'Gn3', 'RR4', 'Chance3', 'Bl1', 'LTax', 'Bl2']
 }
 
+BOARD_SQUARE_FULLSETS = {
+        'Brown': ['Br1', 'Br2'],
+        'Light Blue': ['Lb1', 'Lb2', 'Lb3'],
+        'Pink': ['Pk1', 'Pk2', 'Pk3'],
+        'Orange': ['Or1', 'Or2', 'Or3'],
+        'Red': ['Rd1', 'Rd2', 'Rd3'],
+        'Yellow': ['Yl1', 'Yl2', 'Yl3'],
+        'Green': ['Gn1', 'Gn2', 'Gn3'],
+        'Blue': ['Bl1', 'Bl2'],
+        'Railroads': ['RR1', 'RR2', 'RR3', 'RR4'],
+        'Utilities': ['Util1', 'Util2']
+}
+
 BOARD_SQUARE_LOCATIONS = {
 
         'GO': (CORNER_OFFSET, CORNER_OFFSET),

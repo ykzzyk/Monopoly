@@ -1,0 +1,163 @@
+<BuyHousesPop@Popup>
+    size_hint: (None, None)
+    size: (Window.width//2, Window.height//2)
+    separator_height: 0
+    background: "assets/background/card.jpg"
+    auto_dismiss: False
+
+    GridLayout:
+        rows: 2
+
+        GridLayout:
+            cols: 2
+
+            GridLayout:
+                rows: 2
+                size_hint_x: 0.7
+                spacing: [root.width // 30, 0]
+                padding: [root.width//30, 0, root.width//30, root.width//80]
+
+                Button:
+                    id: select_name_btn
+                    text: "[b][color=#ffffff]SELECT PLAYER NAME[/b][/color]"
+                    background_normal: "assets/buttons/red.png"
+                    size_hint_y: 0.1
+                    outline_color: 0,0,0,1
+                    outline_width: 1
+                    markup: True
+                    size_hint_y: 0.1
+                    canvas.before:
+                        Color:
+                            rgba: .1, .1, .1, 1
+                        Line:
+                            width: 3
+                            rectangle: self.x, self.y, self.width, self.height
+                ScrollView:
+                    id: property_scrollview
+                    do_scroll_y: True
+                    do_scroll_x: True
+
+                    GridLayout:
+                        id: property_container
+                        cols: 1
+                        size_hint_y: None
+                        row_force_default: True
+                        row_default_height: '50sp'
+                        height: self.minimum_height
+                        padding: [self.width//20, self.width//20, self.width//20, self.width//20]
+                        spacing: [0,self.width//20]
+
+                        Label:
+                            id: remove_label
+
+            GridLayout:
+                rows: 3
+                size_hint_x: 0.3
+
+                Label:
+                    id: player_current_money
+                    text: "[b][color=#000000]Player Money: $0[/b][/color]"
+                    background_normal: ""
+                    markup: True
+                Label:
+                    id: buy_sell_money
+                    text: "[b][color=#000000]Property Money: $0[/b][/color]"
+                    background_normal: ""
+                    markup: True
+                Label:
+                    id: total_money
+                    text: "[b][color=#000000]Total Money: $0[/b][/color]"
+                    background_normal: ""
+                    markup: True
+
+
+        GridLayout:
+            cols: 2
+            size_hint_y: 0.15
+            spacing: [root.width // 30, 0]
+            padding: [root.width//30, 0, root.width//30, root.width//80]
+
+            Button:
+                text: "[b][color=#ffffff]ACCEPT[/b][/color]"
+                markup: True
+                background_normal: "assets/buttons/red.png"
+                canvas.before:
+                    Color:
+                        rgba: .1, .1, .1, 1
+                    Line:
+                        width: 5
+                        rectangle: self.x, self.y, self.width, self.height
+                on_release:
+                    root.accept()
+
+            Button:
+                text: "[b][color=#ffffff]BACK TO GAME[/b][/color]"
+                markup: True
+                background_normal: "assets/buttons/red.png"
+                canvas.before:
+                    Color:
+                        rgba: .1, .1, .1, 1
+                    Line:
+                        width: 5
+                        rectangle: self.x, self.y, self.width, self.height
+
+                on_release:
+                    root.dismiss()
+
+<BuyHousesEntry@GridLayout>
+    cols: 4
+
+    Label:
+        id: property_name
+        size_hint_x: 0.55
+        text: ""
+        markup: True
+
+    Label:
+        id: houses_numbers
+        size_hint_x: 0.05
+        text: ""
+        markup: True
+
+    Image:
+        id: house
+        size_hint_x: 0.1
+        source: "assets/background/house.png"
+        color: [0, 1, 0, 1]
+
+    AnchorLayout:
+        anchor_x: 'right'
+        size_hint_x: 0.3
+
+        GridLayout:
+            cols: 2
+            spacing: [root.width // 30, 0]
+            padding: [root.width//20, 0, 0, 0]
+
+            Button:
+                id: buy_houses
+                text: "[b][color=#000000]+[/b][/color]"
+                font_size: '40sp'
+                markup: True
+                background_normal: ""
+                background_disabled_normal: "assets/buttons/light_grey.jpg"
+                canvas.before:
+                    Color:
+                        rgba: .1, .1, .1, 1
+                    Line:
+                        width: 3
+                        rectangle: self.x, self.y, self.width, self.height
+
+            Button:
+                id: sell_houses
+                text: "[b][color=#000000]-[/b][/color]"
+                font_size: '50sp'
+                markup: True
+                background_normal: ""
+                background_disabled_normal: "assets/buttons/light_grey.jpg"
+                canvas.before:
+                    Color:
+                        rgba: .1, .1, .1, 1
+                    Line:
+                        width: 3
+                        rectangle: self.x, self.y, self.width, self.height
