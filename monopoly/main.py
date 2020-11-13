@@ -22,8 +22,8 @@ import gui
 
 # TODO:
 """
-    - Auction Bidding
-    - Trade
+    - Auction Bidding (DONE)
+    - Trade (DONE)
     - Buy Houses and Hotels
     - Rent Update
     - Sell Houses and Hotels

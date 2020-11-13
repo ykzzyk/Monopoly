@@ -67,6 +67,7 @@ class Player(DynamicImage):
         self.jail_free_card = False
         self.property_own = []
 
+        """
         if self.name == 'player1':
             self.property_own = [
                 BoardSquare('Br1')
@@ -75,6 +76,7 @@ class Player(DynamicImage):
             self.property_own = [
                 BoardSquare('Br2')
             ]
+        """
 
         self.root_size_before = self.root.size
 
@@ -208,18 +210,19 @@ class GameBoard(Widget):
         if square_property.owner_icon is not None:
             self.remove_widget(square_property.owner_icon)
 
+        if square_property.mortgage:
+            color = (0.1, 0.1, 0.1, 1)
+        else:
+            color = (1, 1, 1, 1)
+
         # Create a grey-version of the player's icon to visualize ownership
         square_property.owner_icon = DynamicImage(
             root=self,
             source=player.source,
             ratio_pos=square_property.owner_icon_placement,
-            ratio_size=(player.ratio_size[0] / 2, player.ratio_size[1] / 2)
+            ratio_size=(player.ratio_size[0] / 2, player.ratio_size[1] / 2),
+            color=color
         )
-
-        """
-        with square_property.owner_icon.canvas:
-            Rectangle(source='assets/buttons/light_grey.jpg', pos=self.pos, size=self.size)
-        """
 
         # Adding the image to the game_board
         self.add_widget(square_property.owner_icon, index=-1)
@@ -459,13 +462,14 @@ class GameBoard(Widget):
             # else the property is owned
             else:
 
-                # If the property is owned by someone else
-                if final_square.owner != self.players[self.current_player_turn]:
+                # If the property is owned by someone else and it is not mortgage, PAY RENT!
+                if final_square.owner != self.players[self.current_player_turn] and final_square.mortgage is False:
 
                     if final_square.type == 'Property' or final_square.type == 'Railroad':
 
                         # If the player can afford the rent
                         if self.players[self.current_player_turn].money >= final_square.rent:
+                            # Pay rent
                             self.players[self.current_player_turn].money -= final_square.rent
                             final_square.owner.money += final_square.rent
 
@@ -592,7 +596,8 @@ class GameBoard(Widget):
         self.tradeInfo.open()
 
     def mortgage_property(self):
-        pass
+        self.mortgageInfo = MortgagePop(root=self)
+        self.mortgageInfo.open()
 
     def sell_belongings(self):
         pass
@@ -1015,6 +1020,7 @@ class AuctionPlayerInfo(BoxLayout):
 
 
 class TradePop(Popup):
+
     def __init__(self, **kwargs):
         # Obtain root reference
         self.root = kwargs.pop('root')
@@ -1207,3 +1213,165 @@ class PropertyButton(Button):
     square_property = ObjectProperty()
 
     pass
+
+
+class MortgagePop(Popup):
+
+    def __init__(self, **kwargs):
+        # Obtain root reference
+        self.root = kwargs.pop('root')
+        self.btns = {}
+        self.mortgage_unmortgage_money = 0
+        self.total_money = 0
+
+        super().__init__(**kwargs)
+
+        self.selected_square_properties = []
+
+        Clock.schedule_once(self.create_dropdown, 0)
+
+    def create_dropdown(self, *args):
+
+        self.dropdown_list = DropDown()
+
+        for player in self.root.players:
+            player_name = player.name.upper()
+            # button for dropdown list 1
+            btn = Button(
+                text=f'[b][color=#ffffff]{player_name}[/b][/color]', size_hint_y=None,
+                height=self.width // 25,
+                markup=True
+            )
+
+            # Storing the btn references into a list
+            self.btns[player_name] = btn
+
+            # Create the binding function
+            btn.bind(on_release=lambda btn: self.dropdown_list.select(btn.text))
+
+            # Add the widget to the dropdown window
+            self.dropdown_list.add_widget(btn)
+
+        # Bind the select name btns to opening the dropdown window
+        self.ids.select_name_btn.bind(on_release=self.dropdown_list.open)
+
+        # Binding the select name btns to also update their text values
+        self.dropdown_list.bind(
+            on_select=functools.partial(self.select_player, self.ids.select_name_btn)
+        )
+
+    def select_player(self, btn, instance, button_text):
+
+        # Obtain the true value in the text
+        previous_player_name = btn.text.split(']')[2].split('[')[0]
+        player_name = button_text.split(']')[2].split('[')[0]
+
+        # If the selection change from not the default value
+        if previous_player_name != 'SELECT PLAYER NAME':
+            self.dropdown_list.add_widget(self.btns[previous_player_name])
+
+        # Removing the corresponding button from
+        # right dropdown window
+        self.dropdown_list.remove_widget(self.btns[player_name])
+
+        # Update text to given x
+        btn.text = button_text
+
+        # Find the matching player given the player_name
+        selected_player = None
+        for player in self.root.players:
+            if player.name.upper() == player_name:
+                selected_player = player
+                break
+
+        # Storing the selected player
+        self.player = selected_player
+
+        # Update the player_current_money label
+        self.ids.player_current_money.text = f"[b][color=#000000]Player Current Money: ${self.player.money}[/b][/color]"
+
+        # Update the property container with the selected player
+        self.update_property_container(selected_player)
+
+    def update_property_container(self, selected_player):
+
+        # Clean property container
+        self.ids.property_container.clear_widgets()
+
+        # Fill the property container given the properties of the
+        # selected player
+        for square_property in selected_player.property_own:
+            property_color = "assets/buttons/red.png" if square_property.mortgage is False else "assets/buttons/light_grey.jpg"
+
+            # Create button for property
+            property_btn = PropertyButton(
+                text=f'[b][color=#000000]{square_property.full_name}[/b][/color]',
+                markup=True,
+                background_normal=property_color,
+                square_property=square_property
+            )
+
+            # Bind the property button to function
+            property_btn.bind(on_release=functools.partial(self.property_button_press))
+
+            # Add button to the property container
+            self.ids.property_container.add_widget(property_btn)
+
+    def property_button_press(self, btn_instance):
+
+        # If the property is already selected, deselect it by:
+        if btn_instance.square_property in self.selected_square_properties:
+
+            # Remove from the list
+            self.selected_square_properties.remove(btn_instance.square_property)
+
+            # Change the color of the button back to white
+            if btn_instance.square_property.mortgage is True:
+                btn_instance.background_normal = "assets/buttons/light_grey.jpg"
+                self.mortgage_unmortgage_money += btn_instance.square_property.unmortgage_value
+            else:
+                btn_instance.background_normal = "assets/buttons/red.png"
+                self.mortgage_unmortgage_money -= btn_instance.square_property.mortgage_value
+
+        else:
+
+            # Append to the list
+            self.selected_square_properties.append(btn_instance.square_property)
+
+            # Change the color of the button to be highlighted
+            if btn_instance.square_property.mortgage is True:
+                btn_instance.background_normal = "assets/buttons/red.png"
+                self.mortgage_unmortgage_money -= btn_instance.square_property.unmortgage_value
+            else:
+                btn_instance.background_normal = "assets/buttons/light_grey.jpg"
+                self.mortgage_unmortgage_money += btn_instance.square_property.mortgage_value
+
+        # Update the property_money
+        if self.mortgage_unmortgage_money < 0:
+            self.ids.mortgage_unmortgage_money.text = f"[b][color=#000000]Property Money: -${abs(self.mortgage_unmortgage_money)}[/b][/color]"
+        else:
+            self.ids.mortgage_unmortgage_money.text = f"[b][color=#000000]Property Money: ${abs(self.mortgage_unmortgage_money)}[/b][/color]"
+
+        # Update the total_money
+        self.total_money = self.player.money + self.mortgage_unmortgage_money
+        self.ids.total_money.text = f"[b][color=#000000]Total Money: ${self.total_money}[/b][/color]"
+
+    def accept(self):
+
+        # The properties that were selected must be mortgage/unmortgage
+        for square_property in self.selected_square_properties:
+
+            # Update the mortgage boolean
+            square_property.mortgage = not square_property.mortgage
+
+            # Call the gameboard to make the properties look mortgage or unmortgage
+            self.root.place_ownership_icon(self.player, square_property)
+
+        # Modify the player's money given the mortgage_unmortgage money
+        self.player.money = self.total_money
+
+        # Inform root to update property ownership and update player's money
+        self.root.parent.parent.update_players_to_frame()
+
+        # Dismiss the popup
+        self.dismiss()
