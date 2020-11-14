@@ -24,9 +24,9 @@ import gui
 """
     - Auction Bidding (DONE)
     - Trade (DONE)
-    - Buy Houses and Hotels
-    - Rent Update
-    - Sell Houses and Hotels
+    - Buy Houses and Hotels (DONE)
+    - Rent Update, includs Utility and RR.
+    - Sell Houses and Hotels (DONE)
     - Mortgage/Unmortgage properties (DONE)
     - Player Bankrupt/Win Condition 
 """

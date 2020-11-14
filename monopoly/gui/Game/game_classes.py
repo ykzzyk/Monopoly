@@ -67,23 +67,6 @@ class Player(DynamicImage):
         self.jail_free_card = False
         self.property_own = []
 
-        # """
-        if self.name == 'player1':
-            self.property_own = [
-                BoardSquare('Br1', self.root),
-                BoardSquare('Br2', self.root),
-                BoardSquare('Pk1', self.root),
-                BoardSquare('Pk2', self.root),
-                BoardSquare('Pk3', self.root)
-            ]
-            for square_property in self.property_own:
-                square_property.full_set = True
-        elif self.name == 'player2':
-            self.property_own = [
-                BoardSquare('Lb1', self.root)
-            ]
-        # """
-
         self.root_size_before = self.root.size
 
         super().__init__(**kwargs)
@@ -206,6 +189,10 @@ class GameBoard(Widget):
         # Adding the player to the gameboard
         for player in self.players:
             self.add_widget(player)
+
+        # ! Testing
+        self.buy_property(self.players[0], self.squares['Br1'])
+        self.buy_property(self.players[0], self.squares['Br2'])
 
         # Adding the player to the players info box
         Clock.schedule_once(self.parent.parent.update_players_to_frame)
@@ -602,6 +589,7 @@ class GameBoard(Widget):
 
                 if square_property.property_set == current_set:
                     square_property.full_set = True
+                    square_property.rent = square_property.rents['rent_set']
 
         # Update the player's info in the right side panel
         self.parent.parent.update_players_to_frame()
@@ -1120,6 +1108,8 @@ class TradePop(Popup):
         # Obtain root reference
         self.root = kwargs.pop('root')
 
+        super().__init__(**kwargs)
+
         # Btns list of players
         self.left_btns = {}
         self.right_btns = {}
@@ -1132,7 +1122,8 @@ class TradePop(Popup):
         self.left_square_properties = []
         self.right_square_properties = []
 
-        super().__init__(**kwargs)
+        # Disable the accept button
+        self.ids.accept_btn.disabled = True
 
         Clock.schedule_once(self.create_dropdown, 0)
 
@@ -1218,6 +1209,11 @@ class TradePop(Popup):
         # Update the property container with the selected player
         self.update_property_container(selected_player, side)
 
+        if (self.left_player is None) or (self.right_player is None):
+            self.ids.accept_btn.disabled = True
+        else:
+            self.ids.accept_btn.disabled = False
+
     def update_property_container(self, selected_player, side):
 
         # Clean property container
@@ -1269,7 +1265,6 @@ class TradePop(Popup):
             btn_instance.background_normal = "assets/buttons/red.png"
 
     def accept(self):
-
         # Exchange properties
         # Left player gets the right properties
         for traded_square_property in self.left_square_properties:
@@ -1282,6 +1277,7 @@ class TradePop(Popup):
 
                 if square_property.property_set == current_set:
                     square_property.full_set = False
+                    square_property.rent = square_property.rents['rent']
 
             # Add right's ownership
             self.root.buy_property(self.right_player, traded_square_property, cost=0)
@@ -1297,6 +1293,7 @@ class TradePop(Popup):
 
                 if square_property.property_set == current_set:
                     square_property.full_set = False
+                    square_property.rent = square_property.rents['rent']
 
             # Add left's ownership
             self.root.buy_property(self.left_player, traded_square_property, cost=0)
@@ -1464,6 +1461,11 @@ class MortgagePop(Popup):
         # Update the total_money
         self.total_money = self.player.money + self.mortgage_unmortgage_money
         self.ids.total_money.text = f"[b][color=#000000]Total Money: ${self.total_money}[/b][/color]"
+
+        if self.total_money != self.player.money:
+            self.ids.select_name_btn.disabled = True
+        else:
+            self.ids.select_name_btn.disabled = False
 
     def accept(self):
 
@@ -1666,7 +1668,7 @@ class BuyHousesPop(Popup):
             self.total_money -= int(houses_bought * cost_of_house)
 
         # Update the buy_sell money and the player's total money
-        if self.total_money > 0:
+        if self.total_money >= 0:
             self.ids.buy_sell_money.text = f"[b][color=#000000]Property Money: ${self.total_money}[/b][/color]"
         else:
             self.ids.buy_sell_money.text = f"[b][color=#000000]Property Money: -${abs(self.total_money)}[/b][/color]"
@@ -1715,6 +1717,11 @@ class BuyHousesPop(Popup):
         # Update money values
         self.update_money_values()
 
+        if self.total_money != self.player.money:
+            self.ids.select_name_btn.disabled = True
+        else:
+            self.ids.select_name_btn.disabled = False
+
     def sell_houses(self, entry, btn_instance):
 
         # Increase the entry's total houses
@@ -1729,6 +1736,11 @@ class BuyHousesPop(Popup):
         # Update money values
         self.update_money_values()
 
+        if self.total_money != self.player.money:
+            self.ids.select_name_btn.disabled = True
+        else:
+            self.ids.select_name_btn.disabled = False
+
     def accept(self):
 
         # Update the houses visible after buying/selling houses/hotel
@@ -1742,7 +1754,7 @@ class BuyHousesPop(Popup):
 
                 # Select the correct color sequence given the number of houses
                 if entry.total_houses < 5:
-                    for i in range(4): # 0, 1, 2, 3
+                    for i in range(4):  # 0, 1, 2, 3
                         if i < entry.total_houses:
                             color_values.append(g)
                         else:
@@ -1756,6 +1768,15 @@ class BuyHousesPop(Popup):
 
                 # Change the attributes of the property to the new number of houses
                 entry.square_property.number_of_houses = entry.total_houses
+
+                # Update the rent of the square_property given the number of houses
+                if entry.square_property.number_of_houses == 5:
+                    entry.square_property.rent = entry.square_property.rents['rent_hotel_1']
+                elif entry.square_property.number_of_houses == 0:
+                    entry.square_property.rent = entry.square_property.rents['rent_set']
+                else:
+                    entry.square_property.rent = entry.square_property.rents[
+                        f'rent_house_{entry.square_property.number_of_houses}']
 
         # Modify the player's money given the mortgage_unmortgage money
         self.player.money = self.total_money
