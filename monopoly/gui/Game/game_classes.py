@@ -1209,9 +1209,7 @@ class TradePop(Popup):
         # Update the property container with the selected player
         self.update_property_container(selected_player, side)
 
-        if (self.left_player is None) or (self.right_player is None):
-            self.ids.accept_btn.disabled = True
-        else:
+        if (self.left_player is not None) and (self.right_player is not None):
             self.ids.accept_btn.disabled = False
 
     def update_property_container(self, selected_player, side):
