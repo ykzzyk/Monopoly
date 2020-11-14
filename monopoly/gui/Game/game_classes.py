@@ -1333,6 +1333,7 @@ class MortgagePop(Popup):
         super().__init__(**kwargs)
 
         self.selected_square_properties = []
+        self.ids.accept_btn.disabled = True
 
         Clock.schedule_once(self.create_dropdown, 0)
 
@@ -1398,6 +1399,9 @@ class MortgagePop(Popup):
 
         # Update the property container with the selected player
         self.update_property_container(selected_player)
+
+        if selected_player is not None:
+            self.ids.accept_btn.disabled = False
 
     def update_property_container(self, selected_player):
 
@@ -1462,7 +1466,11 @@ class MortgagePop(Popup):
         self.total_money = self.player.money + self.mortgage_unmortgage_money
         self.ids.total_money.text = f"[b][color=#000000]Total Money: ${self.total_money}[/b][/color]"
 
-        if self.total_money != self.player.money:
+        # if self.total_money != self.player.money:
+        #     self.ids.select_name_btn.disabled = True
+        # else:
+        #     self.ids.select_name_btn.disabled = False
+        if self.mortgage_unmortgage_money:
             self.ids.select_name_btn.disabled = True
         else:
             self.ids.select_name_btn.disabled = False
@@ -1499,6 +1507,7 @@ class BuyHousesPop(Popup):
         super().__init__(**kwargs)
 
         self.selected_square_properties = []
+        self.ids.accept_btn.disabled = True
 
         Clock.schedule_once(self.create_dropdown, 0)
 
@@ -1564,6 +1573,9 @@ class BuyHousesPop(Popup):
 
         # Update the property container with the selected player
         self.update_property_container(selected_player)
+
+        if selected_player is not None:
+            self.ids.accept_btn.disabled = False
 
     def update_property_container(self, selected_player):
 

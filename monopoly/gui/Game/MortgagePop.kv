@@ -79,9 +79,11 @@
             padding: [root.width//30, 0, root.width//30, root.width//80]
 
             Button:
+                id: accept_btn
                 text: "[b][color=#ffffff]ACCEPT[/b][/color]"
                 markup: True
                 background_normal: "assets/buttons/red.png"
+                background_disabled_normal: "assets/buttons/light_grey.jpg"
                 canvas.before:
                     Color:
                         rgba: .1, .1, .1, 1
