@@ -191,8 +191,16 @@ class GameBoard(Widget):
             self.add_widget(player)
 
         # ! Testing
-        self.buy_property(self.players[0], self.squares['Br1'])
-        self.buy_property(self.players[0], self.squares['Br2'])
+        self.buy_property(self.players[0], self.squares['Util1'])
+        self.buy_property(self.players[0], self.squares['Util2'])
+        self.buy_property(self.players[0], self.squares['Rd1'])
+        self.buy_property(self.players[0], self.squares['Rd2'])
+        self.buy_property(self.players[0], self.squares['Rd3'])
+
+        # print(self.players[0].property_own)
+
+        # for square_property in self.players[0].property_own:
+            # print(square_property.rent)
 
         # Adding the player to the players info box
         Clock.schedule_once(self.parent.parent.update_players_to_frame)
@@ -262,7 +270,7 @@ class GameBoard(Widget):
 
         # """
         step_1 = 2
-        step_2 = 1
+        step_2 = 10
         # """
 
         self.next_player_turn = True
@@ -458,24 +466,22 @@ class GameBoard(Widget):
                 # If the property is owned by someone else and it is not mortgage, PAY RENT!
                 if final_square.owner != self.players[self.current_player_turn] and final_square.mortgage is False:
 
-                    if final_square.type == 'Property' or final_square.type == 'Railroad':
+                    # Calculate the rent due for the final_square
+                    rent = final_square.calculate_rent()
 
-                        # If the player can afford the rent
-                        if self.players[self.current_player_turn].money >= final_square.rent:
-                            # Pay rent
-                            self.players[self.current_player_turn].money -= final_square.rent
-                            final_square.owner.money += final_square.rent
+                    # If the player can afford the rent
+                    if self.players[self.current_player_turn].money >= rent:
+                        # Pay rent
+                        self.players[self.current_player_turn].money -= rent
+                        final_square.owner.money += rent
 
-                        # else
-                        else:
-                            self.mortgage_or_sell = CardSelectPop(root=self,
-                                                                  current_player=self.players[self.current_player_turn],
-                                                                  square_property=final_square,
-                                                                  button_left='MORTGAGE',
-                                                                  button_right='SELL')
-
-                    elif final_square.type == 'Utilities':
-                        pass
+                    # else
+                    else:
+                        self.mortgage_or_sell = CardSelectPop(root=self,
+                                                              current_player=self.players[self.current_player_turn],
+                                                              square_property=final_square,
+                                                              button_left='MORTGAGE',
+                                                              button_right='SELL')
 
         # Update the player's info in the right side panel
         self.parent.parent.update_players_to_frame()
@@ -573,23 +579,8 @@ class GameBoard(Widget):
         # Store the property into the player.property_own
         player.property_own.append(square_property)
 
-        # Check for full set condition
-        current_set = square_property.property_set
-        set_counter = 0
-        for square_property in player.property_own:
-
-            if current_set == square_property.property_set:
-                set_counter += 1
-
-        # Check if set is full for the player
-        if set_counter == len(C.BOARD_SQUARE_FULLSETS[current_set]):
-
-            # Obtain the set's properties and modify their full_set attribute
-            for square_property in player.property_own:
-
-                if square_property.property_set == current_set:
-                    square_property.full_set = True
-                    square_property.rent = square_property.rents['rent_set']
+        # Update the fullset attribute if the set is completed in this buy action
+        square_property.fullset_update()
 
         # Update the player's info in the right side panel
         self.parent.parent.update_players_to_frame()
@@ -751,7 +742,6 @@ class BoardSquare:
         # For color set properties
         if square_name in C.BOARD_SQUARE_RENT.keys():
             self.rents = C.BOARD_SQUARE_RENT[square_name]
-            self.rent = self.rents['rent']
 
         # Draw the houses
         if self.type == 'Property':
@@ -787,6 +777,67 @@ class BoardSquare:
 
     def __repr__(self):
         return f"BoardSquare [Name: {self.name} - Cost Value: {self.cost_value}]"
+
+    def calculate_rent(self):
+
+        if self.type == 'Property':
+
+            if self.full_set:
+                if self.number_of_houses == 5:
+                    return self.rents['rent_hotel_1']
+                elif self.number_of_houses == 0:
+                    return self.rents['rent_set']
+                else:
+                    return self.rents[f'rent_house_{self.number_of_houses}']
+            else:
+                return self.rents['rent']
+
+        elif self.type == 'Railroad':
+
+            # Count how many railroads they have
+            rr_counter = 0
+            for square_property in self.owner.property_own:
+                if square_property.type == 'Railroad':
+                    rr_counter += 1
+
+            return self.rents[f'rent_{rr_counter}']
+
+        else: # Utilities
+            step_1, step_2 = self.root.roll_dice(None)
+            total_steps = step_1 + step_2
+
+            # Count how many utilities they have
+            util_counter = 0
+            for square_property in self.owner.property_own:
+                if square_property.type == 'Utilities':
+                    util_counter += 1
+
+            # If the player own the full property of the Utilities
+            if util_counter == len(C.BOARD_SQUARE_FULLSETS['Utilities']):
+                return 10 * total_steps
+
+            else:
+                # If the player only own one of the full property of the Utilities
+                return 4 * total_steps
+
+    def fullset_update(self):
+
+        # Check for full set condition
+        current_set = self.property_set
+        set_counter = 0
+        for square_property in self.owner.property_own:
+
+            if current_set == square_property.property_set:
+                set_counter += 1
+
+        # Check if set is full for the player
+        full_set = (set_counter == len(C.BOARD_SQUARE_FULLSETS[current_set]))
+
+        # Obtain the set's properties and modify their full_set attribute
+        for square_property in self.owner.property_own:
+
+            if square_property.property_set == current_set:
+                square_property.full_set = full_set
 
 
 class CardInfoPop(Popup):
@@ -1269,14 +1320,6 @@ class TradePop(Popup):
             # Remove left's ownership
             self.left_player.property_own.remove(traded_square_property)
 
-            # Check for set completion is removed
-            current_set = traded_square_property.property_set
-            for square_property in self.left_player.property_own:
-
-                if square_property.property_set == current_set:
-                    square_property.full_set = False
-                    square_property.rent = square_property.rents['rent']
-
             # Add right's ownership
             self.root.buy_property(self.right_player, traded_square_property, cost=0)
 
@@ -1284,14 +1327,6 @@ class TradePop(Popup):
         for traded_square_property in self.right_square_properties:
             # Remove right's ownership
             self.right_player.property_own.remove(traded_square_property)
-
-            # Check for set completion is removed
-            current_set = traded_square_property.property_set
-            for square_property in self.right_player.property_own:
-
-                if square_property.property_set == current_set:
-                    square_property.full_set = False
-                    square_property.rent = square_property.rents['rent']
 
             # Add left's ownership
             self.root.buy_property(self.left_player, traded_square_property, cost=0)
@@ -1409,6 +1444,12 @@ class MortgagePop(Popup):
         # Fill the property container given the properties of the
         # selected player
         for square_property in selected_player.property_own:
+
+            # If the property has houses, then it cannot be mortgaged
+            if square_property.number_of_houses != 0:
+                continue
+
+            # Determine color of property
             property_color = "assets/buttons/red.png" if square_property.mortgage is False else "assets/buttons/light_grey.jpg"
 
             # Create button for property
@@ -1585,7 +1626,7 @@ class BuyHousesPop(Popup):
         for square_property in selected_player.property_own:
 
             # If the property is not part of a full set, then ignore it
-            if square_property.full_set is False:
+            if square_property.full_set is False or square_property.type != 'Property':
                 continue
 
             # Create button for property
@@ -1651,6 +1692,11 @@ class BuyHousesPop(Popup):
                 elif entry.total_houses == max_val:
                     entry.ids.sell_houses.disabled = False
                     entry.ids.buy_houses.disabled = True
+
+                # No matter what, if you have a mortgage property, you cannot buy/sell houses
+                if entry.square_property.mortgage:
+                    entry.ids.buy_houses.disabled = True
+                    entry.ids.sell_houses.disabled = True
 
     def update_money_values(self):
 
@@ -1778,15 +1824,6 @@ class BuyHousesPop(Popup):
 
                 # Change the attributes of the property to the new number of houses
                 entry.square_property.number_of_houses = entry.total_houses
-
-                # Update the rent of the square_property given the number of houses
-                if entry.square_property.number_of_houses == 5:
-                    entry.square_property.rent = entry.square_property.rents['rent_hotel_1']
-                elif entry.square_property.number_of_houses == 0:
-                    entry.square_property.rent = entry.square_property.rents['rent_set']
-                else:
-                    entry.square_property.rent = entry.square_property.rents[
-                        f'rent_house_{entry.square_property.number_of_houses}']
 
         # Modify the player's money given the mortgage_unmortgage money
         self.player.money = self.total_money

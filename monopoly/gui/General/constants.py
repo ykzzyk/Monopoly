@@ -142,10 +142,10 @@ BOARD_SQUARE_ATTRIBUTES = {
 }
 
 BOARD_SQUARE_RENT = {
-        'RR1': {'rent': 25, 'rent_2': 50, 'rent_3': 100, 'rent_4': 200},
-        'RR2': {'rent': 25, 'rent_2': 50, 'rent_3': 100, 'rent_4': 200},
-        'RR3': {'rent': 25, 'rent_2': 50, 'rent_3': 100, 'rent_4': 200},
-        'RR4': {'rent': 25, 'rent_2': 50, 'rent_3': 100, 'rent_4': 200},
+        'RR1': {'rent_1': 25, 'rent_2': 50, 'rent_3': 100, 'rent_4': 200},
+        'RR2': {'rent_1': 25, 'rent_2': 50, 'rent_3': 100, 'rent_4': 200},
+        'RR3': {'rent_1': 25, 'rent_2': 50, 'rent_3': 100, 'rent_4': 200},
+        'RR4': {'rent_1': 25, 'rent_2': 50, 'rent_3': 100, 'rent_4': 200},
 
         'Br1': {'rent': 2, 'rent_set': 4, 'rent_house_1': 10, 'rent_house_2': 30, 'rent_house_3': 90, 'rent_house_4': 160,
                 'rent_hotel_1': 250},
