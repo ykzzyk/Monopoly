@@ -274,7 +274,7 @@ class GameBoard(Widget):
             self.add_widget(player)
 
         ''' ! Testing
-        self.buy_property(self.players[0], self.squares['Util2'])
+        self.buy_property(self.players[1], self.squares['Util2'])
         self.buy_property(self.players[1], self.squares['Rd1'])
         self.buy_property(self.players[1], self.squares['Rd2'])
         self.buy_property(self.players[1], self.squares['Rd3'])
@@ -282,7 +282,7 @@ class GameBoard(Widget):
         # self.buy_property(self.players[1], self.squares['Util1'])
 
         self.players[1].money = 1
-        self.players[2].money = 300
+        #self.players[2].money = 300
         #'''
 
         # Adding the player to the players info box
@@ -303,6 +303,10 @@ class GameBoard(Widget):
 
         # If the player has been in jail for three times, then kick them out
         if self.players[self.current_player_turn].in_jail_counter > 1:
+
+            log_text = f"{self.players[self.current_player_turn]} has been in JAIL too long. Gets out and pay $50."
+            self.parent.parent.add_history_log_entry(log_text)
+
             if not self.players[self.current_player_turn].jail_free_card:
                 self.players[self.current_player_turn].money -= 50
             self.players[self.current_player_turn].in_jail_counter = -1
@@ -327,7 +331,7 @@ class GameBoard(Widget):
 
             return 0
 
-        '''
+        #'''
         # Roll the dice and get their values
         if rolls is None:
             step_1, step_2 = self.roll_dice(None)
@@ -335,15 +339,19 @@ class GameBoard(Widget):
             step_1, step_2 = rolls
         #'''
 
-        # """
-        step_1 = 1
-        step_2 = 3
+        """
+        step_1 = 2
+        step_2 = 2
         # """
 
         self.next_player_turn = True
 
         # If doubles, update counter and make sure the player goes again
         if step_1 == step_2:
+
+            # Log double event
+            self.parent.parent.add_history_log_entry(f"{self.players[self.current_player_turn].name.upper()} rolled a double. Go again.")
+
             # Updating counter
             self.players[self.current_player_turn].doubles_counter += 1
 
@@ -352,6 +360,9 @@ class GameBoard(Widget):
 
         # Check if doubles three times, if so, move the player to jail
         if self.players[self.current_player_turn].doubles_counter == 3:
+
+            # Log double event
+            self.parent.parent.add_history_log_entry(f"{self.players[self.current_player_turn].name.upper()} rolled three doubles in a row. Go to JAIL.")
 
             # Reset counter
             self.players[self.current_player_turn].doubles_counter = 0
@@ -392,8 +403,6 @@ class GameBoard(Widget):
         self.ids.message_player_turn.text = f"[b][color=#800000]Next is {self.players[self.current_player_turn].name}![/color][/b]"
 
     def player_land_place(self, final_square):
-
-        self.parent.parent.add_history_log_entry(f"{self.players[self.current_player_turn].name} rolls and lands on {final_square.full_name}")
 
         # Default value of payment is 0
         payment = 0
@@ -575,7 +584,7 @@ class GameBoard(Widget):
 
             # Create popup infornming that if the next player's turn starts and
             # they still have a negative balance that they will be kick out of the game
-            warning_pop = WarningPop(indebted_player=self.players[self.current_player_turn])
+            warning_pop = WarningPop(root=self, indebted_player=self.players[self.current_player_turn])
 
             warning_pop.open()
 
@@ -586,8 +595,6 @@ class GameBoard(Widget):
             self.debt_players.append(self.players[self.current_player_turn])
 
         else:  # They lost the game
-
-            # pdb.set_trace()
 
             # Remove the player that lost
             if final_square.owner:
@@ -630,6 +637,9 @@ class GameBoard(Widget):
         final_square_name = list(self.squares.keys())[final_id]
         final_square = self.squares[final_square_name]
 
+        # Log movement
+        self.parent.parent.add_history_log_entry(f"{self.players[self.current_player_turn].name.upper()} rolls a total of {steps} and lands on {final_square.full_name}")
+
         # Move player
         move_animation = self.players[self.current_player_turn].move(final_square)
 
@@ -649,18 +659,26 @@ class GameBoard(Widget):
     def roll_out_jail(self):
 
         # Roll the dice
-        # step_1, step_2 = self.roll_dice(None)
-        step_1 = 3
-        step_2 = 2
+        step_1, step_2 = self.roll_dice(None)
+        #step_1 = 2
+        #step_2 = 2
 
         # If they roll doubles, then let them out
         if step_1 == step_2:
+
+            log_text = f"{self.players[self.current_player_turn].name.upper()} rolls doubles and leaves JAIL without paying the fee"
+            self.parent.parent.add_history_log_entry(log_text)
+
             self.players[self.current_player_turn].doubles_counter = 0
             self.players[self.current_player_turn].in_jail_counter = -1
             self.player_start_turn([step_1, step_2])
 
         # If they don't roll a doubles, they stay in jail and move to the next player
         else:
+
+            log_text = f"{self.players[self.current_player_turn].name.upper()} did not roll doubles. Stays in JAIL"
+            self.parent.parent.add_history_log_entry(log_text)
+
             self.players[self.current_player_turn].in_jail_counter += 1
             self.current_player_turn = (self.current_player_turn + 1) % len(self.players)
             self.ids.message_player_turn.text = f"[b][color=#800000]\n\nNext is {self.players[self.current_player_turn].name}![/color][/b]"
@@ -671,8 +689,14 @@ class GameBoard(Widget):
         # Change attributes to make player out of jail
         if not self.players[self.current_player_turn].jail_free_card:
             self.players[self.current_player_turn].money -= 50
+            log_text = f"{self.players[self.current_player_turn].name.upper()} paid $50 to get-out of JAIL"
+        else:
+            log_text = f"{self.players[self.current_player_turn].name.upper()} used GET-OUT-OF-JAIL card"
+
         self.players[self.current_player_turn].in_jail_counter = -1
         self.players[self.current_player_turn].jail_free_card = False
+
+        self.parent.parent.add_history_log_entry(log_text)
 
     def buy_property(self, player, square_property, cost=None):
 
@@ -697,7 +721,11 @@ class GameBoard(Widget):
         # Update the player's info in the right side panel
         self.parent.parent.update_players_to_frame()
 
+        # Log purchase
+        self.parent.parent.add_history_log_entry(f"{player.name.upper()} acquires {square_property.full_name}")
+
     def auction_property(self, square_property):
+
         self.auction_pop = PlayerAuctionPop(
             root=self,
             current_property=square_property
@@ -763,7 +791,7 @@ class GameBoard(Widget):
         # Create popup to inform of player's bankrupcy
         else:
 
-            lostgame = LoserPop(bankrupt_player=bankrupt_player, pay_player=pay_player)
+            lostgame = LoserPop(root=self, bankrupt_player=bankrupt_player, pay_player=pay_player)
             lostgame.open()
 
         # Delete the player
@@ -1332,6 +1360,10 @@ class PlayerAuctionPop(Popup):
 
     def dismiss(self):
 
+        # Log the auction and its winner, for what price as well
+        log_text = f"{self.bid_winner.player.name.upper()} wins the auction for {self.current_property.full_name} by paying {self.highest_bid}"
+        self.root.parent.parent.add_history_log_entry(log_text)
+
         # Stop the clock event
         self.timer.cancel()
 
@@ -1543,6 +1575,16 @@ class TradePop(Popup):
         # Inform root to update property ownership and update player's money
         self.root.parent.parent.update_players_to_frame()
 
+        # Trade event log
+        left_property = ",".join([sq.full_name for sq in self.left_square_properties])
+        right_property = ",".join([sq.full_name for sq in self.right_square_properties])
+
+        left_property = left_property if left_property else "no property"
+        right_property = right_property if right_property else "no property"
+
+        log_text = f"{self.left_player.name.upper()} traded {left_property} and ${left_slider_value} for {self.right_player.name.upper()}'s {right_property} and ${right_slider_value}"
+        self.root.parent.parent.add_history_log_entry(log_text)
+
         # Dismiss the popup
         self.dismiss()
 
@@ -1728,6 +1770,15 @@ class MortgagePop(Popup):
 
         # Inform root to update property ownership and update player's money
         self.root.parent.parent.update_players_to_frame()
+
+        # Log mortgage event
+        mortgaged_property = ",".join([square_property.full_name for square_property in self.selected_square_properties if square_property.mortgage is True])
+        unmortgaged_property = ",".join([square_property.full_name for square_property in self.selected_square_properties if square_property.mortgage is False])
+        mortgaged_property = mortgaged_property if mortgaged_property else "no property"
+        unmortgaged_property = unmortgaged_property if unmortgaged_property else "no property"
+        
+        log_text = f"{self.player.name.upper()} mortgaged {mortgaged_property} and unmortgage {unmortgaged_property}"
+        self.root.parent.parent.add_history_log_entry(log_text)
 
         # Dismiss the popup
         self.dismiss()
@@ -2014,6 +2065,29 @@ class BuyHousesPop(Popup):
         # Inform root to update property ownership and update player's money
         self.root.parent.parent.update_players_to_frame()
 
+        # Log buy/sell houses
+        bought_text = []
+        sold_text = []
+        for set_name in self.entries.keys():
+            for entry in self.entries[set_name]:
+
+                house_diff = entry.total_houses - entry.initial_houses
+                if entry.total_houses != 5 and entry.initial_houses != 5:
+                    if house_diff > 0:
+                        bought_text.append(f"{house_diff} house(s) for {entry.square_property.full_name}")
+                    elif house_diff < 0:
+                        sold_text.append(f'{-house_diff} house(s) for {entry.square_property.full_name}')
+                elif entry.total_houses == 5 and entry.initial_houses != 5:
+                    bought_text.append(f"an hotel for {entry.square_property.full_name}")
+                elif entry.initial_houses == 5 and entry.total_houses != 5:
+                    sold_text.append(f"an hotel for {entry.square_property.full_name}")
+
+        bought_text = ",".join(bought_text) if bought_text else "no houses/hotel"
+        sold_text = ",".join(sold_text) if sold_text else "no houses/hotel"
+
+        log_text = f"{self.player.name.upper()} bought {bought_text} and sold {sold_text}"
+        self.root.parent.parent.add_history_log_entry(log_text)
+
         # Dismiss the popup
         self.dismiss()
 
@@ -2027,6 +2101,7 @@ class BuyHousesEntry(GridLayout):
 class LoserPop(Popup):
     def __init__(self, **kwargs):
 
+        self.root = kwargs.pop('root')
         self.bankrupt_player = kwargs.pop('bankrupt_player')
         self.pay_player = kwargs.pop('pay_player')
 
@@ -2037,21 +2112,28 @@ class LoserPop(Popup):
         if self.pay_player:
             self.ids.loser_info.text = f'[b][color=#000000]SORRY, {self.bankrupt_player.name.upper()} LOST THE GAME!\n' \
                                        f'ALL YOUR BELONGS WILL BE GIVEN TO {self.pay_player.name.upper()}.[/b][/color]'
+            log_text = f"{self.bankrupt_player.name.upper()} is bankrupt. All belongings are given to the {self.pay_player.name.upper()}"
         else:
             self.ids.loser_info.text = f'[b][color=#000000]SORRY, {self.bankrupt_player.name.upper()} LOST THE GAME!\n' \
                                        f'ALL YOUR BELONGS WILL BE GIVEN\nTO THE BANK.[/b][/color]'
+            log_text = f"{self.bankrupt_player.name.upper()} is bankrupt. All belongings are given to the BANK"
+        
+        
+        self.root.parent.parent.add_history_log_entry(log_text)
 
 
 class WarningPop(Popup):
     def __init__(self, **kwargs):
+        self.root = kwargs.pop('root')
         self.indebted_player = kwargs.pop('indebted_player')
 
         super().__init__(**kwargs)
 
         self.ids.indebted_player_icon.source = self.indebted_player.source
+        self.ids.indebted_player_info.text = f'[b][color=#000000]{self.indebted_player.name.upper()} YOU NEED TO PAY THE DEBT\nOR WILL BE BANKRUPTED.[/b][/color]'
 
-        self.ids.indebted_player_info.text = f'[b][color=#000000]{self.indebted_player.name.upper()} YOU NEED TO PAY THE DEBT\nOR BANKRUPTED.[/b][/color]'
-
+        log_text = f"{self.indebted_player.name.upper()} should pay off their debt. If not, they LOSE!"
+        self.root.parent.parent.add_history_log_entry(log_text)
 
 class WinnerPop(Popup):
     def __init__(self, **kwargs):

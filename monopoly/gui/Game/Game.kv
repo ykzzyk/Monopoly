@@ -51,7 +51,7 @@
                     GameInstruction:
                         id: game_instruction
 
-            Label:
+            Button:
                 id: history_log_title
                 size_hint_y: 0.15
                 text: '[b][color=#ffffff]HISTORY LOG[/b][/color]'
@@ -59,22 +59,25 @@
                 markup: True
                 color: [1,0,0,1]
                 outline_color: 0,0,0,1
-                outline_width: 1 
-                canvas.before:
-                    Color:
-                        rgba: 1, 0, 0, 1
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-
+                outline_width: 1
+                disabled: True
+                background_disabled_normal: "assets/buttons/red.png"
+                canvas.after:
                     Color:
                         rgba: .1, .1, .1, 1
                     Line:
-                        width: 1
-                        rectangle: self.x, self.y, self.width, self.height
+                        width: 1.3
+                        rectangle: 1.0015*self.x, self.y, 0.999*self.width, self.height
+
 
             ScrollView:
                 do_scroll_y: True
+                do_scroll_x: True
                 
                 HistoryLog:
                     id: history_log
+                    size_hint: None, None
+                    size: self.texture_size
+                    font_size: '18sp'
+                    valign: 'bottom'
+                    halign: 'left'
