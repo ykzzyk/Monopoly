@@ -107,7 +107,7 @@ BOARD_SQUARE_ATTRIBUTES = {
         'Jail': {'full_name': 'JAIL', 'cost_value': None, 'mortgage_value': None, 'unmortgage_value': None},
 
         'Pk1': {'full_name': 'ST. CHARLES PLACE', 'cost_value': 140, 'mortgage_value': 70, 'unmortgage_value': 77},
-        'Util1': {'full_name': 'ELECTRIC COMPANY', 'cost_value': 150, 'mortgage_value': None, 'unmortgage_value': None},
+        'Util1': {'full_name': 'ELECTRIC COMPANY', 'cost_value': 150, 'mortgage_value': 75, 'unmortgage_value': 83},
         'Pk2': {'full_name': 'STATES AVENUE', 'cost_value': 140, 'mortgage_value': 70, 'unmortgage_value': 77},
         'Pk3': {'full_name': 'VIRGINIA AVENUE', 'cost_value': 160, 'mortgage_value': 80, 'unmortgage_value': 88},
         'RR2': {'full_name': 'PENNSYLVANIA RAILROAD', 'cost_value': 200, 'mortgage_value': 100, 'unmortgage_value': 110},

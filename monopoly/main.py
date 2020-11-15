@@ -65,6 +65,9 @@ class WindowManager(ScreenManager):
         # Start the game only if 2 or more players have been added
         if len(list(self.ids['lobby'].ids['lobby_options'].players.keys())) > 1:
 
+            # Ensure that the gameboard is initialized properly
+            self.ids['game'].ids['game_board'].init()
+
             # Change to the next screen
             self.current = 'game'
 
@@ -75,6 +78,14 @@ class WindowManager(ScreenManager):
 
             # Notify that players have not been added
             pass
+
+    def back_to_lobby(self):
+
+        # Set the lobby as the current screen
+        self.current = 'lobby'
+
+    def end_game(self):
+        App.get_running_app().stop()
 
 
 class MonopolyApp(App):

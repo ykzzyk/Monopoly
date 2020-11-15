@@ -1,0 +1,68 @@
+<WinnerPop@Popup>
+    size_hint: (None, None)
+    size: (Window.width // 2, Window.height // 2)
+    title: ""
+    separator_height: 0
+    background: 'assets/background/card.jpg'
+    auto_dismiss: False
+
+    GridLayout:
+        rows: 2
+
+        GridLayout:
+            cols: 2
+            size_hint_y: 0.8
+
+            GridLayout:
+                rows: 2
+
+                Image:
+                    id: winner_icon
+                    source: ""
+
+                Label:
+                    id: winner_info
+                    text: ''
+                    markup: True
+
+            Image:
+                source: 'assets/background/win.jpg'
+
+        GridLayout:
+            cols: 2
+            size_hint_y: 0.2
+            spacing: [root.width//15, root.width//15]
+            padding: [root.width//15, 0, root.width//15, root.width//30]
+
+            Button:
+                id: button_end_game
+                text: '[b][color=#ffffff]END GAME[/b][/color]'
+                font_size: root.width // 42
+                background_normal: 'assets/buttons/red.png'
+                markup: True
+                canvas.before:
+                    Color:
+                        rgba: .1, .1, .1, 1
+                    Line:
+                        width: 5
+                        rectangle: self.x, self.y, self.width, self.height
+                on_release:
+                    root.dismiss()
+                    app.root.end_game()
+
+
+            Button:
+                id: button_back_to_lobby
+                text: '[b][color=#ffffff]BACK TO LOBBY[/b][/color]'
+                font_size: root.width // 42
+                background_normal: 'assets/buttons/red.png'
+                markup: True
+                canvas.before:
+                    Color:
+                        rgba: .1, .1, .1, 1
+                    Line:
+                        width: 5
+                        rectangle: self.x, self.y, self.width, self.height
+                on_release:
+                    root.dismiss()
+                    app.root.back_to_lobby()
