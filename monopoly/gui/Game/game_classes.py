@@ -579,17 +579,29 @@ class GameBoard(Widget):
 
             if final_square.owner and payment > 0:
                 final_square.owner.money += payment
+                log_text = f"{self.players[self.current_player_turn].name.upper()} paid ${payment} to {final_square.owner.name.upper()}"
+                self.parent.parent.add_history_log_entry(log_text)
+            elif payment > 0:
+                log_text = f"{self.players[self.current_player_turn].name.upper()} paid ${payment} to the BANK"
+                self.parent.parent.add_history_log_entry(log_text)
 
         elif self.players[self.current_player_turn].calculate_net_worth() >= payment:
 
             # Create popup infornming that if the next player's turn starts and
             # they still have a negative balance that they will be kick out of the game
             warning_pop = WarningPop(root=self, indebted_player=self.players[self.current_player_turn])
-
             warning_pop.open()
 
             # Deduct their money
             self.players[self.current_player_turn].money -= payment
+
+            if final_square.owner and payment > 0:
+                final_square.owner.money += payment
+                log_text = f"{self.players[self.current_player_turn].name.upper()} paid ${payment} to {final_square.owner.name.upper()}"
+                self.parent.parent.add_history_log_entry(log_text)
+            elif payment > 0:
+                log_text = f"{self.players[self.current_player_turn].name.upper()} paid ${payment} to the BANK"
+                self.parent.parent.add_history_log_entry(log_text)
 
             # Place player in the debted players list
             self.debt_players.append(self.players[self.current_player_turn])
@@ -705,6 +717,7 @@ class GameBoard(Widget):
             player.money -= cost
         else:
             player.money -= square_property.cost_value
+            cost = square_property.cost_value
 
         # Modify the attribute owned in square_property to the player
         square_property.owner = player
@@ -722,7 +735,7 @@ class GameBoard(Widget):
         self.parent.parent.update_players_to_frame()
 
         # Log purchase
-        self.parent.parent.add_history_log_entry(f"{player.name.upper()} acquires {square_property.full_name}")
+        self.parent.parent.add_history_log_entry(f"{player.name.upper()} acquires {square_property.full_name} for {cost}")
 
     def auction_property(self, square_property):
 
@@ -740,9 +753,6 @@ class GameBoard(Widget):
     def mortgage_property(self):
         self.mortgageInfo = MortgagePop(root=self)
         self.mortgageInfo.open()
-
-    def sell_belongings(self):
-        pass
 
     # Handling animations
     def stop_animation(self, *args):
