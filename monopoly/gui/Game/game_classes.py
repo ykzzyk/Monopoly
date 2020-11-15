@@ -31,6 +31,10 @@ from General import constants as C
 
 class Game(Screen):
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.history_log = []
+
     def update_players_to_frame(self, *args):
 
         for i in range(8):
@@ -59,6 +63,20 @@ class Game(Screen):
                 player_data_obj.ids['player_text'].text = ""
                 player_data_obj.ids['player_icon'].image_source = ""
 
+    def add_history_log_entry(self, entry):
+        
+        # Append the entry to the back-end history
+        self.history_log.append(entry)
+
+        # Remove if the entry is full
+        if len(self.history_log) > 100:
+            self.history_log.pop()
+
+        # Construct log text to be place in the history log
+        log_text = "[b][color=#FF0000]" + "\n".join(self.history_log) + "[/color][/b]"
+
+        # Update the history log text
+        self.ids.history_log.text = log_text
 
 class Player(DynamicImage):
     rectangle = ObjectProperty(None)
@@ -209,6 +227,9 @@ class GameBoard(Widget):
         Clock.schedule_once(lambda _: self.ids.player_turn_button.bind(on_release=self.player_start_turn))
 
     def init(self):
+
+        # Log game start!
+        self.parent.parent.add_history_log_entry("Game started!")
 
         # Remove any players
         if self.players:
@@ -371,6 +392,8 @@ class GameBoard(Widget):
         self.ids.message_player_turn.text = f"[b][color=#800000]Next is {self.players[self.current_player_turn].name}![/color][/b]"
 
     def player_land_place(self, final_square):
+
+        self.parent.parent.add_history_log_entry(f"{self.players[self.current_player_turn].name} rolls and lands on {final_square.full_name}")
 
         # Default value of payment is 0
         payment = 0

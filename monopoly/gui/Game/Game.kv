@@ -15,7 +15,7 @@
 
         GridLayout:
             id: right_side_panel
-            rows: 2
+            rows: 3
             size_hint_x: (Window.width - Window.height)/Window.height
 
             TabbedPanel:
@@ -51,5 +51,30 @@
                     GameInstruction:
                         id: game_instruction
 
-            HistoryLog:
-                id: history_log
+            Label:
+                id: history_log_title
+                size_hint_y: 0.15
+                text: '[b][color=#ffffff]HISTORY LOG[/b][/color]'
+                font_size: self.width//20
+                markup: True
+                color: [1,0,0,1]
+                outline_color: 0,0,0,1
+                outline_width: 1 
+                canvas.before:
+                    Color:
+                        rgba: 1, 0, 0, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+
+                    Color:
+                        rgba: .1, .1, .1, 1
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
+
+            ScrollView:
+                do_scroll_y: True
+                
+                HistoryLog:
+                    id: history_log

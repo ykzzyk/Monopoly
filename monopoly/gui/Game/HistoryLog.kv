@@ -1,7 +1,9 @@
-#:import Window kivy.core.window.Window
 
-<HistoryLog@Button>:
+<HistoryLog@Label>:
     text: '[b][color=#FF0000]HistoryLog[/color][/b]'
-    font_size: Window.width // 55
+    font_size: root.height // 20
+    valign: 'bottom'
+    halign: 'left'
+    text_size: self.size
     color: [1, 1, 1, 1]
     markup: True
