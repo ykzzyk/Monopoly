@@ -32,7 +32,7 @@ WindowManager:
             size_hint_y: 4
 
         Button:
-            text: "[b][color=#ffffff]Start Game[/b][/color]"
+            text: "[b][color=#ffffff]START GAME[/b][/color]"
             background_normal: "assets/buttons/red.png"
             markup: True
             font_size: self.width // 20
@@ -55,12 +55,13 @@ WindowManager:
 
     GridLayout:
         rows: 3
-        padding: [self.width // 7, self.width // 50, self.width // 7, self.width // 50]
+        padding: [self.width // 10, self.width // 30, self.width // 10, self.width // 30]
 
         Label:
-            text: '[b][color=#FF7F00]Help & Feedback[/color][/b]'
+            text: '[b][color=#ff0000]HELP & FEEDBACK[/color][/b]'
             font_size: self.width // 15
-            color: [1, 1, 1, 1]
+            outline_color: 0,0,0,1
+            outline_width: '2sp'
             markup: True
             size_hint_y: 1
 
@@ -71,22 +72,38 @@ WindowManager:
 
         GridLayout:
             cols: 2
-            spacing: [self.width // 15, 0]
-
+            spacing: [self.width // 12, 0]
+            padding: [0, self.width // 50, 0, self.width // 50]
             Button:
-                text: "[b]Back[/b]"
+                text: "[b]BACK[/b]"
                 background_normal: "assets/buttons/red.png"
                 markup: True
                 font_size: self.width // 15
+                outline_color: 0,0,0,1
+                outline_width: '2sp'
+                canvas.before:
+                    Color:
+                        rgba: .1, .1, .1, 1
+                    Line:
+                        width: 3
+                        rectangle: self.x, self.y, self.width, self.height
                 on_release:
                     app.root.current = "home"
 
 
             Button:
-                text: "[b]Contact us[/b]"
+                text: "[b]CONTACT US[/b]"
                 background_normal: "assets/buttons/red.png"
                 markup: True
                 font_size: self.width // 15
+                outline_color: 0,0,0,1
+                outline_width: '2sp'
+                canvas.before:
+                    Color:
+                        rgba: .1, .1, .1, 1
+                    Line:
+                        width: 3
+                        rectangle: self.x, self.y, self.width, self.height
                 on_release:
                     root.send_email(None)
 
@@ -102,7 +119,7 @@ WindowManager:
 
         Label:
             markup: True
-            text: '[b][color=#FF0000]Monopoly[/color][/b]'
+            text: '[b][color=#FF0000]MONOPOLY[/color][/b]'
             font_size: self.width // 4
             outline_color: 0,0,0,1
             outline_width: '5sp'
@@ -113,7 +130,7 @@ WindowManager:
             size_hint_y: 1.8
             spacing: [0, self.width // 40]
             Button:
-                text: "[b][color=#ffffff]Play Local[/b][/color]"
+                text: "[b][color=#ffffff]PLAY LOCAL[/b][/color]"
                 background_normal: "assets/buttons/red.png"
                 markup: True
                 font_size: self.width // 20
@@ -129,7 +146,7 @@ WindowManager:
                     app.root.current = "lobby"
 
             Button:
-                text: "[b][color=#ffffff]Play LAN (COMING SOON!)[/b][/color]"
+                text: "[b][color=#ffffff]PLAY LAN (COMING SOON!)[/b][/color]"
                 markup: True
                 font_size: self.width // 20
                 disabled: True
@@ -146,7 +163,7 @@ WindowManager:
                 on_release:
                     app.root.current = "lobby"
             Button:
-                text: "[b][color=#ffffff]Play Online (COMING SOON!)[/b][/color]"
+                text: "[b][color=#ffffff]PLAY ONLINE (COMING SOON!)[/b][/color]"
                 markup: True
                 font_size: self.width // 20
                 disabled: True
@@ -163,7 +180,7 @@ WindowManager:
                 on_release:
                     app.root.current = "lobby"
             Button:
-                text: "[b][color=#ffffff]Help & Feedback[/b][/color]"
+                text: "[b][color=#ffffff]HELP & FEEDBACK[/b][/color]"
                 background_normal: "assets/buttons/red.png"
                 markup: True
                 font_size: self.width // 20
@@ -178,7 +195,7 @@ WindowManager:
                 on_release:
                     app.root.current = "feedback"
             Button:
-                text: "[b][color=#ffffff]Exit[/b][/color]"
+                text: "[b][color=#ffffff]EXIT[/b][/color]"
                 background_normal: "assets/buttons/red.png"
                 markup: True
                 font_size: self.width // 20
