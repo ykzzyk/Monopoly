@@ -53,7 +53,7 @@ class Game(Screen):
 
                 # Place into the data from the player into the player_data_obj
                 player_data_obj.ids['player_text'].text = \
-                    f'[b][color=#FF7F00]{player.name}\nMoney: {int(player.money)}{spacing}Net Worth: {int(player_net_worth)}[/color][/b]'
+                    f'[b][color=#FF0000]{player.name}\nMoney: {int(player.money)}{spacing}Net Worth: {int(player_net_worth)}[/color][/b]'
                 player_data_obj.ids['player_icon'].image_source = player.source
             else:
                 player_data_obj.ids['player_text'].text = ""
@@ -252,7 +252,7 @@ class GameBoard(Widget):
         for player in self.players:
             self.add_widget(player)
 
-        # ! Testing
+        ''' ! Testing
         self.buy_property(self.players[0], self.squares['Util2'])
         self.buy_property(self.players[1], self.squares['Rd1'])
         self.buy_property(self.players[1], self.squares['Rd2'])
@@ -262,11 +262,7 @@ class GameBoard(Widget):
 
         self.players[1].money = 1
         self.players[2].money = 300
-
-        # print(self.players[0].property_own)
-
-        # for square_property in self.players[0].property_own:
-        # print(square_property.rent)
+        #'''
 
         # Adding the player to the players info box
         Clock.schedule_once(self.parent.parent.update_players_to_frame)

@@ -5,13 +5,23 @@
     cols: 3
     size_hint_y: 0.2
     spacing: [self.width // 20, 0]
-    #padding: [self.width // 25, 0, self.width // 25, self.width // 50]
+    padding: [self.width // 50, 0, self.width // 50, self.width // 50]
 
     Button:
         id: quit_button
         name: 'quit_button'
-
-        text: "[b]Quit[/b]"
+        text: "[b][color=#ffffff]Quit[/b][/color]"
+        background_normal: "assets/buttons/red.png"
+        markup: True
+        font_size: self.width // 15
+        outline_color: 0,0,0,1
+        outline_width: 1
+        canvas.before:
+            Color:
+                rgba: .1, .1, .1, 1
+            Line:
+                width: 3
+                rectangle: self.x, self.y, self.width, self.height
         markup: True
         on_release:
             app.root.current = "home"
@@ -19,8 +29,18 @@
     Button:
         id: add_player_button
         name: 'add_player_button'
-
-        text: "[b]Add Player[/b]"
+        text: "[b][color=#ffffff]Add Player[/b][/color]"
+        background_normal: "assets/buttons/red.png"
+        markup: True
+        font_size: self.width // 15
+        outline_color: 0,0,0,1
+        outline_width: 1
+        canvas.before:
+            Color:
+                rgba: .1, .1, .1, 1
+            Line:
+                width: 3
+                rectangle: self.x, self.y, self.width, self.height
         markup: True
         on_release:
             root.request_new_player_info()
@@ -28,8 +48,20 @@
     Button:
         id: start_game_button
         name: 'start_game_button'
-
-        text: "[b]Start Game[/b]"
+        text: "[b][color=#ffffff]Start Game[/b][/color]"
+        background_normal: "assets/buttons/red.png"
+        disabled: True
+        background_disabled_normal: "assets/buttons/light_grey.jpg"
+        markup: True
+        font_size: self.width // 15
+        outline_color: 0,0,0,1
+        outline_width: 1
+        canvas.before:
+            Color:
+                rgba: .1, .1, .1, 1
+            Line:
+                width: 3
+                rectangle: self.x, self.y, self.width, self.height
         markup: True
         on_release:
             app.root.start_game()

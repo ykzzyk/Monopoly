@@ -8,9 +8,10 @@
         name: 'game_info_title'
 
         markup: True
-        text: '[b][color=#FF7F00]Game Information[/color][/b]'
+        text: '[b][color=#FF0000]Game Information[/color][/b]'
         font_size: (Window.width**2 + Window.height**2) / 18**4
-        color: [1, 1, 1, 1]
+        outline_color: 0,0,0,1
+        outline_width: 1
         size_hint_y: 0.25
 
     Label:
@@ -18,9 +19,10 @@
         name: 'game_info'
 
         markup: True
-        text: '[b][color=#FF7F00]Host:[/color][/b]'
+        text: '[b][color=#FF0000]Host:[/color][/b]'
+        outline_color: 0,0,0,1
+        outline_width: 1
         font_size: (Window.width**2 + Window.height**2) / 22**4
-        color: [1, 1, 1, 1]
         text_size: self.size
         halign: 'left'
         valign: 'middle'
@@ -34,11 +36,11 @@
     Label:
         id: log_info
         name: 'log_info'
-        
+        outline_color: 0,0,0,1
+        outline_width: 1
         markup: True
-        text: '[b][color=#FF7F00]LOG: [/color][/b]'
+        text: '[b][color=#FF0000]LOG: [/color][/b]'
         font_size: (Window.width**2 + Window.height**2) / 22**4
-        color: [1, 1, 1, 1]
         text_size: self.size
         halign: 'left'
         valign: 'middle'

@@ -3,17 +3,17 @@
 
 WindowManager:
 
-    Lobby:
-        id: lobby
-
-    Game:
-        id: game
-    
     Start:
         id: start
     
     Home:
         id: home
+
+    Lobby:
+        id: lobby
+
+    Game:
+        id: game
     
     Feedback:
         id: feedback
@@ -24,17 +24,26 @@ WindowManager:
 
     GridLayout:
         rows: 2
+        padding: [root.width//15, 0, root.width//15, root.height//30]
 
         Image:
-            source: 'assets/monopoly_logo.png'
+            source: 'assets/background/monopoly_logo.png'
             size: self.texture_size
             size_hint_y: 4
 
         Button:
-            text: "[b]Start Game[/b]"
-            background_color: (1.0, 0.0, 0.0, 1.0)
+            text: "[b][color=#ffffff]Start Game[/b][/color]"
+            background_normal: "assets/buttons/red.png"
             markup: True
             font_size: self.width // 20
+            outline_color: 0,0,0,1
+            outline_width: 3
+            canvas.before:
+                Color:
+                    rgba: .1, .1, .1, 1
+                Line:
+                    width: 5
+                    rectangle: self.x, self.y, self.width, self.height
             on_press:
                 app.root.transition = NoTransition()
             on_release:
@@ -93,8 +102,10 @@ WindowManager:
 
         Label:
             markup: True
-            text: '[b][color=#FF7F00]Monopoly[/color][/b]'
+            text: '[b][color=#FF0000]Monopoly[/color][/b]'
             font_size: self.width // 4
+            outline_color: 0,0,0,1
+            outline_width: 5
             size_hint_y: 0.3
 
         GridLayout:
@@ -102,39 +113,83 @@ WindowManager:
             size_hint_y: 1.8
             spacing: [0, self.width // 40]
             Button:
-                text: "[b]Play Local[/b]"
-                background_color: (1.0, 0.0, 0.0, 1.0)
+                text: "[b][color=#ffffff]Play Local[/b][/color]"
+                background_normal: "assets/buttons/red.png"
                 markup: True
                 font_size: self.width // 20
+                outline_color: 0,0,0,1
+                outline_width: 3
+                canvas.before:
+                    Color:
+                        rgba: .1, .1, .1, 1
+                    Line:
+                        width: 5
+                        rectangle: self.x, self.y, self.width, self.height
                 on_release:
                     app.root.current = "lobby"
 
             Button:
-                text: "[b]Play LAN[/b]"
-                background_color: (1.0, 0.0, 0.0, 1.0)
+                text: "[b][color=#ffffff]Play LAN (COMING SOON!)[/b][/color]"
                 markup: True
                 font_size: self.width // 20
+                disabled: True
+                background_normal: "assets/buttons/red.png"
+                background_disabled_normal: "assets/buttons/light_grey.jpg"
+                outline_color: 0,0,0,1
+                outline_width: 3
+                canvas.before:
+                    Color:
+                        rgba: .1, .1, .1, 1
+                    Line:
+                        width: 5
+                        rectangle: self.x, self.y, self.width, self.height
                 on_release:
                     app.root.current = "lobby"
             Button:
-                text: "[b]Play Online[/b]"
-                background_color: (1.0, 0.0, 0.0, 1.0)
+                text: "[b][color=#ffffff]Play Online (COMING SOON!)[/b][/color]"
                 markup: True
                 font_size: self.width // 20
+                disabled: True
+                background_normal: "assets/buttons/red.png"
+                background_disabled_normal: "assets/buttons/light_grey.jpg"
+                outline_color: 0,0,0,1
+                outline_width: 3
+                canvas.before:
+                    Color:
+                        rgba: .1, .1, .1, 1
+                    Line:
+                        width: 5
+                        rectangle: self.x, self.y, self.width, self.height
                 on_release:
                     app.root.current = "lobby"
             Button:
-                text: "[b]Help & Feedback[/b]"
-                background_color: (1.0, 0.0, 0.0, 1.0)
+                text: "[b][color=#ffffff]Help & Feedback[/b][/color]"
+                background_normal: "assets/buttons/red.png"
                 markup: True
                 font_size: self.width // 20
+                outline_color: 0,0,0,1
+                outline_width: 3
+                canvas.before:
+                    Color:
+                        rgba: .1, .1, .1, 1
+                    Line:
+                        width: 5
+                        rectangle: self.x, self.y, self.width, self.height
                 on_release:
                     app.root.current = "feedback"
             Button:
-                text: "[b]Exit[/b]"
-                background_color: (1.0, 0.0, 0.0, 1.0)
+                text: "[b][color=#ffffff]Exit[/b][/color]"
+                background_normal: "assets/buttons/red.png"
                 markup: True
                 font_size: self.width // 20
+                outline_color: 0,0,0,1
+                outline_width: 3
+                canvas.before:
+                    Color:
+                        rgba: .1, .1, .1, 1
+                    Line:
+                        width: 5
+                        rectangle: self.x, self.y, self.width, self.height
                 on_release:
                     app.get_running_app().stop()
 

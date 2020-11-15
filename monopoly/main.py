@@ -62,22 +62,14 @@ class WindowManager(ScreenManager):
 
     def start_game(self):
 
-        # Start the game only if 2 or more players have been added
-        if len(list(self.ids['lobby'].ids['lobby_options'].players.keys())) > 1:
+        # Ensure that the gameboard is initialized properly
+        self.ids['game'].ids['game_board'].init()
 
-            # Ensure that the gameboard is initialized properly
-            self.ids['game'].ids['game_board'].init()
+        # Change to the next screen
+        self.current = 'game'
 
-            # Change to the next screen
-            self.current = 'game'
-
-            # Pass the players from the lobby to the game
-            self.ids['game'].ids["game_board"].add_players(self.ids['lobby'].ids['lobby_options'].players)
-
-        else:
-
-            # Notify that players have not been added
-            pass
+        # Pass the players from the lobby to the game
+        self.ids['game'].ids["game_board"].add_players(self.ids['lobby'].ids['lobby_options'].players)
 
     def back_to_lobby(self):
 

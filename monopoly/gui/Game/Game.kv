@@ -29,15 +29,24 @@
                 
                 TabbedPanelItem:
                     id: players
-                    text: '[b]Players[/b]'
+                    text: '[b][color=#ffffff]PLAYERS[/b][/color]'
+                    font_size: self.width//20
                     markup: True
-                    
+                    background_normal: 'assets/buttons/light_grey.jpg'
+                    background_down: 'assets/buttons/red.png'
+                    outline_color: 0,0,0,1
+                    outline_width: 1
                     InfoFrame:
                         id: info_frame
 
                 TabbedPanelItem:
                     id: instructions
-                    text: '[b]Instructions[/b]'
+                    text: '[b][color=#ffffff]INSTRUCTIONS[/b][/color]'
+                    font_size: self.width//20
+                    background_normal: 'assets/buttons/light_grey.jpg'
+                    background_down: 'assets/buttons/red.png'
+                    outline_color: 0,0,0,1
+                    outline_width: 1
                     markup: True
                     GameInstruction:
                         id: game_instruction

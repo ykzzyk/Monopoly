@@ -63,7 +63,7 @@ class LobbyOptions(GridLayout):
         player_entry = self.parent.parent.ids['lobby_inter_grid'].ids['player_box'].ids[f'player{len(list(self.players.keys()))+1}']
 
         # Then change the player_info text to whatever you would like
-        player_entry.ids['player_text'].text = f'[b][color=#FF7F00]{player_name}\n{self.game_mode}[/color][/b]'
+        player_entry.ids['player_text'].text = f'[b][color=#FF0000]{player_name}\n{self.game_mode}[/color][/b]'
         
         # Adding the player icon to the player info
         player_entry.ids['player_icon'].image_source = "assets/player_icons/" + player_icon + ".png"
@@ -73,6 +73,12 @@ class LobbyOptions(GridLayout):
 
         # Saving the information of the players into the lobby_options
         self.players[player_name] = player_icon
+
+        # Make the start_game_button enabled if the number of players >= 2
+        if len(self.players) >= 2:
+            self.ids.start_game_button.disabled = False
+        else:
+            self.ids.start_game_button.disabled = True
 
 class AddPlayerPopup(Popup):
 
