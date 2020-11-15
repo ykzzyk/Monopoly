@@ -8,7 +8,7 @@
             size: root.height, root.height
 
     Button:
-        text: '[b][color=#ffffff]Build/\nSell[/color][/b]'
+        text: '[b][color=#ffffff]HOUSE\nTRANSACTION[/color][/b]'
         background_normal: 'assets/buttons/house.png'
         size: (root.width//6, root.width//6)
         background_down: 'assets/buttons/house-2.png'
@@ -16,13 +16,13 @@
         markup: True
         outline_color: 0,0,0,1
         outline_width: 3
-        pos: (root.width//5, root.height//1.79)
+        pos: (root.width//5, root.height//1.8)
         on_release:
             root.buy_houses()
 
 
     Button:
-        text: '[b][color=#ffffff]Trade[/color][/b]'
+        text: '[b][color=#ffffff]TRADE[/color][/b]'
         background_normal: 'assets/buttons/product.png'
 
         background_down: 'assets/buttons/product_2.png'
@@ -36,7 +36,7 @@
             root.trade()
 
     Button:
-        text: '[b][color=#ffffff]Mortgage/\nRegain[/color][/b]'
+        text: '[b][color=#ffffff]MORTGAGE\nPROPERTY[/color][/b]'
         background_normal: 'assets/buttons/real.png'
         background_down: 'assets/buttons/real-2.png'
         size: (root.width//6, root.width//6)
@@ -50,7 +50,7 @@
 
     Button:
         id: player_turn_button
-        text: '[b][color=#ffffff]Roll![/color][/b]'
+        text: '[b][color=#ffffff]ROLL[/color][/b]'
         background_normal: 'assets/buttons/dice.png'
         background_down: 'assets/buttons/dice2.png'
         size: (root.width//10, root.width//10)
