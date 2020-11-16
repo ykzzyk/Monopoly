@@ -99,7 +99,7 @@ class Player(DynamicImage):
         self.money = 1500
         self.house = 0
         self.hotel = 0
-        self.jail_free_card = True
+        self.jail_free_card = False
         self.property_own = []
 
         self.root_size_before = self.root.size
