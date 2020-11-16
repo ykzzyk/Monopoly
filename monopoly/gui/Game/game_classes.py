@@ -1127,7 +1127,7 @@ class CardInfoPop(Popup):
         self.chance.put('ADVANCE TO ILLINOIS AVENUE.\nIF YOU PASS GO, COLLECT $200.')
         self.chance.put('GO DIRECTLY TO JAIL.\nDO NOT COLLECT $200.')
         self.chance.put('SPEEDING FINE. PAY $15.')
-        self.chance.put('YOUR BULIDING LOAN MATURES.\nCOLLECT $150.')
+        self.chance.put('YOUR BUILDING LOAN MATURES.\nCOLLECT $150.')
         self.chance.put('TAKE A TRIP TO READING\nRAILROAD. IF YOU PASS GO,\nCOLLECT $200.')
         self.chance.put('GET OUT OF JAIL FREE.')
         self.chance.put('YOU HAVE BEEN ELECTED\nCHAIRMAN OF THE BOARD.\nPAY EACH PLAYER $50.')
