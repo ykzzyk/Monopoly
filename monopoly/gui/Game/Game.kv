@@ -23,7 +23,13 @@
                 tab_width: self.width/len(self.tab_list)
                 border: [0,0,0,0]
                 background_color: [0,0,0,0]
-                strip_image: 'assets/buttons/deep_grey.jpg'
+                canvas.after:
+                    Color:
+                        rgba: .1, .1, .1, 1
+                    Line:
+                        width: 1.3
+                        rectangle: 1.001 *self.x, self.y, 0.999*self.width, self.height
+                strip_image: 'assets/buttons/red.png'
 
                 default_tab: players
                 
