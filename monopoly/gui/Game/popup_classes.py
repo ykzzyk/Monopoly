@@ -27,6 +27,7 @@ import pdb
 from General.general_classes import DynamicImage
 from General.general_classes import PlayerIcon
 from General import constants as C
+from board_squares import *
 
 
 class CardInfoPop(Popup):
@@ -654,7 +655,7 @@ class MortgagePop(Popup):
         for square_property in selected_player.property_own:
 
             # If the property has houses, then it cannot be mortgaged
-            if square_property.number_of_houses != 0:
+            if isinstance(square_property, PropertySquare) and (square_property.number_of_houses != 0):
                 continue
 
             # Determine color of property
@@ -854,8 +855,9 @@ class BuyHousesPop(Popup):
         for square_property in selected_player.property_own:
 
             # If the property is not part of a full set, then ignore it
-            if square_property.full_set is False or square_property.type != 'Property':
+            if not isinstance(square_property, PropertySquare) or (square_property.full_set is False):
                 continue
+
 
             # Create button for property
             entry = BuyHousesEntry(

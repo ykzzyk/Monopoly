@@ -29,17 +29,6 @@ from General.general_classes import DynamicImage
 from General.general_classes import PlayerIcon
 from General import constants as C
 import popup_classes as pc
-from board_squares import *
-
-board_square_table = {
-    'Property': PropertySquare,
-    'Railroad': RailroadSquare,
-    'Utilities': UtilitySquare,
-    'Chance': ChanceSquare,
-    'Chest': ChestSquare,
-    'Tax': TaxSquare,
-    'Corner': CornerSquare
-}
 
 
 class Game(Screen):
@@ -198,12 +187,14 @@ class Player(DynamicImage):
 
         for square_property in self.property_own:
 
+            # print(square_property)
+
             # Accounting for property value
             if not square_property.mortgage:
                 net_worth += square_property.mortgage_value
 
             # Accounting for house/hotel values
-            if isinstance(square_property, PropertySquare):
+            if square_property.type == 'Property':
                 worth_of_house = square_property.buy_house_cost / 2
                 net_worth += worth_of_house * square_property.number_of_houses
 
@@ -225,17 +216,6 @@ class GameBoard(Widget):
         # Constructing all the squares
         self.squares = {}
         for square_name in C.BOARD_SQUARE_LOCATIONS.keys():
-
-            # Finding the type of the square
-            for square_type in C.BOARD_SQUARE_TYPE.keys():
-                if square_name in C.BOARD_SQUARE_TYPE[square_type]:
-                    this_square_type = square_type
-                    break
-
-            # Select the right type of square given the type
-            BoardSquare = board_square_table[this_square_type]
-
-            # Create the square
             self.squares[square_name] = BoardSquare(square_name, self)
 
         # Keeping track of the current player
@@ -268,15 +248,14 @@ class GameBoard(Widget):
 
         # Clear out the properties
         for square in self.squares.values():
+            square.mortgage = False
+            square.owner = None
+            square.number_of_houses = 0
+            square.full_set = False
 
-            if isinstance(square, OwnableSquare):
-                square.mortgage = False
-                square.owner = None
+            if square.type == 'Property' or square.type == 'Railroad' or square.type == 'Utilities':
                 square.update_player_icon()
-
-                if isinstance(square, PropertySquare):
-                    square.number_of_houses = 0
-                    square.full_set = False
+                if square.type == 'Property':
                     square.update_house_markers()
 
     def add_players(self, players_info):
@@ -308,8 +287,7 @@ class GameBoard(Widget):
         self.buy_property(self.players[1], self.squares['Util1'])
 
         self.players[0].money = 1000
-        self.players[1].money = 1000
-        self.players[2].money = 3
+        self.players[1].money = 300
         # '''
 
         # Adding the player to the players info box
@@ -358,7 +336,7 @@ class GameBoard(Widget):
 
             return 0
 
-        '''
+        #'''
         # Roll the dice and get their values
         if rolls is None:
             step_1, step_2 = self.roll_dice(None)
@@ -366,7 +344,7 @@ class GameBoard(Widget):
             step_1, step_2 = rolls
         # '''
 
-        # """
+        """
         step_1 = 6
         step_2 = 1
         # """
@@ -434,8 +412,172 @@ class GameBoard(Widget):
         # Extend turn
         self.extend_turn = False
 
+        # Default value of payment is 0
+        payment = 0
+
         # Processing the action depending on the square name
-        payment = final_square.land_action(self.players[self.current_player_turn])
+        # If the player lands on the 'GO-TO-JAIL' square
+        if final_square.name == 'GO-TO-JAIL':
+            self.players[self.current_player_turn].move_direct(self.squares['Jail'])
+            self.players[self.current_player_turn].in_jail_counter = 0
+
+        # If land on the chance:
+        elif final_square.type == "Chance":  # TODO: Implement charging rent if moved to a property that is owned
+            chance_card = self.cardInfo.get_card(self.cardInfo.chance, 'chance')
+            self.cardInfo.open()
+            Clock.schedule_once(lambda dt: self.cardInfo.dismiss(), 3)
+
+            if 'ST.CHARLES PLACE' in chance_card:
+                if self.players[self.current_player_turn].current_square != self.squares['Chance1']:
+                    payment = -200
+                self.players[self.current_player_turn].move_direct(self.squares['Pk1'])
+
+            elif 'HOUSE' in chance_card:  # TODO: Implement this feature
+                self.players[self.current_player_turn].money -= 25 * self.players[self.current_player_turn].house
+                self.players[self.current_player_turn].money -= 100 * self.players[self.current_player_turn].hotel
+            elif 'THREE' in chance_card:
+                # Final square ID
+                final_id = self.players[self.current_player_turn].current_square.sequence_id - 3
+                final_square = self.squares[list(self.squares.keys())[final_id]]
+                self.players[self.current_player_turn].move_direct(final_square)
+
+            elif 'JAIL FREE' in chance_card:
+                self.players[self.current_player_turn].jail_free_card = True
+
+            elif 'BOARDWALK' in chance_card:
+                self.players[self.current_player_turn].move_direct(self.squares['Bl2'])
+
+            elif 'READING' in chance_card:
+                if self.players[self.current_player_turn].current_square == self.squares['Chance3']:
+                    payment = -200
+                self.players[self.current_player_turn].move_direct(self.squares['RR1'])
+
+            elif 'LOAN MATURES' in chance_card:
+                payment = -150
+
+            elif 'ILLINOIS AVENUE' in chance_card:
+                if self.players[self.current_player_turn].current_square == self.squares['Chance3']:
+                    payment = -200
+                self.players[self.current_player_turn].move_direct(self.squares['Rd3'])
+
+            elif 'NEAREST' in chance_card:
+                if self.players[self.current_player_turn].current_square == self.squares['Chance1']:
+                    self.players[self.current_player_turn].move_direct(self.squares['Util1'])
+                elif self.players[self.current_player_turn].current_square == self.squares['Chance2']:
+                    self.players[self.current_player_turn].move_direct(self.squares['Util2'])
+                elif self.players[self.current_player_turn].current_square == self.squares['Chance3']:
+                    self.players[self.current_player_turn].move_direct(self.squares['Util2'])
+
+            elif 'NEXT\nRAILROAD' in chance_card:
+                if self.players[self.current_player_turn].current_square == self.squares['Chance1']:
+                    self.players[self.current_player_turn].move_direct(self.squares['RR2'])
+                elif self.players[self.current_player_turn].current_square == self.squares['Chance2']:
+                    self.players[self.current_player_turn].move_direct(self.squares['RR3'])
+                elif self.players[self.current_player_turn].current_square == self.squares['Chance3']:
+                    self.players[self.current_player_turn].move_direct(self.squares['RR1'])
+
+            elif 'TO JAIL' in chance_card:
+                self.players[self.current_player_turn].move_direct(self.squares['Jail'])
+                self.players[self.current_player_turn].in_jail_counter = 0
+
+            elif 'SPEEDING FINE' in chance_card:
+                payment = 15
+            elif 'PAY EACH PLAYER' in chance_card:  # TODO: Implement this one
+                for player in self.players:
+                    if player != self.players[self.current_player_turn]:
+                        player.money += 50
+                        self.players[self.current_player_turn].money -= 50
+
+        # If land on chest
+        elif final_square.type == "Chest":
+            chest_card = self.cardInfo.get_card(self.cardInfo.chest, 'chest')
+            self.cardInfo.open()
+            Clock.schedule_once(lambda dt: self.cardInfo.dismiss(), 3)
+
+            if ('MATURES' in chest_card) or ('YOU INHERIT $100' in chest_card):
+                payment = -100
+
+            elif ("DOCTOR'S FEES" in chest_card) or ('SCHOOL FEES' in chest_card):
+                payment = 50
+
+            elif 'JAIL FREE' in chest_card:
+                self.players[self.current_player_turn].jail_free_card = True
+
+            elif 'INCOME TAX REFUND' in chest_card:
+                payment = -20
+
+            elif 'HOSPITAL FEES' in chest_card:
+                payment = 100
+
+            elif 'TO JAIL' in chest_card:
+                self.players[self.current_player_turn].move_direct(self.squares['Jail'])
+                self.players[self.current_player_turn].in_jail_counter = 0
+
+            elif 'BIRTHDAY' in chest_card:  # TODO: Implement this!
+                self.players[self.current_player_turn].money += 25
+                for player in self.players:
+                    if player != self.players[self.current_player_turn]:
+                        player.money -= 10
+                        self.players[self.current_player_turn].money += 10
+
+            elif 'FROM SALE OF STOCK' in chest_card:
+                payment = 50
+
+            elif 'WON SECOND PRIZE' in chest_card:
+                payment = -10
+
+            elif 'STREET REPAIRS' in chest_card:  # TODO: Implement this feature
+                self.players[self.current_player_turn].money -= 40 * self.players[self.current_player_turn].house
+                self.players[self.current_player_turn].money -= 115 * self.players[self.current_player_turn].hotel
+
+            elif 'TO GO' in chest_card:
+                self.players[self.current_player_turn].move_direct(self.squares['GO'])
+                payment = -200
+
+            elif 'BANK ERROR' in chest_card:
+                payment = -200
+
+        # If land on tax penalty squares
+        elif final_square.type == "Tax":
+
+            if final_square.name == 'ITax':
+                payment = 200
+
+            elif final_square.name == 'LTax':
+                payment = 100
+
+        # If land on property
+        elif final_square.type == "Property" or final_square.type == "Railroad" or final_square.type == 'Utilities':  # Also handle railroads
+
+            # if the property is not owned
+            if final_square.owner is None:
+
+                # Determine if the player has enough money to buy the property
+                if self.players[self.current_player_turn].money >= final_square.cost_value:
+                    # Buy or Auction
+                    self.buy_or_auction = pc.CardSelectPop(root=self,
+                                                           current_player=self.players[self.current_player_turn],
+                                                           square_property=final_square,
+                                                           button_left='BUY',
+                                                           button_right='AUCTION')
+                elif self.players[self.current_player_turn].calculate_net_worth() >= final_square.cost_value:
+                    self.buy_or_auction = pc.CardSelectPop(root=self,
+                                                           current_player=self.players[self.current_player_turn],
+                                                           square_property=final_square,
+                                                           button_left='MORTGAGE',
+                                                           button_right='AUCTION')
+                else:
+                    self.buy_or_auction = pc.PlayerAuctionPop(root=self, current_property=final_square)
+
+                self.buy_or_auction.open()
+
+            # else the property is owned
+            else:
+
+                # If the property is owned by someone else and it is not mortgage, PAY RENT!
+                if final_square.owner != self.players[self.current_player_turn] and final_square.mortgage is False:
+                    # Calculate the rent due for the final_square
+                    payment = final_square.calculate_rent()
 
         self.process_payment(final_square, payment)
 
@@ -446,7 +588,7 @@ class GameBoard(Widget):
             # Pay rent
             self.players[self.current_player_turn].money -= payment
 
-            if isinstance(final_square, OwnableSquare) and payment > 0:
+            if final_square.owner and payment > 0:
                 final_square.owner.money += payment
                 log_text = f"{self.players[self.current_player_turn].name.upper()} paid ${payment} to {final_square.owner.name.upper()}"
                 self.parent.parent.add_history_log_entry(log_text)
@@ -464,7 +606,7 @@ class GameBoard(Widget):
             # Deduct their money
             self.players[self.current_player_turn].money -= payment
 
-            if isinstance(final_square, OwnableSquare) and payment > 0:
+            if final_square.owner and payment > 0:
                 final_square.owner.money += payment
                 log_text = f"{self.players[self.current_player_turn].name.upper()} paid ${payment} to {final_square.owner.name.upper()}"
                 self.parent.parent.add_history_log_entry(log_text)
@@ -478,7 +620,7 @@ class GameBoard(Widget):
         else:  # They lost the game
 
             # Remove the player that lost
-            if isinstance(final_square, OwnableSquare):
+            if final_square.owner:
                 self.remove_player(self.players[self.current_player_turn], pay_player=final_square.owner)
             else:
                 self.remove_player(self.players[self.current_player_turn])
@@ -510,8 +652,6 @@ class GameBoard(Widget):
         # if passed GO
         if final_id >= len(list(self.squares.keys())):
             self.players[self.current_player_turn].money += 200
-            log_text = f'{self.players[self.current_player_turn].name.upper()} passed GO and collected $200.'
-            self.parent.parent.add_history_log_entry(log_text)
 
         # Calculate the final step location
         final_id = final_id % len(list(self.squares.keys()))
@@ -601,8 +741,7 @@ class GameBoard(Widget):
         player.property_own.append(square_property)
 
         # Update the fullset attribute if the set is completed in this buy action
-        if isinstance(square_property, PropertySquare):
-            square_property.fullset_update()
+        square_property.fullset_update()
 
         # Update the player's info in the right side panel
         self.parent.parent.update_players_to_frame()
@@ -700,3 +839,277 @@ class GameBoard(Widget):
 
         # Delete the player
         del bankrupt_player
+
+
+class BoardSquare:
+
+    def __init__(self, square_name, root):
+
+        # Store the board widget
+        self.root = root
+
+        # Storing the name of the square
+        self.name = square_name
+
+        # Determing if the cart is chest or community
+        if "Chance" in self.name:
+            self.type = "Chance"
+        elif "Chest" in self.name:
+            self.type = "Chest"
+        elif "RR" in self.name:
+            self.type = "Railroad"
+        elif "Util" in self.name:
+            self.type = "Utilities"
+        elif "Tax" in self.name:
+            self.type = "Tax"
+        elif self.name == "GO" or self.name == "Jail" or self.name == "GO-TO-JAIL" or self.name == "Parking":
+            self.type = "Corner"
+        else:
+            self.type = "Property"
+
+        # Obtain the square's pixel_ratio location
+        self.physical_location = C.BOARD_SQUARE_LOCATIONS[square_name]
+
+        # Obtain the chronological number of the property
+        self.sequence_id = list(C.BOARD_SQUARE_LOCATIONS.keys()).index(square_name)
+
+        # Obtain the square's property cost (if applicable)
+        self.cost_value = C.BOARD_SQUARE_ATTRIBUTES[square_name]['cost_value']
+        self.full_name = C.BOARD_SQUARE_ATTRIBUTES[square_name]['full_name']
+        self.mortgage_value = C.BOARD_SQUARE_ATTRIBUTES[square_name]['mortgage_value']
+        self.unmortgage_value = C.BOARD_SQUARE_ATTRIBUTES[square_name]['unmortgage_value']
+
+        # For determine the overall section (line{1,2,3,4} or corner) of the property
+        self.section = None
+        for section in C.BOARD_LINES.keys():
+            if square_name in C.BOARD_LINES[section]:
+                self.section = section
+
+        # Determine the set for the property
+        if self.type == 'Property' or self.type == 'Railroad' or self.type == 'Utilities':
+            for property_set in C.BOARD_SQUARE_FULLSETS.keys():
+                if square_name in C.BOARD_SQUARE_FULLSETS[property_set]:
+                    self.property_set = property_set
+
+        # Calculating the player ownership icon placement
+        add = lambda x, y: x + y
+        subtract = lambda x, y: x - y
+
+        def offset(data, axis, fn, value=C.PLAYER_ICON_OFFSET):
+            if axis == 'x':
+                return (fn(data[0], value), data[1])
+            return (data[0], fn(data[1], value))
+
+        if self.section == 'Line1':
+            if self.type == 'Railroad':
+                self.owner_icon_placement = offset(self.physical_location, 'x', add, value=C.RR_PLAYER_ICON_OFFSET)
+            else:
+                self.owner_icon_placement = offset(self.physical_location, 'x', subtract)
+                self.set_line = offset(self.physical_location, 'x', add, value=C.SET_LINE_OFFSET)
+                self.house_locations = [
+                    offset(self.set_line, 'y', add, value=1.15 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'y', add, value=0.5 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'y', subtract, value=0.175 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'y', subtract, value=0.85 * C.HOUSE_OFFSET)
+                ]
+                self.buy_house_cost = 50
+
+        elif self.section == 'Line2':
+            if self.type == 'Railroad':
+                self.owner_icon_placement = offset(self.physical_location, 'y', subtract, value=C.RR_PLAYER_ICON_OFFSET)
+            else:
+                self.owner_icon_placement = offset(self.physical_location, 'y', add)
+                self.set_line = offset(self.physical_location, 'y', subtract,
+                                       value=C.SET_LINE_OFFSET - 0.65 * C.BORDER_OFFSET)
+                self.house_locations = [
+                    offset(self.set_line, 'x', add, value=1.15 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'x', add, value=0.5 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'x', subtract, value=0.175 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'x', subtract, value=0.85 * C.HOUSE_OFFSET)
+                ]
+                self.buy_house_cost = 100
+
+        elif self.section == 'Line3':
+            if self.type == 'Railroad':
+                self.owner_icon_placement = offset(self.physical_location, 'x', subtract, value=C.RR_PLAYER_ICON_OFFSET)
+            else:
+                self.owner_icon_placement = offset(self.physical_location, 'x', add)
+                self.set_line = offset(self.physical_location, 'x', subtract,
+                                       value=C.SET_LINE_OFFSET - 0.65 * C.BORDER_OFFSET)
+                self.house_locations = [
+                    offset(self.set_line, 'y', add, value=1.15 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'y', add, value=0.5 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'y', subtract, value=0.175 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'y', subtract, value=0.85 * C.HOUSE_OFFSET)
+                ]
+                self.buy_house_cost = 150
+
+        elif self.section == 'Line4':
+            if self.type == 'Railroad':
+                self.owner_icon_placement = offset(self.physical_location, 'y', add, value=C.RR_PLAYER_ICON_OFFSET)
+            else:
+                self.owner_icon_placement = offset(self.physical_location, 'y', subtract)
+                self.set_line = offset(self.physical_location, 'y', add, value=C.SET_LINE_OFFSET)
+                self.house_locations = [
+                    offset(self.set_line, 'x', add, value=1.15 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'x', add, value=0.5 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'x', subtract, value=0.175 * C.HOUSE_OFFSET),
+                    offset(self.set_line, 'x', subtract, value=0.85 * C.HOUSE_OFFSET)
+                ]
+                self.buy_house_cost = 200
+
+        # For color set properties
+        if square_name in C.BOARD_SQUARE_RENT.keys():
+            self.rents = C.BOARD_SQUARE_RENT[square_name]
+
+        # Draw the houses
+        if self.type == 'Property':
+            self.houses = []
+
+            for house_location in self.house_locations:
+                # Create a rectangle
+                house = DynamicImage(
+                    root=self.root,
+                    source='assets/background/house_square.png',
+                    color=[0, 1, 0, 0],
+                    ratio_pos=house_location,
+                    ratio_size=(0.01, 0.01),
+                    keep_ratio=False
+                )
+
+                # Store them in the property square
+                self.houses.append(house)
+
+                # Add the image to the board
+                self.root.add_widget(house, index=-1)
+
+        # Pre-set values of properties
+        self.owner = None
+        self.owner_icon = None
+        self.number_of_houses = 0  # 5 = 1 hotel
+        self.mortgage = False
+        self.full_set = False
+
+    def __str__(self):
+        return f"BoardSquare [Name: {self.name} - Cost Value: {self.cost_value} - Owner: {self.owner}]"
+
+    def __repr__(self):
+        return f"BoardSquare [Name: {self.name} - Cost Value: {self.cost_value}]"
+
+    def update_player_icon(self):
+
+        # If the square property has an owner, place the ownership icon
+        if self.owner:
+
+            # If there was a previous owner icon, remove that widget
+            if self.owner_icon is not None:
+                self.root.remove_widget(self.owner_icon)
+
+            if self.mortgage:
+                color = (0.1, 0.1, 0.1, 1)
+            else:
+                color = (1, 1, 1, 1)
+
+            # Create a grey-version of the player's icon to visualize ownership
+            self.owner_icon = DynamicImage(
+                root=self.root,
+                source=self.owner.source,
+                ratio_pos=self.owner_icon_placement,
+                ratio_size=(self.owner.ratio_size[0] / 2, self.owner.ratio_size[1] / 2),
+                color=color
+            )
+
+            # Adding the image to the game_board
+            self.root.add_widget(self.owner_icon, index=-1)
+
+        else:  # remove the ownership icon
+
+            self.root.remove_widget(self.owner_icon)
+            self.owner_icon = None
+
+    def calculate_rent(self):
+
+        if self.type == 'Property':
+
+            if self.full_set:
+                if self.number_of_houses == 5:
+                    return self.rents['rent_hotel_1']
+                elif self.number_of_houses == 0:
+                    return self.rents['rent_set']
+                else:
+                    return self.rents[f'rent_house_{self.number_of_houses}']
+            else:
+                return self.rents['rent']
+
+        elif self.type == 'Railroad':
+
+            # Count how many railroads they have
+            rr_counter = 0
+            for square_property in self.owner.property_own:
+                if square_property.type == 'Railroad':
+                    rr_counter += 1
+
+            return self.rents[f'rent_{rr_counter}']
+
+        else:  # Utilities
+            step_1, step_2 = self.root.roll_dice(None)
+            total_steps = step_1 + step_2
+
+            # Count how many utilities they have
+            util_counter = 0
+            for square_property in self.owner.property_own:
+                if square_property.type == 'Utilities':
+                    util_counter += 1
+
+            # If the player own the full property of the Utilities
+            if util_counter == len(C.BOARD_SQUARE_FULLSETS['Utilities']):
+                rent = 10 * total_steps
+
+            else:
+                # If the player only own one of the full property of the Utilities
+                rent = 4 * total_steps
+
+            log_text = f"{self.root.players[self.root.current_player_turn].name.upper()} rolls a total of {total_steps}, pays {rent} to {self.owner.name.upper()}"
+            self.root.parent.parent.add_history_log_entry(log_text)
+
+            return rent
+
+    def fullset_update(self):
+
+        # Check for full set condition
+        current_set = self.property_set
+        set_counter = 0
+        for square_property in self.owner.property_own:
+
+            if current_set == square_property.property_set:
+                set_counter += 1
+
+        # Check if set is full for the player
+        full_set = (set_counter == len(C.BOARD_SQUARE_FULLSETS[current_set]))
+
+        # Obtain the set's properties and modify their full_set attribute
+        for square_property in self.owner.property_own:
+
+            if square_property.property_set == current_set:
+                square_property.full_set = full_set
+
+    def update_house_markers(self):
+
+        color_values = []
+        r = [1, 0, 0, 1]
+        g = [0, 1, 0, 1]
+        n = [0, 0, 0, 0]
+
+        # Select the correct color sequence given the number of houses
+        if self.number_of_houses < 5:
+            for i in range(4):  # 0, 1, 2, 3
+                if i < self.number_of_houses:
+                    color_values.append(g)
+                else:
+                    color_values.append(n)
+        else:
+            color_values = [r, n, n, n]
+
+        # Change the color attribute of the houses
+        for house, color in zip(self.houses, color_values):
+            house.color = color
