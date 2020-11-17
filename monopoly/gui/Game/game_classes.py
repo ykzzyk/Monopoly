@@ -164,10 +164,7 @@ class Player(DynamicImage):
 
         return total_animations
 
-    def move_direct(self, final_square):
-
-        # Extend turn
-        self.root.extend_turn = True
+    def move_direct(self, final_square, start_animation=True):
 
         # Update the board location
         self.current_square = final_square
@@ -184,13 +181,16 @@ class Player(DynamicImage):
         move_animation = Animation(pos=new_centered_pos, duration=0.3)
 
         # Start the sequential animations
-        move_animation.start(self)
+        if start_animation:
+            move_animation.start(self)
 
         # Update the ratio_pos of the object
         self.ratio_pos = new_pos
 
-        # Bind the move animation to the self.player_end_turn since it needs to be executed on its completion
-        move_animation.bind(on_complete=lambda _, __: self.root.player_end_turn(final_square=final_square))
+        # Bind the move animation to the self.player_land_place since it needs to be executed on its completion
+        move_animation.bind(on_complete=lambda _, __: self.root.player_land_place(final_square=final_square))
+
+        return move_animation
 
     def calculate_net_worth(self):
 
@@ -241,11 +241,11 @@ class GameBoard(Widget):
         # Keeping track of the current player
         self.current_player_turn = 0
 
+        # Next player turn tracker
+        self.next_player_turn = False
+
         # Container for the player widget objects
         self.players = []
-
-        # Keeping track of indebted players
-        self.debt_players = []
 
         # Creating a card info pop instance for later re-usable use
         self.cardInfo = pc.CardInfoPop(root=self)
@@ -315,15 +315,18 @@ class GameBoard(Widget):
         # Adding the player to the players info box
         Clock.schedule_once(self.parent.parent.update_players_to_frame)
 
-    # Handling player movement
+    # Player Turn
     def player_start_turn(self, *args, rolls=None):
 
         # Check for any players that are indebted, if so, kick them OUT!
-        if self.debt_players:
-            for player in self.debt_players:
-                self.debt_players.remove(player)
-                if player.money < 0:
-                    self.remove_player(player)
+        for player in self.players:
+            if player.money < 0:
+                self.remove_player(player)
+
+        # Update to next player if doubles is not true
+        if self.next_player_turn:
+            self.players[self.current_player_turn].doubles_counter = 0
+            self.current_player_turn = (self.current_player_turn + 1) % len(self.players)
 
         # Update the current turn text
         self.ids.message_player_turn.text = f"[b][color=#800000]Current player {self.players[self.current_player_turn].name}[/color][/b]"
@@ -367,8 +370,8 @@ class GameBoard(Widget):
         # '''
 
         # """
-        step_1 = 6
-        step_2 = 1
+        step_1 = 0
+        step_2 = 2
         # """
 
         self.next_player_turn = True
@@ -411,7 +414,7 @@ class GameBoard(Widget):
             # If player is not in jail, let them move
             self.move_player(steps)
 
-    def player_end_turn(self, final_square):
+    def player_land_place(self, final_square):
 
         # Unbinding the stop_animation function
         self.unbind(size=self.stop_animation)
@@ -419,25 +422,14 @@ class GameBoard(Widget):
         # Rebinding the roll dice button
         self.ids.player_turn_button.bind(on_release=self.player_start_turn)
 
-        self.player_land_place(final_square)
+        # Process the action of the square that the player landed on
+        payment = final_square.land_action(self.players[self.current_player_turn])
 
-        # Update to next player if doubles is not true
-        if self.next_player_turn and (self.extend_turn is False):
-            self.players[self.current_player_turn].doubles_counter = 0
-            self.current_player_turn = (self.current_player_turn + 1) % len(self.players)
+        # Process payment
+        self.process_payment(final_square, payment)
 
         # Update the next turn text
         self.ids.message_player_turn.text = f"[b][color=#800000]Next is {self.players[self.current_player_turn].name}![/color][/b]"
-
-    def player_land_place(self, final_square):
-
-        # Extend turn
-        self.extend_turn = False
-
-        # Processing the action depending on the square name
-        payment = final_square.land_action(self.players[self.current_player_turn])
-
-        self.process_payment(final_square, payment)
 
     def process_payment(self, final_square, payment):
 
@@ -472,9 +464,6 @@ class GameBoard(Widget):
                 log_text = f"{self.players[self.current_player_turn].name.upper()} paid ${payment} to the BANK"
                 self.parent.parent.add_history_log_entry(log_text)
 
-            # Place player in the debted players list
-            self.debt_players.append(self.players[self.current_player_turn])
-
         else:  # They lost the game
 
             # Remove the player that lost
@@ -486,6 +475,7 @@ class GameBoard(Widget):
         # Update the player's info in the right side panel
         self.parent.parent.update_players_to_frame()
 
+    # Player movement
     def roll_dice(self, event):
         dice_dict = {1: '\u2680', 2: '\u2681', 3: '\u2682', 4: '\u2683', 5: '\u2684', 6: '\u2685'}
         dice_1 = random.choice(list(dice_dict.values()))
@@ -532,7 +522,7 @@ class GameBoard(Widget):
         self.ids.player_turn_button.unbind(on_release=self.player_start_turn)
 
         # Bind the completion of the animation to rebinding the roll_dice function
-        move_animation.bind(on_complete=lambda _, __: self.player_end_turn(final_square=final_square))
+        move_animation.bind(on_complete=lambda _, __: self.player_land_place(final_square=final_square))
 
         # Bind the animation to the size of the window
         # print(f'Binding the stop_animation function for player: {self.players[self.current_player_turn].name}')
@@ -541,6 +531,8 @@ class GameBoard(Widget):
 
     # Handling player decisions
     def roll_out_jail(self):
+
+        self.next_player_turn = False
 
         # Roll the dice
         step_1, step_2 = self.roll_dice(None)
@@ -559,7 +551,6 @@ class GameBoard(Widget):
 
         # If they don't roll a doubles, they stay in jail and move to the next player
         else:
-
             log_text = f"{self.players[self.current_player_turn].name.upper()} did not roll doubles. Stays in JAIL"
             self.parent.parent.add_history_log_entry(log_text)
 
@@ -579,6 +570,7 @@ class GameBoard(Widget):
 
         self.players[self.current_player_turn].in_jail_counter = -1
         self.players[self.current_player_turn].jail_free_card = False
+        self.next_player_turn = False
 
         self.parent.parent.add_history_log_entry(log_text)
 

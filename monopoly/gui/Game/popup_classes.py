@@ -37,6 +37,9 @@ class CardInfoPop(Popup):
 
         super().__init__(**kwargs)
 
+        self.animation = False
+        self.player = None
+
         self.chance = queue.Queue(maxsize=0)
 
         self.chance.put('ADVANCE TO ILLINOIS AVENUE.\nIF YOU PASS GO, COLLECT $200.')
@@ -55,16 +58,16 @@ class CardInfoPop(Popup):
         self.chance.put('ADVANCE TO BOARDWALK.')
 
         self.chest = queue.Queue(maxsize=0)
+        self.chest.put('ADVANCE TO GO. COLLECT $200.')
+        self.chest.put('GO DIRECTLY TO JAIL.\nDO NOT COLLECT $200.')
         self.chest.put('INCOME TAX REFUND.\nCOLLECT $20.')
         self.chest.put('HOLIDAY FUND MATURES.\nCOLLECT $100.')
         self.chest.put("DOCTOR'S FEES. PAY $50.")
         self.chest.put('HOSPITAL FEES. PAY $100.')
-        self.chest.put('GO DIRECTLY TO JAIL.\nDO NOT COLLECT $200.')
         self.chest.put("COLLECT $25 CONSULTANCY FEE.\nIT'S YOUR BIRTHDAY.\nCOLLECT $10 FROM EACH PLAYER.")
         self.chest.put('FROM SALE OF STOCK, YOU GET $50.')
         self.chest.put('YOU HAVE WON SECOND PRIZE\nIN A BEAUTY CONTEST.\nCOLLECT $10.')
         self.chest.put('YOU ARE ASSESSED FOR STREET REPAIRS:\nPAY $40 PER HOUSE AND \n$115 PER HOTEL YOU OWN.')
-        self.chest.put('ADVANCE TO GO. COLLECT $200.')
         self.chest.put('BANK ERROR IN YOUR FAVOR.\nCOLLECT $200.')
         self.chest.put('LIFE INSURANCE MATURES.\nCOLLECT $100.')
         self.chest.put('YOU INHERIT $100.')
@@ -81,6 +84,17 @@ class CardInfoPop(Popup):
         self.ids.card_image.source = f"assets/background/{name}.png"
 
         return card
+
+    def add_animation(self, animation, player):
+        self.animation = animation
+        self.player = player
+
+    def dismiss(self):
+
+        if self.animation:
+            self.animation.start(self.player)
+
+        super().dismiss()
 
 
 class CardSelectPop(Popup):

@@ -335,11 +335,12 @@ class ChanceSquare(AbstractBoardSquare):
         Clock.schedule_once(lambda dt: self.root.cardInfo.dismiss(), 3)
 
         payment = 0
+        move_animation = False
 
         if 'ST.CHARLES PLACE' in chance_card:
             if player.current_square != self.root.squares['Chance1']:
                 payment = -200
-            player.move_direct(self.root.squares['Pk1'])
+            move_animation = player.move_direct(self.root.squares['Pk1'], start_animation=False)
 
         elif 'HOUSE' in chance_card:  # TODO: Implement this feature
             player.money -= 25 * player.house
@@ -348,18 +349,18 @@ class ChanceSquare(AbstractBoardSquare):
             # Final square ID
             final_id = player.current_square.sequence_id - 3
             final_square = self.root.squares[list(self.root.squares.keys())[final_id]]
-            player.move_direct(final_square)
+            move_animation = player.move_direct(final_square, start_animation=False)
 
         elif 'JAIL FREE' in chance_card:
             player.jail_free_card = True
 
         elif 'BOARDWALK' in chance_card:
-            player.move_direct(self.root.squares['Bl2'])
+            move_animation = player.move_direct(self.root.squares['Bl2'], start_animation=False)
 
         elif 'READING' in chance_card:
             if player.current_square == self.root.squares['Chance3']:
                 payment = -200
-            player.move_direct(self.root.squares['RR1'])
+            move_animation = player.move_direct(self.root.squares['RR1'], start_animation=False)
 
         elif 'LOAN MATURES' in chance_card:
             payment = -150
@@ -367,26 +368,26 @@ class ChanceSquare(AbstractBoardSquare):
         elif 'ILLINOIS AVENUE' in chance_card:
             if player.current_square == self.root.squares['Chance3']:
                 payment = -200
-            player.move_direct(self.root.squares['Rd3'])
+            move_animation = player.move_direct(self.root.squares['Rd3'], start_animation=False)
 
         elif 'NEAREST' in chance_card:
             if player.current_square == self.root.squares['Chance1']:
-                player.move_direct(self.root.squares['Util1'])
+                move_animation = player.move_direct(self.root.squares['Util1'], start_animation=False)
             elif player.current_square == self.root.squares['Chance2']:
-                player.move_direct(self.root.squares['Util2'])
+                move_animation = player.move_direct(self.root.squares['Util2'], start_animation=False)
             elif player.current_square == self.root.squares['Chance3']:
-                player.move_direct(self.root.squares['Util2'])
+                move_animation = player.move_direct(self.root.squares['Util2'], start_animation=False)
 
         elif 'NEXT\nRAILROAD' in chance_card:
             if player.current_square == self.root.squares['Chance1']:
-                player.move_direct(self.root.squares['RR2'])
+                move_animation = player.move_direct(self.root.squares['RR2'], start_animation=False)
             elif player.current_square == self.root.squares['Chance2']:
-                player.move_direct(self.root.squares['RR3'])
+                move_animation = player.move_direct(self.root.squares['RR3'], start_animation=False)
             elif player.current_square == self.root.squares['Chance3']:
-                player.move_direct(self.root.squares['RR1'])
+                move_animation = player.move_direct(self.root.squares['RR1'], start_animation=False)
 
         elif 'TO JAIL' in chance_card:
-            player.move_direct(self.root.squares['Jail'])
+            move_animation = player.move_direct(self.root.squares['Jail'], start_animation=False)
             player.in_jail_counter = 0
 
         elif 'SPEEDING FINE' in chance_card:
@@ -398,7 +399,14 @@ class ChanceSquare(AbstractBoardSquare):
                     other_player.money += 50
                     player.money -= 50
 
+        # Save the animation to the card info to start the animation once the cardInfo is dismissed
+        self.root.cardInfo.add_animation(move_animation, player)
+
         return payment
+
+    def dismiss(self):
+
+        super().dismiss()
 
 
 class ChestSquare(AbstractBoardSquare):
@@ -410,6 +418,7 @@ class ChestSquare(AbstractBoardSquare):
         Clock.schedule_once(lambda dt: self.root.cardInfo.dismiss(), 3)
 
         payment = 0
+        move_animation = False
 
         if ('MATURES' in chest_card) or ('YOU INHERIT $100' in chest_card):
             payment = -100
@@ -427,7 +436,7 @@ class ChestSquare(AbstractBoardSquare):
             payment = 100
 
         elif 'TO JAIL' in chest_card:
-            player.move_direct(self.root.squares['Jail'])
+            move_animation = player.move_direct(self.root.squares['Jail'], start_animation=False)
             player.in_jail_counter = 0
 
         elif 'BIRTHDAY' in chest_card:  # TODO: Implement this!
@@ -448,11 +457,14 @@ class ChestSquare(AbstractBoardSquare):
             player.money -= 115 * player.hotel
 
         elif 'TO GO' in chest_card:
-            player.move_direct(self.root.squares['GO'])
+            move_animation = player.move_direct(self.root.squares['GO'], start_animation=False)
             payment = -200
 
         elif 'BANK ERROR' in chest_card:
             payment = -200
+
+        # Save the animation to the card info to start the animation once the cardInfo is dismissed
+        self.root.cardInfo.add_animation(move_animation, player)
 
         return payment
 
