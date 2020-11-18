@@ -187,7 +187,7 @@ class OwnableSquare(AbstractBoardSquare):
                                                             button_left='MORTGAGE',
                                                             button_right='AUCTION')
             else:
-                self.root.buy_or_auction = pc.PlayerAuctionPop(root=self, current_property=self)
+                self.root.buy_or_auction = pc.PlayerAuctionPop(root=self.root, current_property=self)
 
             self.root.buy_or_auction.open()
 

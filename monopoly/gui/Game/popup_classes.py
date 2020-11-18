@@ -42,9 +42,9 @@ class CardInfoPop(Popup):
 
         self.chance = queue.Queue(maxsize=0)
 
+        self.chance.put('SPEEDING FINE. PAY $15.')
         self.chance.put('ADVANCE TO ILLINOIS AVENUE.\nIF YOU PASS GO, COLLECT $200.')
         self.chance.put('GO DIRECTLY TO JAIL.\nDO NOT COLLECT $200.')
-        self.chance.put('SPEEDING FINE. PAY $15.')
         self.chance.put('YOUR BUILDING LOAN MATURES.\nCOLLECT $150.')
         self.chance.put('TAKE A TRIP TO READING\nRAILROAD. IF YOU PASS GO,\nCOLLECT $200.')
         self.chance.put('GET OUT OF JAIL FREE.')
@@ -1094,6 +1094,8 @@ class BuyHousesEntry(GridLayout):
 
 class LoserPop(Popup):
     def __init__(self, **kwargs):
+
+        print(kwargs)
 
         self.root = kwargs.pop('root')
         self.bankrupt_player = kwargs.pop('bankrupt_player')

@@ -302,14 +302,13 @@ class GameBoard(Widget):
             self.add_widget(player)
 
         # ''' ! Testing
-        self.buy_property(self.players[0], self.squares['Br2'])
-        self.buy_property(self.players[0], self.squares['Br1'])
+        #self.buy_property(self.players[0], self.squares['Br2'])
+        #self.buy_property(self.players[1], self.squares['Br1'])
+        #self.buy_property(self.players[2], self.squares['Util1'])
 
-        self.buy_property(self.players[1], self.squares['Util1'])
-
-        self.players[0].money = 1000
-        self.players[1].money = 1000
-        self.players[2].money = 3
+        self.players[0].money = 1
+        self.players[1].money = 1
+        #self.players[2].money = 3
         # '''
 
         # Adding the player to the players info box
@@ -370,7 +369,7 @@ class GameBoard(Widget):
         # '''
 
         # """
-        step_1 = 0
+        step_1 = 5
         step_2 = 2
         # """
 
@@ -450,8 +449,6 @@ class GameBoard(Widget):
 
             # Create popup infornming that if the next player's turn starts and
             # they still have a negative balance that they will be kick out of the game
-            warning_pop = pc.WarningPop(root=self, indebted_player=self.players[self.current_player_turn])
-            warning_pop.open()
 
             # Deduct their money
             self.players[self.current_player_turn].money -= payment
@@ -464,13 +461,18 @@ class GameBoard(Widget):
                 log_text = f"{self.players[self.current_player_turn].name.upper()} paid ${payment} to the BANK"
                 self.parent.parent.add_history_log_entry(log_text)
 
+            if isinstance(final_square, OwnableSquare):
+                self.warn_player(self.players[self.current_player_turn])
+            else:
+                Clock.schedule_once(functools.partial(self.warn_player, self.players[self.current_player_turn]), 3)
+
         else:  # They lost the game
 
             # Remove the player that lost
             if isinstance(final_square, OwnableSquare):
                 self.remove_player(self.players[self.current_player_turn], pay_player=final_square.owner)
             else:
-                self.remove_player(self.players[self.current_player_turn])
+                Clock.schedule_once(functools.partial(self.remove_player, self.players[self.current_player_turn], None), 3)
 
         # Update the player's info in the right side panel
         self.parent.parent.update_players_to_frame()
@@ -657,7 +659,9 @@ class GameBoard(Widget):
         self.buyHouseInfo = pc.BuyHousesPop(root=self)
         self.buyHouseInfo.open()
 
-    def remove_player(self, bankrupt_player, pay_player=None):
+    def remove_player(self, bankrupt_player, pay_player=None, *args):
+
+        print(bankrupt_player)
 
         # Give all the properties to the pay player if applicable
         if pay_player:
@@ -692,3 +696,8 @@ class GameBoard(Widget):
 
         # Delete the player
         del bankrupt_player
+
+    def warn_player(self, indebted_player, *args):
+
+        warning_pop = pc.WarningPop(root=self, indebted_player=indebted_player)
+        warning_pop.open()
