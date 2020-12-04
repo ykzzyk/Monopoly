@@ -14,9 +14,6 @@ import webbrowser
 
 import pdb
 
-# Imports tools
-import tools
-
 # Importing all GUI
 import gui
 
@@ -31,10 +28,14 @@ import gui
     - Player Bankrupt/Win Condition 
 """
 
-cwd = pathlib.Path(os.path.abspath(__file__)).parent
-gui_widgets = cwd / 'gui'
 
-tools.fh.import_dir(gui_widgets)
+def import_dir(dir: pathlib.Path):
+    for child in dir.iterdir():
+        if child.is_dir():
+            import_dir(child)
+        elif child.is_file():
+            if child.suffix == '.kv':
+                Builder.load_file(str(child))
 
 
 class Start(Screen):
@@ -54,14 +55,12 @@ class Home(Screen):
 class WindowManager(ScreenManager):
 
     def __init__(self, **kwargs):
-
         # Adding the no transition argument
         kwargs['transition'] = NoTransition()
 
         super().__init__(**kwargs)
 
     def start_game(self):
-
         # Ensure that the gameboard is initialized properly
         self.ids['game'].ids['game_board'].init()
 
@@ -72,7 +71,6 @@ class WindowManager(ScreenManager):
         self.ids['game'].ids["game_board"].add_players(self.ids['lobby'].ids['lobby_options'].players)
 
     def back_to_lobby(self):
-
         # Set the lobby as the current screen
         self.current = 'lobby'
 
@@ -92,5 +90,10 @@ class MonopolyApp(App):
 
 if __name__ == "__main__":
     # Loading the primary application .kv file
+
+    cwd = pathlib.Path(os.path.abspath(__file__)).parent
+    gui_widgets = cwd / 'gui'
+    import_dir(gui_widgets)
+
     kv = Builder.load_file("kivy.kv")
     MonopolyApp().run()
